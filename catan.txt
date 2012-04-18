@@ -1,0 +1,151 @@
+SETTLERS OF CATAN
+
+Features:
+
+	Unlimited Amount of Games at a single time
+
+	Lobby System
+
+	Auto merchant
+
+
+Modules:
+
+	Lobby
+		- GUI to navigate games
+
+	Manager
+		- Rolls dice
+		- Updates turn
+		- Sync players
+		- Player scores
+
+	Board
+		- Hex piece resource types
+		- Structure positions in xy grid
+		- Convert grid to world
+		- Robber
+		- Docks
+
+	Structures
+		- Owner
+		- Type
+		- Creates clientside entities
+
+	Inventory
+		- Stores player resources, etc.
+
+
+Entities:
+
+	Structure
+		- Created clientside only
+		- Sets model depending on type
+		- Renders color depending on owner
+
+
+Catan:
+
+	19 hex pieces
+		- Randomly placed
+
+	5 land types
+		- Produces resource
+		- (3) Clay pit => Brick
+		- (3) Mountain => Ore
+		- (4) Field => Grain
+		- (4) Pasture => Sheep
+		- (4) Forest => Wood
+		- (1) Desert => Nothing
+
+	Robber
+		- Starts on desert hex
+
+	Number chips
+		- Randomly placed on hex pieces
+		- Produces resource on dice sum
+
+	Victory Points
+		- Player structure points
+		- 10 to win
+
+	Structures
+		- Start with 2 settlements and 2 roads
+
+	Game Setup
+		- Player places a settlement and a road
+		- Next clockwise player places settlement and road
+		- ...
+		- Second placement starts in reverse order (last to first)
+		- Upon second placement, player receives resources that second building touches
+
+	Game Start
+		- Initial player starts
+		- Roll dice
+		- Distribute resources
+		- Trade/Build period begins for player turn
+
+	Roads
+		- Permit building on road
+
+	Buildings
+		- Can't be built within 1 hex side of another building
+
+	Special Cards:
+
+		Largest Army
+			- Given to player with largest army greater than 3 knights
+
+		Longest Road
+			- Given to player with longest road
+
+	Development Card
+		- Give special benefit
+		- 1 card per turn
+		- Can't use on turn when bought
+		- 5 cards, stay hidden until you can win with them
+		- Can use market and palace at any time
+
+		Cards:
+
+			Year of Plenty
+				- Gives two resources of choice
+
+			Road Building
+				- Allows building of two free roads
+
+			Monopoly
+				- Allows owner to steal all resource cards of a certain type from all players (rounds down)
+				- 
+
+			Knight
+				- Allows owner to move the robber and steal a card
+				- Only card that can be played before rolling the dice
+				- First person to have 3 knights gets Largest Army card (2 VP)
+				- More knights than other player gets Largest Army
+
+
+	Rolled 7 Procedure
+		- If a player has more than 7 resource cards, they must discard half of their cards, picked by choice
+		- Player who rolled may move the robber to any land hex, doesn't produce resources anymore
+		- Player who rolled may steal one resources card from any adjacent players to a hex
+		- Player who rolled continues with trading/building
+
+	Costs:
+
+		Road
+			- 0 VP
+			- 1 brick, 1 wood
+
+		Settlement
+			- 1 VP
+			- 1 brick, 1 wood, 1 wheat, 1 sheep
+
+		City
+			- 2 VP
+			- 2 wheat, 3 ore
+
+		Development Card
+			- ? VP (depends on card drawn)
+			- 1 sheep, 1 wheat, 1 ore
+

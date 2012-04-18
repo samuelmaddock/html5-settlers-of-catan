@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+
+		<title>three.js webgl - settlers of catan</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+
+		<!-- THREE.js Essentials -->
+		<script src="shared/three.js"></script>
+		<script src="client/three/stats.js"></script>
+		
+		<!-- THREE.js Post Processing -->
+		<!--<script src="client/three/ShaderExtras.js"></script>
+		<script src="client/three/EffectComposer.js"></script>
+		<script src="client/three/BloomPass.js"></script>
+		<script src="client/three/DotScreenPass.js"></script>
+		<script src="client/three/FilmPass.js"></script>
+		<script src="client/three/RenderPass.js"></script>
+		<script src="client/three/SavePass.js"></script>
+		<script src="client/three/ShaderPass.js"></script>
+		<script src="client/three/TexturePass.js"></script>-->
+		
+		<!-- THREE.js Controls -->
+		<script src="client/controls.js"></script>
+
+		<!-- Catan -->
+		<script src="shared/enums.js"></script>
+		<script src="shared/catan.js"></script>
+		<script src="shared/schemas/classic.js"></script>
+		<script src="shared/schemas/dev.js"></script>
+		<script src="shared/board.js"></script>
+
+		<!-- Hex Entities -->
+		<script src="shared/HexTile.js"></script>
+		<script src="shared/HexCorner.js"></script>
+		<script src="shared/HexEdge.js"></script>
+
+		<script src="client/socket.io.min.js"></script>
+		<script>
+		var NET = {};
+
+		var socket = io.connect('http://localhost:1337');
+
+		socket.on('BoardCreated', function (data) {
+			NET.Resources = data.Resources
+			NET.NumberTokens = data.NumberTokens
+			BOARD.setupBoard()
+
+			for(var i=0; i < data.Buildings.length; i++) {
+				var id = data.Buildings[i].id,
+				type = data.Buildings[i].building,
+				color = data.Buildings[i].color
+
+				console.log(BOARD.getBuildingByID)
+				
+				var building = BOARD.getBuildingByID(id,type)
+
+				console.log(building)
+
+
+				var material = new THREE.MeshBasicMaterial( { color: color,
+					opacity: 1
+				} )
+
+				building.Collision.material = material
+			}
+		});
+
+		socket.on('SetupBuilding', function (data) {
+			console.log("Received Building: " + data.id + ", " + data.building)
+
+			var building = BOARD.getBuildingByID(data.id, data.building)
+
+			var material = new THREE.MeshBasicMaterial( { color: data.color,
+				opacity: 1
+			} )
+
+			building.Collision.material = material
+		});
+
+		socket.on('BuildingReset', function (data) {
+			console.log("Received Building: " + data.id + ", " + data.building)
+
+			var corner = BOARD.getBuildingByID(data.id, data.building)
+
+			var material = new THREE.MeshBasicMaterial( {
+				opacity: 0
+			} )
+
+			corner.Collision.material = material
+		});
+
+		socket.on('PlayerJoin', function (data) {
+			console.log(data.Name + " has joined the game (" + data.Address.address + ":" + data.Address.port + ")")
+		});
+
+		socket.on('PlayerLeave', function (data) {
+			console.log(data.Name + " has disconnected")
+		});
+
+		</script>
+
+	</head>
+
+	<body>
+
+		<script src="client/main.js"></script>
+
+	</body>
+
+</html>

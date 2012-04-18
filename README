@@ -1,0 +1,29 @@
+/* -----------------------------------------------
+
+	HTML5 Settlers of Catan
+	Author:		Samuel Maddock
+	Email:		samuel.maddock@gmail.com
+
+------------------------------------------------*/
+
+This project is still in its initial stages of development. Progress continues whenever I have the time to work on it.
+
+
+/* -----------------------------------------------
+	Requirements
+------------------------------------------------*/
+node.JS + socket.io
+
+
+/* -----------------------------------------------
+	Setup
+------------------------------------------------*/
+Since this is a multiplayer game, you must start the server by running server.js with node.JS. You must also be running a web server. Have clients load the main index.html.
+
+
+/* -----------------------------------------------
+	Changelog
+------------------------------------------------*/
+
+4-18-2012
+- Initial commit
