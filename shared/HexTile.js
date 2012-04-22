@@ -1,7 +1,11 @@
 /**
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
- 
+
+if(typeof exports !== 'undefined') {
+	Entity = require('./Entity.js')
+}
+
 HexGridCell = function(radius) {
 	
 	// Catan
@@ -34,7 +38,9 @@ HexGridCell = function(radius) {
 	
 };
 
-HexGridCell.prototype = new HexGridCell();
+HexGridCell.prototype = new Entity();
+HexGridCell.prototype.constructor = HexGridCell;
+HexGridCell.prototype.super = Entity.prototype;
 
 /* -----------------------------------------------
 	HexTile.setGridIndex( x, y )
@@ -126,16 +132,6 @@ HexGridCell.prototype.getMesh = function() {
 	return this.Mesh;
 
 };
-
-/* -----------------------------------------------
-	HexTile.getCenterPosition
-
-	Desc: Returns the world position for the
-	center of the tile
-------------------------------------------------*/
-HexGridCell.prototype.getPosition = function() {
-	return this.position;
-}
 
 /* -----------------------------------------------
 	HexTile.getCornerPosition( CORNER_ENUM )

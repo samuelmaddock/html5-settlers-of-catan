@@ -23,7 +23,7 @@ function precacheModels() {
 	
 	CATAN.setSchema("Classic");
 
-	document.body.innerHTML = "<center><font size=72>PRECACHING...</font></center>";
+	document.getElementById("game").innerHTML = "<center><font size=72>PRECACHING...</font></center>";
 
 	console.log("PRECACHING MODELS...");
 
@@ -31,7 +31,7 @@ function precacheModels() {
 		precached++;
 		if (precached == totalPrecached) {		
 			console.log("DONE!");
-			document.body.innerHTML = null;
+			document.getElementById("game").innerHTML = null;
 			
 			init();
 			animate();
@@ -65,7 +65,7 @@ function precacheModels() {
 function init() {
 
 	container = document.createElement( 'div' );
-	document.body.appendChild( container );
+	document.getElementById("game").appendChild( container );
 
 	createCamera();
 	createControls();

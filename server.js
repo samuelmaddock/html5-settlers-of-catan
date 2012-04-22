@@ -1,5 +1,6 @@
-var app = require('http').createServer(handler)
+var app = require('express').createServer(handler)
   , io = require('socket.io').listen(app)
+  , url = require('url')
   , fs = require('fs')
 
 global.SERVER = true
@@ -8,25 +9,30 @@ global.CLIENT = false
 app.listen(1337);
 
 function handler (req, res) {
-  fs.readFile(__dirname + '/index.html',
+
+  //var uri = url.parse(req.url).pathname;  
+
+  fs.readFile(__dirname + '/play.html',
   function (err, data) {
     if (err) {
       res.writeHead(500);
-      return res.end('Error loading index.html');
+      return res.end('Error loading play.html');
     }
 
     res.writeHead(200);
     res.end(data);
   });
+
 }
 
 /*-------------------------------
   Catan
 -------------------------------*/
-var player = require('./server/player.js')
-require('./server/enums.js')
-var BOARD = require('./shared/board.js')
+require('./server/enums.js') // can't use shared/enums.js since they don't use global
 
+var player = require('./server/player.js')
+
+var BOARD = require('./shared/board.js')
 BOARD.setupBoard()
 
 console.log("Tiles: " + BOARD.hexTiles.length)
@@ -36,8 +42,9 @@ console.log("Edges: " + BOARD.hexEdges.length)
 /*-------------------------------
   Sync board
 -------------------------------*/
-function SetupBoard(socket) {
+function SyncBoard(socket) {
 
+  // Send resource types and number tokens
   var numTiles = BOARD.hexTiles.length
   var resources = new Array(numTiles)
   var numbertokens = new Array(numTiles)
@@ -46,19 +53,23 @@ function SetupBoard(socket) {
     numbertokens[i] = BOARD.hexTiles[i].NumberToken
   }
 
-  // FIXME: BUILDINGS DON'T SEND
+  // Send player buildings
+  var players = player.getAll();
   var buildings = [];
-  for(var i=0; i < player.List.length; i++) {
+  for(var i=0; i < players.length; i++) {
 
-    var ply = player.List[i]
+    var ply = players[i]
+    if(ply.getID() != socket.Id) { // Don't check for connecting client
 
-    for(var j=0; j < ply.Buildings; j++) {
-      var build = ply.Buildings[j]
-      buildings.push({
-        id: build.Id,
-        building: build.Building,
-        color: build.Color
-      })
+      for(var j=0; j < ply.Buildings.length; j++) {
+        var build = ply.Buildings[j]
+        buildings.push({
+          id: build.Id,
+          building: build.Building,
+          color: build.Color
+        })
+      }
+
     }
 
   }
@@ -107,16 +118,20 @@ function SetupBuilding(data, plyid) {
 
 io.sockets.on('connection', function (socket) {
 
-  socket.on('setupBuilding', function (data) {
-    SetupBuilding(data,socket.id)
-  });
-
   socket.on('disconnect', function (data) {
     player.Disconnect(socket.id, io)
   });
 
+  socket.on('setupBuilding', function (data) {
+    SetupBuilding(data,socket.id)
+  });
+
+  socket.on('chatSend', function (data) {
+    player.OnChat(io,socket,data)
+  });
+
   player.Connect(socket, io) // hooho
 
-  SetupBoard(socket)
+  SyncBoard(socket)
 
 });

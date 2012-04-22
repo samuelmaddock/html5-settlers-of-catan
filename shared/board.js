@@ -242,6 +242,8 @@ BOARD.setupNumberToken = function(tile) {
 
 	if (SERVER) {
 
+		if(tile.Resource == RESOURCE_DESERT) return; // Desert doesn't have a number token
+
 		var randToken = Math.floor( Math.random() * this.numTokens.length )
 		
 		tile.NumberToken = this.numTokens[randToken];

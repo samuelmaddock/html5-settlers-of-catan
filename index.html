@@ -1,20 +1,34 @@
-<!doctype html>
+<!--
+
+	HTML5 Settlers of Catan
+	https://github.com/samuelmaddock/HTML5-Settlers-of-Catan
+
+-->
+<!DOCTYPE html>
 <html lang="en">
 
 	<head>
 
-		<title>three.js webgl - settlers of catan</title>
+		<title>HTML5 Settlers of Catan</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
+
+		<!-- Stylesheets -->
+		<link rel="stylesheet" type="text/css" href="client/chatbox.css">
 		<style>
-			body {
-				font-family: Monospace;
-				background-color: #f0f0f0;
-				margin: 0px;
-				overflow: hidden;
-			}
+		body, div#game {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
 		</style>
+
+
+		<!-- jQuery -->
+		<script src="client/jquery-1.7.2.min.js"></script>
+		<script src="client/jquery.playSound.js"></script>
 
 		<!-- THREE.js Essentials -->
 		<script src="shared/three.js"></script>
@@ -31,26 +45,27 @@
 		<script src="client/three/ShaderPass.js"></script>
 		<script src="client/three/TexturePass.js"></script>-->
 		
-		<!-- THREE.js Controls -->
+		<!-- UI -->
+		<script src="client/chatbox.js"></script>
 		<script src="client/controls.js"></script>
 
 		<!-- Catan -->
 		<script src="shared/enums.js"></script>
 		<script src="shared/catan.js"></script>
 		<script src="shared/schemas/classic.js"></script>
-		<script src="shared/schemas/dev.js"></script>
+		<!--<script src="shared/schemas/dev.js"></script>-->
 		<script src="shared/board.js"></script>
 
-		<!-- Hex Entities -->
+		<!-- Entities -->
+		<script src="shared/Entity.js"></script>
 		<script src="shared/HexTile.js"></script>
 		<script src="shared/HexCorner.js"></script>
 		<script src="shared/HexEdge.js"></script>
 
 		<script src="client/socket.io.min.js"></script>
 		<script>
-		var NET = {};
-
-		var socket = io.connect('http://localhost:1337');
+		var socket = io.connect('http://localhost:1337'),
+		NET = {};
 
 		socket.on('BoardCreated', function (data) {
 			NET.Resources = data.Resources
@@ -61,14 +76,9 @@
 				var id = data.Buildings[i].id,
 				type = data.Buildings[i].building,
 				color = data.Buildings[i].color
-
-				console.log(BOARD.getBuildingByID)
 				
 				var building = BOARD.getBuildingByID(id,type)
-
-				console.log(building)
-
-
+				
 				var material = new THREE.MeshBasicMaterial( { color: color,
 					opacity: 1
 				} )
@@ -102,11 +112,15 @@
 		});
 
 		socket.on('PlayerJoin', function (data) {
-			console.log(data.Name + " has joined the game (" + data.Address.address + ":" + data.Address.port + ")")
+			CHATBOX.AddLine(data.Name + " has joined the game (" + data.Address.address + ":" + data.Address.port + ")")
 		});
 
 		socket.on('PlayerLeave', function (data) {
-			console.log(data.Name + " has disconnected")
+			CHATBOX.AddLine(data.Name + " has disconnected")
+		});
+
+		socket.on('ChatReceive', function (data) {
+			CHATBOX.AddLine(data, "player")
 		});
 
 		</script>
@@ -115,7 +129,21 @@
 
 	<body>
 
-		<script src="client/main.js"></script>
+		<!-- Chatbox -->
+		<div id="chatbox">
+			<script>
+			var CHATBOX = new Chatbox();
+			CHATBOX.Setup();
+			</script>
+		</div>
+		<!-- End Chatbox -->
+
+
+		<!-- Initialize Game -->
+		<div id="game">
+			<script src="client/main.js"></script>
+		</div>
+		<!-- End Game -->
 
 	</body>
 
