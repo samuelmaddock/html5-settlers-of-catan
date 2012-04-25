@@ -1,16 +1,29 @@
-var CATAN = {
-	Schema: "Classic",	// Default schema to Classic
-	Schemas: []			// Array of schemas
-}
+var CATAN = CATAN || { VERSION: '1.00' };
 
-CATAN.setSchema = function(schema) {
-	this.Schema = (schema !== undefined) ? schema : "Classic";
-}
+CATAN.Schemas = [];
+CATAN.Games = [];
 
-CATAN.getSchema = function() {
-	return this.Schemas[this.Schema];
+CATAN.setupGame = function(namespace,schema) {
+	var game = new this.Game(namespace,schema);
+    this.Games.push(game);
+};
+
+CATAN.getGameByURI = function(uri) {
+	for(var i in this.Games) {
+		var game = this.Games[i];
+		if(game.namespace === uri) {
+			return game;
+		}
+	}
 }
 
 if(typeof exports !== 'undefined') {
-	module.exports = CATAN
-}
+
+	global.CATAN = CATAN;
+
+	// Load schemas
+	require("fs").readdirSync("./shared/schemas").forEach(function(file) {
+		require("./schemas/" + file);
+	});
+
+};

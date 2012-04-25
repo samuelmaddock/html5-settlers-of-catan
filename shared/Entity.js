@@ -20,6 +20,7 @@ Entity.prototype.HasOwner = function() {
 
 Entity.prototype.getOwner = function() { return this.Owner; }
 Entity.prototype.SetOwner = function(ply) {
+	if(typeof ply === 'undefined') return;
 	this.Owner = ply.getID()
 	ply.setOwnership(this)
 }

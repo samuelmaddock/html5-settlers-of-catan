@@ -2,13 +2,12 @@ var CLIENT = true;
 var SERVER = false;
 
 var container, stats;
-var camera, scene, projector, renderer;
+var camera, scene, renderer;
 var composer, renderTarget;
 var cameraSkybox, sceneSkybox, skyboxTarget;
 var skyboxMesh, textureSkybox;
 var mesh;
 
-var projector = new THREE.Projector();
 var collisionObjects = [];
 var lastSelection;
 
@@ -35,6 +34,7 @@ function precacheModels() {
 			
 			init();
 			animate();
+			connect();
 		}
 	}
 
@@ -60,6 +60,66 @@ function precacheModels() {
 	});
 	totalPrecached++;
 	
+}
+
+function connect() {
+	//socket = io.connect('http://198.82.86.39:1337');
+	socket = io.connect('http://localhost:1337');
+
+	socket.on('BoardCreated', function (data) {
+		NET.Resources = data.Resources
+		NET.NumberTokens = data.NumberTokens
+		BOARD.setupBoard()
+
+		for(var i=0; i < data.Buildings.length; i++) {
+			var id = data.Buildings[i].id,
+			type = data.Buildings[i].building,
+			color = data.Buildings[i].color;
+			
+			var building = BOARD.getBuildingByID(id,type);
+			
+			var material = new THREE.MeshBasicMaterial({ color: color,
+				opacity: 1
+			});
+
+			building.Collision.material = material;
+		}
+	});
+
+	socket.on('SetupBuilding', function (data) {
+		//console.log("Received Building: " + data.id + ", " + data.building)
+
+		var building = BOARD.getBuildingByID(data.id, data.building);
+		var material = new THREE.MeshBasicMaterial({ color: data.color,
+			opacity: 1
+		});
+
+		building.Collision.material = material;
+	});
+
+	socket.on('BuildingReset', function (data) {
+		//console.log("Received Building: " + data.id + ", " + data.building)
+
+		var corner = BOARD.getBuildingByID(data.id, data.building)
+
+		var material = new THREE.MeshBasicMaterial( {
+			opacity: 0
+		} )
+
+		corner.Collision.material = material
+	});
+
+	socket.on('PlayerJoin', function (data) {
+		CHATBOX.AddLine(data.Name + " has joined the game (" + data.Address.address + ":" + data.Address.port + ")")
+	});
+
+	socket.on('PlayerLeave', function (data) {
+		CHATBOX.AddLine(data.Name + " has disconnected")
+	});
+
+	socket.on('ChatReceive', function (data) {
+		CHATBOX.AddLine(data, "player")
+	});
 }
 
 function init() {
@@ -96,7 +156,6 @@ function init() {
 	container.appendChild( stats.domElement );
 	
 	window.addEventListener( 'resize', onWindowResize, false );
-	document.addEventListener( 'mousedown', mouseTraceOnDown, false);
 
 }
 
@@ -112,9 +171,7 @@ function createCamera() {
 
 function createControls() {
 
-	controls = new THREE.SphereControls( camera );
-	controls.radius = 500
-	//controls.target = camera.target;
+	controls = new THREE.CatanControls( camera );
 	
 }
 
@@ -224,32 +281,6 @@ function applyPostProcessing() {
 	
 	composer.addPass( effectVignette );
 	
-}
-
-function mouseTraceOnDown(event)
-{
-	var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
-
-	projector.unprojectVector( vector, camera );
-
-	var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
-	var intersects = ray.intersectObjects( collisionObjects );
-
-	var hitObject = intersects[0];
-	if(hitObject) {
-	
-		var parent = hitObject.object.Parent
-
-		if (parent.Building !== undefined) {
-			socket.emit('setupBuilding', {
-				id: parent.Id,
-				building: parent.Building
-			});
-		}
-		
-		lastSelection = hitObject.object;
-		
-	}
 }
 
 function onWindowResize( event ) {

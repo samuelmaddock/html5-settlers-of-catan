@@ -1,12 +1,12 @@
-var Classic = {};
+var GAMETYPE = {};
 
-Classic.MaxPlayers = 4;
+GAMETYPE.MaxPlayers = 4;
 
 // Default Catan Board Arrangement
 // 0 = No tile
 // 1 = Resource
 // 2 = Dock?
-Classic.Grid = [
+GAMETYPE.Grid = [
 	[0,1,1,1,0],
 	[1,1,1,1,1],
 	[1,1,1,1,1],
@@ -14,20 +14,20 @@ Classic.Grid = [
 	[0,0,1,0,0],
 ]
 
-Classic.ResourceCount = [RESOURCE_DESERT];
+GAMETYPE.ResourceCount = [RESOURCE_DESERT];
 for(var i=0; i < 4; i++) {
-	Classic.ResourceCount.push(RESOURCE_LUMBER);
-	Classic.ResourceCount.push(RESOURCE_SHEEP);
-	Classic.ResourceCount.push(RESOURCE_GRAIN);
+	GAMETYPE.ResourceCount.push(RESOURCE_LUMBER);
+	GAMETYPE.ResourceCount.push(RESOURCE_SHEEP);
+	GAMETYPE.ResourceCount.push(RESOURCE_GRAIN);
 }
 for(var i=0; i < 3; i++) {
-	Classic.ResourceCount.push(RESOURCE_BRICK);
-	Classic.ResourceCount.push(RESOURCE_ORE);
+	GAMETYPE.ResourceCount.push(RESOURCE_BRICK);
+	GAMETYPE.ResourceCount.push(RESOURCE_ORE);
 }
 
-Classic.NumberTokens = [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12];
+GAMETYPE.NumberTokens = [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12];
 
-Classic.Resources = [
+GAMETYPE.Resources = [
 	
 	{
 		name: "Desert",
@@ -63,11 +63,17 @@ Classic.Resources = [
 		name: "Ore",
 		url: "models/hex.js",
 		color: 0x878787
+	},
+	
+	{
+		name: "Gold Field",
+		url: "models/hex.js",
+		color: 0xE0DD1B
 	}
 		
 ]
 
-Classic.Buildings = [
+GAMETYPE.Buildings = [
 	
 	{
 		name: "Road",
@@ -89,13 +95,13 @@ Classic.Buildings = [
 	
 ];
 
-Classic.Robber = {
+GAMETYPE.Robber = {
 	name: "Robber",
 	url: "models/robber.js"
 };
 
-Classic.CardCost = [ 0, 0, 0, 1, 1, 1 ]
-Classic.Cards = [
+GAMETYPE.CardCost = [ 0, 0, 0, 1, 1, 1 ]
+GAMETYPE.Cards = [
 	
 	{
 		name: "Year of Plenty",
@@ -119,7 +125,7 @@ Classic.Cards = [
 	
 ];
 
-Classic.Special = [
+GAMETYPE.Special = [
 	
 	{
 		name: "Largest Army",
@@ -133,51 +139,4 @@ Classic.Special = [
 	
 ];
 
-/* -----------------------------------------------
-	Gametype Rules
-------------------------------------------------*/
-Classic.OnRoll = function(d1,d2) {
-
-	var num = d1 + d2;
-
-	if(num == 7) {
-		this.OnRollSeven();
-	};
-
-};
-
-Classic.OnRollSeven = function() {
-	// enable move robber
-};
-
-Classic.OnPlayerScore = function(ply) {
-	// check score for win
-};
-
-Classic.OnPlayerPurchase = function(ply, building) {
-
-	// CanPlayerPurchase?
-	var cost = this.Buildings[building];
-	for(res in cost) {
-		var amount = cost[res];
-		if(ply.hasResources(res, amount)) {
-			ply.removeResource(res, amount);
-		} else {
-			return; // not enough resources
-		};
-	};
-
-};
-
-Classic.OnPlayerSetBuilding = function(ply, building) {
-	// check building type vs road distance
-};
-
-/*
-	
-	OnRoll(num)
-
-
-*/
-
-CATAN.Schemas["Classic"] = Classic;
+CATAN.Schemas["Seafarers"] = GAMETYPE;

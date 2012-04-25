@@ -13,10 +13,6 @@ Chatbox.prototype.Setup = function() {
 	console.log("SETTING UP CHATBOX")
 
 	$('#chatbox').html('<div id="log">' +
-		'	<table id="chat">' +
-		'		<tbody>' +
-		'		</tbody>' +
-		'	</table>' +
 		'</div>' +
 		'' +
 		'<div id="input">' +
@@ -24,20 +20,21 @@ Chatbox.prototype.Setup = function() {
 		'</div>' +
 	'</div>')
 
-	var cb = this;
+	/*var cb = this;
 
 	// Send text upon pressing 'Enter'
 	$('#entry').keypress(function(event) {
 		if(event.which == 13) {
 			cb.Send()
 		}
-	});
+	});*/
 
 };
 
 Chatbox.prototype.Toggle = function() {
 
 	if(this.enabled) {
+		this.Send();
 		$('#chatbox').css('background-color', 'rgba(0,0,0,0)');
 		$('#log').css('overflow-y', 'hidden');
 		$('#input').hide();
@@ -54,6 +51,14 @@ Chatbox.prototype.Toggle = function() {
 
 Chatbox.prototype.Cleanse = function(text) {
 	return $('<div/>').text(text).html();
+}
+
+Chatbox.prototype.Hex2String = function(color) {
+	var x=color.toString(16);
+	var y=(6-x.length);
+	var z="000000";
+	var z1 = z.substring(0,y);
+	return "#" + z1 + x;
 }
 
 Chatbox.prototype.Send = function() {
@@ -80,9 +85,9 @@ Chatbox.prototype.AddLine = function(data, type) {
 		text = this.Cleanse(data.Text);
 
 		var name = this.Cleanse(data.Name),
-		col = data.Color;
+		col = this.Hex2String(data.Color);
 
-		$('#log').append('<table id="' + id + '" class="chatline"><tr><td class="name" style="color: #' + col + ';">' + name + '</td><td>' + text + '</td></tr></table>');
+		$('#log').append('<table id="' + id + '" class="chatline"><tr><td class="name" style="color: ' + col + ';">' + name + '</td><td>' + text + '</td></tr></table>');
 		
 		this.log.push({ Name: name, Text: text })
 

@@ -64,65 +64,7 @@
 
 		<script src="client/socket.io.min.js"></script>
 		<script>
-		var socket = io.connect('http://localhost:1337'),
-		NET = {};
-
-		socket.on('BoardCreated', function (data) {
-			NET.Resources = data.Resources
-			NET.NumberTokens = data.NumberTokens
-			BOARD.setupBoard()
-
-			for(var i=0; i < data.Buildings.length; i++) {
-				var id = data.Buildings[i].id,
-				type = data.Buildings[i].building,
-				color = data.Buildings[i].color
-				
-				var building = BOARD.getBuildingByID(id,type)
-				
-				var material = new THREE.MeshBasicMaterial( { color: color,
-					opacity: 1
-				} )
-
-				building.Collision.material = material
-			}
-		});
-
-		socket.on('SetupBuilding', function (data) {
-			console.log("Received Building: " + data.id + ", " + data.building)
-
-			var building = BOARD.getBuildingByID(data.id, data.building)
-
-			var material = new THREE.MeshBasicMaterial( { color: data.color,
-				opacity: 1
-			} )
-
-			building.Collision.material = material
-		});
-
-		socket.on('BuildingReset', function (data) {
-			console.log("Received Building: " + data.id + ", " + data.building)
-
-			var corner = BOARD.getBuildingByID(data.id, data.building)
-
-			var material = new THREE.MeshBasicMaterial( {
-				opacity: 0
-			} )
-
-			corner.Collision.material = material
-		});
-
-		socket.on('PlayerJoin', function (data) {
-			CHATBOX.AddLine(data.Name + " has joined the game (" + data.Address.address + ":" + data.Address.port + ")")
-		});
-
-		socket.on('PlayerLeave', function (data) {
-			CHATBOX.AddLine(data.Name + " has disconnected")
-		});
-
-		socket.on('ChatReceive', function (data) {
-			CHATBOX.AddLine(data, "player")
-		});
-
+		var NET = {};
 		</script>
 
 	</head>

@@ -2,24 +2,28 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
 
-var BOARD = {
+CATAN.Board = function(game) {
 	
-	CellWidth: 5,
-	CellHeight: 5,
-	
-	HexRadius: 64,
+	this.game = game;
 
-	hexTiles: [],
-	hexCorners: [],
-	hexEdges: [],
-
-	ownedBuildings: [],
+	this.cellWidth = 5;
+	this.cellHeight = 5;
 	
-	Robber: undefined
+	this.hexRadius = 64;
+
+	this.hexTiles = [];
+	this.hexCorners = [];
+	this.hexEdges = [];
+
+	this.ownedBuildings = [];
+	
+	this.robber = undefined;
+
+	this.setup();
 	
 }
 
-BOARD.clearBoard = function() {
+CATAN.Board.prototype.clearBoard = function() {
 
 	// Remove geometry
 	if (CLIENT) {
@@ -40,29 +44,29 @@ BOARD.clearBoard = function() {
 
 	this.hexTiles = [];
 	this.hexCorners = [];
-	delete this.Robber;
+	delete this.robber;
 
 }
 
 /* -----------------------------------------------
 	Catan Board Setup
 ------------------------------------------------*/
-BOARD.setupBoard = function() {
+CATAN.Board.prototype.setup = function() {
 
 	this.clearBoard()
 
-	this.Schema = CATAN.getSchema();
-	this.Grid = CATAN.getSchema().Grid;
+	this.Schema = this.game.getSchema();
+	this.Grid = this.game.getSchema().Grid;
 	this.resourceCount = this.Schema.ResourceCount;
 	this.numTokens = this.Schema.NumberTokens;
 
 	// Update later for possible expansions?
-	this.CellHeight = this.Grid.length;
-	this.CellWidth = this.Grid[0].length;
+	this.cellHeight = this.Grid.length;
+	this.cellWidth = this.Grid[0].length;
 
 	// Setup hex grid tiles
-	for (y = 0; y < this.CellHeight; y++) {
-		for (x = 0; x < this.CellWidth; x++) {
+	for (y = 0; y < this.cellHeight; y++) {
+		for (x = 0; x < this.cellWidth; x++) {
 		
 			var tile = this.Grid[y][x];
 			
@@ -185,15 +189,13 @@ BOARD.setupBoard = function() {
 
 	// Create docks
 
-	console.log("BOARD SETUP DONE")
-
 }
 
-BOARD.setupHexTile = function(x,y) {
+CATAN.Board.prototype.setupHexTile = function(x,y) {
 
 	// Create new HexGridCell object
 	var offset = this.getWorldHexOffset()
-	var hexTile = new HexGridCell(this.HexRadius);
+	var hexTile = new HexGridCell(this.hexRadius);
 	hexTile.Id = this.hexTiles.length + 1;
 	hexTile.setGridIndex(x,y,offset);
 	
@@ -204,7 +206,7 @@ BOARD.setupHexTile = function(x,y) {
 	
 }
 
-BOARD.setupResource = function(tile) {
+CATAN.Board.prototype.setupResource = function(tile) {
 
 	if (SERVER) {
 		// Get random possible key
@@ -222,23 +224,23 @@ BOARD.setupResource = function(tile) {
 	if (tile.Resource == RESOURCE_DESERT) {
 	
 		// TODO: Remove this check
-		if(this.Robber) {
+		if(this.robber) {
 			console.log("DUPLICATE ROBBER!");
 		}
 		
 		tile.setRobber();
-		this.Robber = tile;
+		this.robber = tile;
 		
 	}
 
 }
 
 /* -----------------------------------------------
-	BOARD.setupNumberToken( HexGridCell )
+	CATAN.Board.prototype.setupNumberToken( HexGridCell )
 
 	Desc: Assign number token to hex tile
 ------------------------------------------------*/
-BOARD.setupNumberToken = function(tile) {
+CATAN.Board.prototype.setupNumberToken = function(tile) {
 
 	if (SERVER) {
 
@@ -258,7 +260,7 @@ BOARD.setupNumberToken = function(tile) {
 
 }
 
-BOARD.findAdjacentCorners = function() {
+CATAN.Board.prototype.findAdjacentCorners = function() {
 
 	for(var i in this.hexCorners) {
 	
@@ -273,7 +275,7 @@ BOARD.findAdjacentCorners = function() {
 				
 				var distance = Math.floor( c.position.distanceTo(c2.position) );
 				
-				if (distance <= this.HexRadius) { // if the distance is small enough, the corner is adjacent
+				if (distance <= this.hexRadius) { // if the distance is small enough, the corner is adjacent
 					c.AdjacentCorners.push(c2.Id);
 				}
 			
@@ -285,7 +287,7 @@ BOARD.findAdjacentCorners = function() {
 
 }
 
-BOARD.findAdjacentEdges = function() {
+CATAN.Board.prototype.findAdjacentEdges = function() {
 
 	for(var i in this.hexEdges) {
 	
@@ -300,7 +302,7 @@ BOARD.findAdjacentEdges = function() {
 
 				var distance = Math.floor( e.position.distanceTo(e2.position) );
 
-				if (distance <= this.HexRadius) { // if the distance is small enough, the corner is adjacent
+				if (distance <= this.hexRadius) { // if the distance is small enough, the corner is adjacent
 					e.AdjacentEdges.push(e2.Id);
 				}
 			
@@ -313,20 +315,20 @@ BOARD.findAdjacentEdges = function() {
 }
 
 /* -----------------------------------------------
-	BOARD.getWorldHexOffset
+	CATAN.Board.prototype.getWorldHexOffset
 
 	Desc: Returns the grid offset to center
 	the board
 ------------------------------------------------*/
-BOARD.getWorldHexOffset = function() {
-	var r = this.HexRadius,
+CATAN.Board.prototype.getWorldHexOffset = function() {
+	var r = this.hexRadius,
 	w = r * 2,
 	h = r * Math.sqrt(3);
 	
-	return new THREE.Vector3( ( (this.CellWidth * w) - r ) / 2, 0, (this.CellHeight * h) / 2 );
+	return new THREE.Vector3( ( (this.cellWidth * w) - r ) / 2, 0, (this.cellHeight * h) / 2 );
 }
 
-BOARD.getBuildingByID = function(id, building) {
+CATAN.Board.prototype.getBuildingByID = function(id, building) {
 	if(building == BUILDING_ROAD) {
 		return this.getEdgeByID(id);
 	} else if(building == BUILDING_SETTLEMENT || building == BUILDING_CITY) {
@@ -334,40 +336,32 @@ BOARD.getBuildingByID = function(id, building) {
 	}
 }
 
-BOARD.getCornerByID = function(id) {
+CATAN.Board.prototype.getCornerByID = function(id) {
 	for(var i in this.hexCorners) {	
 		var c = this.hexCorners[i];
 		if (c.Id == id) return c;
 	}
 }
 
-BOARD.getEdgeByID = function(id) {
+CATAN.Board.prototype.getEdgeByID = function(id) {
 	for(var i in this.hexEdges) {	
 		var e = this.hexEdges[i];
 		if (e.Id == id) return e;
 	}
 }
 
-BOARD.addOwnedBuilding = function(building) {
+CATAN.Board.prototype.addOwnedBuilding = function(building) {
 	this.ownedBuildings.push(building)
 }
 
 // node.js serverside
 if(typeof exports !== 'undefined') {
 
-	// Prepare catan and classic schema
-	CATAN = require('./catan.js')
-	SCHEMA = require('./schemas/classic.js')
-
-	// Merge properties
-	for (var attrname in SCHEMA) { CATAN[attrname] = SCHEMA[attrname]; }
-
 	THREE = require('../server/vector.js')
 
+	// add to CATAN later
 	HexGridCell = require('./HexTile.js')
 	HexCorner = require('./HexCorner.js')
 	HexEdge = require('./HexEdge.js')
-
-	module.exports = BOARD;
 
 }

@@ -1,6 +1,6 @@
 var Dev = {};
 
-Classic.MaxPlayers = 32;
+Dev.MaxPlayers = 32;
 
 // Default Catan Board Arrangement
 // 0 = No tile
