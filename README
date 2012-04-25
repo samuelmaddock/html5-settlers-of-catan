@@ -12,18 +12,20 @@ This project is still in its initial stages of development. Progress continues w
 /* -----------------------------------------------
 	Requirements
 ------------------------------------------------*/
+
 node.JS + socket.io
 
 
 /* -----------------------------------------------
 	Setup
 ------------------------------------------------*/
-Since this is a multiplayer game, you must start the server by running server.js with node.JS. You must also be running a web server. Have clients load the main index.html.
+
+Currently this project is not at a playable state. However, when it is, you will need a node.JS server running 'server.js'
 
 
 /* -----------------------------------------------
-	Changelog
+	Links
 ------------------------------------------------*/
 
-4-18-2012
-- Initial commit
+Todo List
+https://trello.com/board/settlers-of-catan/4f926c8525fde2597923d106
