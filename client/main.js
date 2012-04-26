@@ -1,5 +1,83 @@
+/* --------------------------------------------
+	OLD
+-------------------------------------------- */
+
 var CLIENT = true;
 var SERVER = false;
+
+var MAIN = {};
+
+MAIN.Initialize = function() {
+
+	// Create server list html
+	$("body").append($('<div>').attr('id', 'lobby')
+		.append($('<table>').attr('id', 'serverlist')
+			.append($('<thead>')
+				.append($('<tr>')
+					.append($('<td>').attr('class', 'name').text('Name'))
+					.append($('<td>').attr('class', 'players').text('Schema'))
+					.append($('<td>').attr('class', 'players').text('Players'))
+				)
+			)
+			.append($('<tbody>'))
+		)
+	);
+
+	// Connect to lobby
+	this.socket = io.connect('http://localhost:17153');
+	this.socket.on('loadServerList', this.loadServerList);
+
+};
+
+MAIN.loadServerList = function(data) {
+
+	var row = 0;
+	for(var i in data.Servers) {
+		var s = data.Servers[i];
+
+		$("#serverlist").find('tbody')
+			.append($('<tr>').attr('class', 'row'+row)
+				.append($('<td>').attr('class', 'name')
+					.append($('<a>').attr('id', s.id).attr('href', './#'+s.id).attr('onclick', 'MAIN.connectToServer(event)')
+						.text(s.name))
+					)
+				.append($('<td>').attr('class', 'players').text(s.schema))
+				.append($('<td>').attr('class', 'players').text(s.players+'/'+s.max))
+			);
+
+		row = 1 - row;
+	};
+
+};
+
+MAIN.connectToServer = function(event) {
+
+	event = event || window.event;
+    var target = event.target || event.srcElement;
+
+	this.server = io.connect('http://localhost:17153/' + target.id);
+
+	this.server.on('connected', function(data) {
+
+	});
+
+	this.server.on('PlayerJoin', function(data) {
+		console.log(data);
+	});
+
+};
+
+MAIN.setupGame = function() {
+
+}
+
+MAIN.Initialize();
+
+
+
+/* --------------------------------------------
+	OLD
+-------------------------------------------- */
 
 var container, stats;
 var camera, scene, renderer;
@@ -14,10 +92,7 @@ var lastSelection;
 var precached = 0,
 totalPrecached = 0;
 
-precacheModels();
-
-
-// TODO: make this more dynamic
+// TODO: make an asset manager
 function precacheModels() {
 	
 	CATAN.setSchema("Classic");
@@ -63,8 +138,8 @@ function precacheModels() {
 }
 
 function connect() {
-	//socket = io.connect('http://198.82.86.39:1337');
-	socket = io.connect('http://localhost:1337');
+
+	socket = io.connect('http://localhost:17153');
 
 	socket.on('BoardCreated', function (data) {
 		NET.Resources = data.Resources
@@ -120,6 +195,7 @@ function connect() {
 	socket.on('ChatReceive', function (data) {
 		CHATBOX.AddLine(data, "player")
 	});
+
 }
 
 function init() {
