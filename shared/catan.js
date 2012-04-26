@@ -8,14 +8,30 @@ CATAN.setupGame = function(namespace,schema) {
     this.Games.push(game);
 };
 
-CATAN.getGameByURI = function(uri) {
+CATAN.getGameByNamespace = function(uri) {
 	for(var i in this.Games) {
 		var game = this.Games[i];
 		if(game.namespace === uri) {
 			return game;
 		}
 	}
-}
+};
+
+CATAN.getGameById = function(id) {
+	for(var i in this.Games) {
+		var game = this.Games[i];
+		if(game.id === id) {
+			return game;
+		}
+	}
+};
+
+CATAN.getTotalPlayers = function() {
+	var numply = 0;
+	for(var i in this.Games) {
+		numply += this.Games[i].getPlayers().length;
+	}
+};
 
 if(typeof exports !== 'undefined') {
 

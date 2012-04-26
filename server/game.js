@@ -1,9 +1,11 @@
 require('../shared/board.js');
 require('./player.js');
 
-CATAN.Game = function(namespace,schema) {
+CATAN.Game = function(schema) {
 
-	this.id = ++ CATAN.GameCount;
+	this.name = (typeof name !== 'undefined') ? name : "Settlers Of Catan";
+
+	this.id = this._createId();
 	this.schema = (schema !== undefined) ? schema : "Classic";	// Default schema to Classic
 
 	this.players = [];
@@ -11,7 +13,7 @@ CATAN.Game = function(namespace,schema) {
 	this.board = new CATAN.Board(this);
 
 	// Setup server
-	this.namespace = (namespace != undefined) ? namespace : "/";
+	this.namespace = '/' + this.id;
 	this.sockets = CATAN.Server.of(this.namespace);
 
 	// Setup socket hooks
@@ -20,13 +22,34 @@ CATAN.Game = function(namespace,schema) {
 	this.sockets.on( 'chatSend',		this.onPlayerChat );
 	this.sockets.on( 'setupBuilding',	this.onPlayerBuild );
 
-	console.log("STARTED CATAN SERVER " + this.id + ": " + this.namespace);
+	console.log( '[' + this.id + '] Server initialized...');
+	CATAN.GameCount++;
 
 };
 
 CATAN.Game.prototype = {
 
 	constructor: CATAN.Game,
+
+	_createId: function(uri) {
+
+		// http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+		return 'xxxxx'.replace(/[xy]/g, function(c) {
+			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+			return v.toString(16);
+		});
+
+	},
+
+	_shutdown: function() {
+		for(var i in CATAN.Games) {
+			if(CATAN.Games[i].id === this.id) {
+				// get rid of reference, let garbage collection do the rest
+				CATAN.Games.splice(i,1);
+				CATAN.GameCount--;
+			}
+		}
+	},
 
 	/* --------------------------------------------
 		Schema
@@ -86,43 +109,37 @@ CATAN.Game.prototype = {
 	-------------------------------------------- */
 	onPlayerConnection: function(socket) {
 
-		console.log("PLAYER CONNECTION");
-
-		var self = CATAN.getGameByURI(socket.namespace.name);
+		var self = CATAN.getGameByNamespace(socket.namespace.name);
 		if(typeof self === 'undefined') return;
 
+		// Check schema max players
 		if(self.getMaxPlayers() <= self.getPlayers().length) {
-			// server is full
 			return;
 		};
 
-		var ply = new CATAN.Player();
+		var ply = new CATAN.Player(socket);
 
-		ply.socket = socket; // TEST
-		ply.Id = socket.id;
-		ply.Address = socket.handshake.address;
+		ply.connect(self);
 
-		ply.Game = self;
-
+		ply.Index = self.players.push(ply);
 		ply.Name += " " + (self.getPlayers().length + 1);
 		ply.Color = Math.round( 0xffffff * Math.random() );
 
 		// Don't send the address later on, this could be exploited
-		socket.broadcast.emit('PlayerJoin', { Name: ply.Name, Id: ply.Id, Address: ply.Address });
+		self.sockets.emit('PlayerJoin', { Name: ply.Name, Id: ply.Id, Address: ply.Address });
 
-		ply.Index = self.players.push(ply);
+		//self.syncBoard(ply);
 
-		self.syncBoard(ply);
+		console.log('[' + self.id + '] Player connected');
 
 	},
 	
 	onPlayerDisconnect: function(socket) {
 
-		var self = CATAN.getGameByURI(socket.namespace.name);
-		if(typeof self === 'undefined') return;
+		var self = this;
 
-		var ply = self.getPlayerByID(id);
-		if(typeof ply == 'undefined') return;
+		var ply = self.getByID(socket.id);
+		if(!self.isValidPlayer(ply)) return;
 
 		// Remove building ownership
 		for(i in ply.Buildings) {
@@ -137,27 +154,36 @@ CATAN.Game.prototype = {
 
 		self.players.splice(ply.Index-1,1);
 
+		console.log('[' + self.id + '] Player disconnected');
+
+		if(self.getPlayers().length < 1) {
+			console.log('[' + self.id + '] Terminating server...');
+			this._shutdown();
+		}
+
 	},
 	
 	onPlayerChat: function(socket) {
 
-		var self = CATAN.getGameByURI(socket.namespace.name);
+		var self = CATAN.getGameByNamespace(socket.namespace.name);
 		if(typeof self === 'undefined') return;
 
 		var ply = self.getByID(socket.id);
-		if(!self.IsValidPlayer(ply)) return;
+		if(!self.isValidPlayer(ply)) return;
 
 		var name = ply.getName(),
-		text = data.text.substr(0, 127),
-		col = ply.Color.toString(16);
+			text = data.text.substr(0, 127),
+			col = ply.Color.toString(16);
 
 	    self.sockets.emit('ChatReceive', { Name: name, Text: text, Color: col });
 
 	},
 
 	onPlayerBuild: function(socket) {
+
 		console.log("***onPlayerBuild***");
 		console.log(socket);
+
 	},
 
 	syncBoard: function(ply) {
@@ -166,34 +192,38 @@ CATAN.Game.prototype = {
 			board = game.board;
 
 		// Send resource types and number tokens
-		var numTiles = board.hexTiles.length;
-		var resources = new Array(numTiles);
-		var numbertokens = new Array(numTiles);
+		var numTiles = board.hexTiles.length,
+			resources = new Array(numTiles),
+			numbertokens = new Array(numTiles);
+
 		for(var i=0; i < numTiles; i++) {
 			resources[i] = board.hexTiles[i].Resource;
 			numbertokens[i] = board.hexTiles[i].NumberToken;
 		};
 
 		// Send player buildings
-		var players = game.getPlayers();
-		var buildings = [];
+		var players = game.getPlayers(),
+			buildings = [];
+
 		for(var i=0; i < players.length; i++) {
 
-			var pl = players[i]
+			var pl = players[i];
 			if(pl.getID() != ply.getID()) { // Don't check for connecting client
 
-			  for(var j=0; j < pl.Buildings.length; j++) {
-			    var build = pl.Buildings[j]
-			    buildings.push({
-			      id: build.Id,
-			      building: build.Building,
-			      color: build.Color
-			    })
-			  }
+				for(var j=0; j < pl.Buildings.length; j++) {
 
-			}
+					var build = pl.Buildings[j];
+					buildings.push({
+						id: build.Id,
+						building: build.Building,
+						color: build.Color
+					});
 
-		}
+				};
+
+			};
+
+		};
 
 		ply.socket.emit('BoardCreated', {
 			Resources: resources,

@@ -6,87 +6,58 @@
 -->
 <!DOCTYPE html>
 <html lang="en">
+<head>
 
-	<head>
+	<title>Lobby</title>
 
-		<title>HTML5 Settlers of Catan</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+	body {
+		font-family: Monospace;
+		background-color: #f0f0f0;
+		margin: 0px;
+		overflow: hidden;
+	}
 
+	#serverlist {
+		border-spacing: 0px;
+	}
 
-		<!-- Stylesheets -->
-		<link rel="stylesheet" type="text/css" href="client/chatbox.css">
-		<style>
-		body, div#game {
-			font-family: Monospace;
-			background-color: #f0f0f0;
-			margin: 0px;
-			overflow: hidden;
-		}
-		</style>
+	#serverlist td {
+		padding: 4px;
+	}
 
+	#serverlist tr.row0 {
+	}
 
-		<!-- jQuery -->
-		<script src="client/jquery-1.7.2.min.js"></script>
-		<script src="client/jquery.playSound.js"></script>
+	#serverlist tr.row1 {
+		background-color: #DDD;
+	}
 
-		<!-- THREE.js Essentials -->
-		<script src="shared/three.js"></script>
-		<script src="client/three/stats.js"></script>
-		
-		<!-- THREE.js Post Processing -->
-		<!--<script src="client/three/ShaderExtras.js"></script>
-		<script src="client/three/EffectComposer.js"></script>
-		<script src="client/three/BloomPass.js"></script>
-		<script src="client/three/DotScreenPass.js"></script>
-		<script src="client/three/FilmPass.js"></script>
-		<script src="client/three/RenderPass.js"></script>
-		<script src="client/three/SavePass.js"></script>
-		<script src="client/three/ShaderPass.js"></script>
-		<script src="client/three/TexturePass.js"></script>-->
-		
-		<!-- UI -->
-		<script src="client/chatbox.js"></script>
-		<script src="client/controls.js"></script>
+	#serverlist thead {
+		background-color: #000;
+		color: #EEE;
+	}
 
-		<!-- Catan -->
-		<script src="shared/enums.js"></script>
-		<script src="shared/catan.js"></script>
-		<script src="shared/schemas/classic.js"></script>
-		<!--<script src="shared/schemas/dev.js"></script>-->
-		<script src="shared/board.js"></script>
+	#serverlist td.name {
+		width: 320px;
+	}
 
-		<!-- Entities -->
-		<script src="shared/Entity.js"></script>
-		<script src="shared/HexTile.js"></script>
-		<script src="shared/HexCorner.js"></script>
-		<script src="shared/HexEdge.js"></script>
-
-		<script src="client/socket.io.min.js"></script>
-		<script>
-		var NET = {};
-		</script>
-
-	</head>
-
-	<body>
-
-		<!-- Chatbox -->
-		<div id="chatbox">
-			<script>
-			var CHATBOX = new Chatbox();
-			CHATBOX.Setup();
-			</script>
-		</div>
-		<!-- End Chatbox -->
+	#serverlist td.players {
+		text-align: center;
+		width: 80px;
+	}
+	</style>
 
 
-		<!-- Initialize Game -->
-		<div id="game">
-			<script src="client/main.js"></script>
-		</div>
-		<!-- End Game -->
+	<!-- jQuery -->
+	<script src="client/jquery-1.7.2.min.js"></script>
 
-	</body>
+	<script src="client/socket.io.min.js"></script>
 
+</head>
+<body>
+
+	<script src="client/main.js"></script>
+
+</body>
 </html>
