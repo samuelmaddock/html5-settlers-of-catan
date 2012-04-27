@@ -8,6 +8,7 @@ global.CLIENT = false;
 -------------------------------*/
 require('./server/enums.js'); // can't use shared/enums.js since they don't use global
 require('./shared/catan.js');
+require('./server/catan.js');
 require('./server/game.js');
 
 /*-------------------------------
@@ -25,8 +26,19 @@ http.listen(_PORT);
 CATAN.Server = io;
 
 io.sockets.on('connection', function(socket) {
-  CATAN.setupGame("Classic");
   console.log("[MAIN] Client connected");
+
+  socket.on('createServer', function(data) {
+    // TODO: Validate this
+    var name = data.name.substr(0, 31),
+      schema = data.schema.substr(0, 31);
+    CATAN.setupGame(socket, name, schema, data.public);
+  });
+
+  socket.on('changeName', function(data) {
+    socket.set('name', data.name);
+    CATAN.Names[socket.handshake.address.address] = data.name;
+  });
 
   socket.on('disconnect', function() {
     console.log("[MAIN] Client disconnected");
@@ -41,6 +53,10 @@ io.sockets.on('connection', function(socket) {
 
   });
 
+  var saveName = CATAN.Names[socket.handshake.address.address];
+  var name = (typeof saveName !== 'undefined') ? saveName : ('Unknown Player ' + (CATAN.ClientCount++));
+  socket.set('name', name)
+
   // Send player list to new clients
   var servers = [];
   for(var i in CATAN.Games) {
@@ -54,7 +70,7 @@ io.sockets.on('connection', function(socket) {
     });
   };
 
-  socket.emit('loadServerList', { Servers: servers });
+  socket.emit('loadServerList', { name: name, Servers: servers });
 
 });
 
@@ -65,7 +81,7 @@ function debugOutput() {
 
   content += '<table>';
   content += '  <thead>';
-  content += '    <tr><td>GUID</td><td>Players</td></tr>';
+  content += '    <tr><td>GUID</td><td>Name</td><td>Schema</td><td>Players</td></tr>';
   content += '  </thead>';
   content += '  <tbody>';
 
@@ -74,6 +90,8 @@ function debugOutput() {
     var game = CATAN.Games[i];
     content += '<tr>';
     content += '<td>' + game.id + '</td>';
+    content += '<td>' + game.name + '</td>';
+    content += '<td>' + game.schema + '</td>';
     content += '<td>' + game.getPlayers().length + '/' + game.getMaxPlayers() + '</td>';
     content += '</tr>';
   }

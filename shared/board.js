@@ -2,6 +2,12 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
 
+THREE = require('../server/vector.js');
+require('./Entity.js');
+require('./HexTile.js');
+require('./HexCorner.js');
+require('./HexEdge.js');
+
 CATAN.Board = function(game) {
 	
 	this.game = game;
@@ -56,9 +62,9 @@ CATAN.Board.prototype.setup = function() {
 	this.clearBoard()
 
 	this.Schema = this.game.getSchema();
-	this.Grid = this.game.getSchema().Grid;
-	this.resourceCount = this.Schema.ResourceCount;
-	this.numTokens = this.Schema.NumberTokens;
+	this.Grid = this.game.getSchema().getGrid();
+	this.resourceCount = this.Schema.getResources();
+	this.numTokens = this.Schema.getNumberTokens();
 
 	// Update later for possible expansions?
 	this.cellHeight = this.Grid.length;
@@ -195,7 +201,7 @@ CATAN.Board.prototype.setupHexTile = function(x,y) {
 
 	// Create new HexGridCell object
 	var offset = this.getWorldHexOffset()
-	var hexTile = new HexGridCell(this.hexRadius);
+	var hexTile = new CATAN.HexTile(this.hexRadius);
 	hexTile.Id = this.hexTiles.length + 1;
 	hexTile.setGridIndex(x,y,offset);
 	
@@ -236,7 +242,7 @@ CATAN.Board.prototype.setupResource = function(tile) {
 }
 
 /* -----------------------------------------------
-	CATAN.Board.prototype.setupNumberToken( HexGridCell )
+	CATAN.Board.prototype.setupNumberToken( CATAN.HexTile )
 
 	Desc: Assign number token to hex tile
 ------------------------------------------------*/
@@ -352,16 +358,4 @@ CATAN.Board.prototype.getEdgeByID = function(id) {
 
 CATAN.Board.prototype.addOwnedBuilding = function(building) {
 	this.ownedBuildings.push(building)
-}
-
-// node.js serverside
-if(typeof exports !== 'undefined') {
-
-	THREE = require('../server/vector.js')
-
-	// add to CATAN later
-	HexGridCell = require('./HexTile.js')
-	HexCorner = require('./HexCorner.js')
-	HexEdge = require('./HexEdge.js')
-
 }

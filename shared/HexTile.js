@@ -2,11 +2,7 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
 
-if(typeof exports !== 'undefined') {
-	Entity = require('./Entity.js')
-}
-
-HexGridCell = function(radius) {
+CATAN.HexTile = function(radius) {
 	
 	// Catan
 	this.Resource = -1;
@@ -15,9 +11,6 @@ HexGridCell = function(radius) {
 	
 	this.corners = [];
 	this.edges = [];
-	
-	this.getResource = function() { return this.Resource; };
-	this.hasRobber = function() { return this.Robber; };
 	
 	// Geometry
 	this.Mesh;
@@ -38,9 +31,17 @@ HexGridCell = function(radius) {
 	
 };
 
-HexGridCell.prototype = new Entity();
-HexGridCell.prototype.constructor = HexGridCell;
-HexGridCell.prototype.super = Entity.prototype;
+CATAN.HexTile.prototype = new CATAN.Entity();
+CATAN.HexTile.prototype.constructor = CATAN.HexTile;
+CATAN.HexTile.prototype.super = CATAN.Entity.prototype;
+
+CATAN.HexTile.prototype.getResource = function() { return this.Resource; };
+CATAN.HexTile.prototype.setResource = function(resource) { this.Resource = resource; };
+
+CATAN.HexTile.prototype.getToken = function() { return this.NumberToken; };
+CATAN.HexTile.prototype.setToken = function(num) { this.NumberToken = num; };
+
+CATAN.HexTile.prototype.hasRobber = function() { return this.Robber; };
 
 /* -----------------------------------------------
 	HexTile.setGridIndex( x, y )
@@ -48,7 +49,7 @@ HexGridCell.prototype.super = Entity.prototype;
 	Desc: Sets the hex tile grid index and
 	calculates the appropriate offsets
 ------------------------------------------------*/
-HexGridCell.prototype.setGridIndex = function(x,y,offset) {
+CATAN.HexTile.prototype.setGridIndex = function(x,y,offset) {
 	this.x = x;
 	this.y = y;
 
@@ -85,21 +86,21 @@ HexGridCell.prototype.setGridIndex = function(x,y,offset) {
 	Desc: Returns adjacent hex tile in accordance
 	to the BOARD.Grid
 ------------------------------------------------*/
-HexGridCell.prototype.getNeighborX = function() {};
-HexGridCell.prototype.getNeighborY = function() {};
+CATAN.HexTile.prototype.getNeighborX = function() {};
+CATAN.HexTile.prototype.getNeighborY = function() {};
 
 /* -----------------------------------------------
 	HexTile.setupMesh
 
 	Desc: Creates world mesh for tile
 ------------------------------------------------*/
-HexGridCell.prototype.setupMesh = function() {
+CATAN.HexTile.prototype.setupMesh = function() {
 
 	this.Material = new THREE.MeshBasicMaterial({ color: 0xFF0000, wireframe: true });
 	
 	// Spawn hex mesh
-	var resource = CATAN.getSchema().Resources[this.Resource];
-	
+	var resource = CATAN.getSchema().Resources[this.getResource()];
+
 	this.Mesh = new THREE.Mesh( resource.geometry, new THREE.MeshBasicMaterial( { color: resource.color } ) );
 	this.Mesh.position = this.position;
 	scene.add( this.Mesh );
@@ -110,7 +111,7 @@ HexGridCell.prototype.setupMesh = function() {
 
 	Desc: Creates world mesh for tile
 ------------------------------------------------*/
-HexGridCell.prototype.remove = function() {
+CATAN.HexTile.prototype.remove = function() {
 
 	scene.remove( this.Mesh )
 	scene.remove( this.robberMesh )
@@ -123,7 +124,7 @@ HexGridCell.prototype.remove = function() {
 
 	Desc: Returns the tile's world mesh
 ------------------------------------------------*/
-HexGridCell.prototype.getMesh = function() {
+CATAN.HexTile.prototype.getMesh = function() {
 
 	if (!this.Mesh) {
 		this.setupMesh();
@@ -139,7 +140,7 @@ HexGridCell.prototype.getMesh = function() {
 	Desc: Returns the world position for the 
 	requested corner of the tile (See enums.js)
 ------------------------------------------------*/
-HexGridCell.prototype.getCornerPosition = function(CORNER_ENUM) {
+CATAN.HexTile.prototype.getCornerPosition = function(CORNER_ENUM) {
 	var pos = this.getPosition();
 	var corner = new THREE.Vector3(
 		pos.x + this.cornersX[CORNER_ENUM],
@@ -156,7 +157,7 @@ HexGridCell.prototype.getCornerPosition = function(CORNER_ENUM) {
 	Desc: Returns the world position for the 
 	requested edge of the tile (See enums.js)
 ------------------------------------------------*/
-HexGridCell.prototype.getEdgePosAng = function(EDGE_ENUM) {
+CATAN.HexTile.prototype.getEdgePosAng = function(EDGE_ENUM) {
 	var angle = new THREE.Vector3(
 		0,
 		this.edgesAngle[EDGE_ENUM],
@@ -179,7 +180,7 @@ HexGridCell.prototype.getEdgePosAng = function(EDGE_ENUM) {
 	Desc: Sets the robber on top of the tile
 	TODO: Create actual robber object
 ------------------------------------------------*/
-HexGridCell.prototype.setRobber = function() {
+CATAN.HexTile.prototype.setRobber = function() {
 
 	this.Robber = true;
 
@@ -189,8 +190,4 @@ HexGridCell.prototype.setRobber = function() {
 	this.robberMesh.position = new THREE.Vector3(this.position.x, this.position.y + 5, this.position.z);
 	scene.add( this.robberMesh );
 
-}
-
-if(typeof exports !== 'undefined') {
-	module.exports = HexGridCell;
 }

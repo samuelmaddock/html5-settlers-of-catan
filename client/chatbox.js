@@ -4,32 +4,19 @@ Chatbox = function() {
 	this.log = []
 	this.fadeTimeout = 15 * 1000; // time in milliseconds
 
+	$('body').append($('<div>').attr('id', 'chatbox')
+		.html('<div id="log">' +
+			'</div>' +
+			'' +
+			'<div id="input">' +
+			'	<input type="text" id="entry" maxlength="128" spellcheck="false" />' +
+			'</div>' +
+		'</div>')
+	);
+
 };
 
 Chatbox.prototype = new Chatbox();
-
-Chatbox.prototype.Setup = function() {
-
-	console.log("SETTING UP CHATBOX")
-
-	$('#chatbox').html('<div id="log">' +
-		'</div>' +
-		'' +
-		'<div id="input">' +
-		'	<input type="text" id="entry" maxlength="128" spellcheck="false" />' +
-		'</div>' +
-	'</div>')
-
-	/*var cb = this;
-
-	// Send text upon pressing 'Enter'
-	$('#entry').keypress(function(event) {
-		if(event.which == 13) {
-			cb.Send()
-		}
-	});*/
-
-};
 
 Chatbox.prototype.Toggle = function() {
 
@@ -67,7 +54,7 @@ Chatbox.prototype.Send = function() {
 
 	if(entry.val() == "") return;
 
-	socket.emit('chatSend', {
+	CATAN.server.emit('chatSend', {
 		text: entry.val()
 	});
 

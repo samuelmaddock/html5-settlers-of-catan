@@ -9,7 +9,8 @@ CATAN.Player = function(socket) {
 	this.Id = socket.id;
 	this.Address = socket.handshake.address;
 
-	this.Name = "Player";
+	this.Name = "Unknown Player";
+	this.NameDup = 0;
 
 	this.Buildings = []
 
@@ -22,9 +23,16 @@ CATAN.Player = function(socket) {
 
 CATAN.Player.prototype = {
 
-	connect: function(game) {
+	connect: function(game, socket) {
 
 		this.Game = game;
+		this.socket = socket;
+
+		// Set game name
+		var self = this;
+		socket.get('name', function(err, name) {
+	      self.Name = name;
+	    });
 
 		// Make sure player is disconnected from previous game
 		var socket = this.socket;
@@ -37,6 +45,9 @@ CATAN.Player.prototype = {
 
 		socket.set('gameid', game.id)
 
+		// Assign random player color for now;
+		this.Color = game.getColor();
+
 	},
 
 	getID: function() {
@@ -44,7 +55,9 @@ CATAN.Player.prototype = {
 	},
 
 	getName: function() {
-		return this.Name;
+		var name = this.Name;
+		if(this.NameDup > 0) { name += '('+this.NameDup+')' };
+		return name;
 	},
 		
 	getNumResource: function(RESOURCE_ENUM) {

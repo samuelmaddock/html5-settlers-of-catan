@@ -2,10 +2,6 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
 
-if(typeof exports !== 'undefined') {
-	Entity = require('./Entity.js')
-}
-
 HexEdge = function() {
 	
 	this.Building = BUILDING_ROAD;
@@ -14,9 +10,9 @@ HexEdge = function() {
 	
 };
 
-HexEdge.prototype = new Entity();
+HexEdge.prototype = new CATAN.Entity();
 HexEdge.prototype.constructor = HexEdge;
-HexEdge.prototype.super = Entity.prototype;
+HexEdge.prototype.super = CATAN.Entity.prototype;
 
 HexEdge.prototype.CanBuild = function(ply) {
 	return true;

@@ -33,7 +33,7 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		this.isMouseDown = true;
 
-		if(CHATBOX.enabled) {
+		if(CATAN.chat.enabled) {
 			return;
 		} else {
 
@@ -54,7 +54,7 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		if( !this.isMouseDown ) return;
 
-		if(CHATBOX.enabled) {
+		if(CATAN.chat.enabled) {
 			return;
 		} else {
 
@@ -72,7 +72,7 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		this.isMouseDown = false;
 
-		if(CHATBOX.enabled) {
+		if(CATAN.chat.enabled) {
 			return;
 		} else {
 
@@ -121,7 +121,7 @@ THREE.CatanControls = function ( object, domElement ) {
 	
 	this.onContextMenu = function( event ) {
 
-		if(CHATBOX.enabled) {
+		if(CATAN.chat.enabled) {
 			return;
 		} else {
 
@@ -135,7 +135,7 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		// Enter
 		if(event.which == 13) {
-			CHATBOX.Toggle();
+			CATAN.chat.Toggle();
 		};
 		
 	};

@@ -4,32 +4,98 @@
 
 var CLIENT = true;
 var SERVER = false;
+var IP = '198.82.86.39';
 
-var MAIN = {};
+CATAN._init = function() {
 
-MAIN.Initialize = function() {
-
-	// Create server list html
-	$("body").append($('<div>').attr('id', 'lobby')
-		.append($('<table>').attr('id', 'serverlist')
-			.append($('<thead>')
-				.append($('<tr>')
-					.append($('<td>').attr('class', 'name').text('Name'))
-					.append($('<td>').attr('class', 'players').text('Schema'))
-					.append($('<td>').attr('class', 'players').text('Players'))
-				)
-			)
-			.append($('<tbody>'))
-		)
-	);
+	this.setupLobby();
 
 	// Connect to lobby
-	this.socket = io.connect('http://localhost:17153');
-	this.socket.on('loadServerList', this.loadServerList);
+	this.socket = io.connect('http://'+IP+':17153');
+	this.socket.on( 'loadServerList',	this.loadServerList );
+	this.socket.on( 'serverReady', function(data) {
+		CATAN.connectToServer(data.id);
+	});
+
+
+	var hash = window.location.hash.toString().substr(1,5);
+	if(hash !== "") {
+		this.connectToServer(hash);
+	}
 
 };
 
-MAIN.loadServerList = function(data) {
+CATAN.setupLobby = function() {
+
+	// Lobby div
+	$("body").append($('<div>').attr('id', 'lobby'));
+
+	// Player name
+	$('#lobby').append($('<input>')
+		.attr('id', 'plyname')
+		.attr('maxlength', '32')
+		.change( function() {
+			CATAN.socket.emit('changeName', { name: $('#plyname').val() } );
+		})
+	);
+
+	// Server list
+	$('#lobby').append($('<table>').attr('id', 'serverlist')
+		.append($('<thead>')
+			.append($('<tr>')
+				.append($('<td>').attr('class', 'name').text('Name'))
+				.append($('<td>').attr('class', 'players').text('Schema'))
+				.append($('<td>').attr('class', 'players').text('Players'))
+			)
+		)
+		.append($('<tbody>'))
+	);
+
+	// Create a server
+	$('#lobby').append($('<form>')
+		.append($('<h1>').text('Create a server:'))
+		.append($('<input>')
+			.attr('id', 'name')
+			.attr('value', 'Settlers of Catan')
+			.attr('maxlength', '64')
+		)
+		.append($('<select>')
+			.attr('id', 'schema')
+			.append($('<option>')
+				.attr('value', 'Classic')
+				.text('Classic')
+			)
+		)
+		.append($('<input>')
+			.attr('id', 'public')
+			.attr('type', 'checkbox')
+			.attr('value', 'public')
+			.attr('checked', 'true')
+			.text('Public')
+		)
+		.append($('<input>')
+			.attr('type', 'button')
+			.attr('value', 'Connect')
+			.attr('onclick', 'CATAN.createServer()')
+		)
+	);
+
+};
+
+CATAN.createServer = function() {
+
+	// Create server list html
+	this.socket.emit('createServer', {
+		name: $("#name").attr('value'),
+		schema: $("#schema").attr('value'),
+		public: ( $("#public").attr('checked') == "checked" )
+	});
+
+};
+
+CATAN.loadServerList = function(data) {
+
+	$('#plyname').attr('value', data.name );
 
 	var row = 0;
 	for(var i in data.Servers) {
@@ -38,7 +104,7 @@ MAIN.loadServerList = function(data) {
 		$("#serverlist").find('tbody')
 			.append($('<tr>').attr('class', 'row'+row)
 				.append($('<td>').attr('class', 'name')
-					.append($('<a>').attr('id', s.id).attr('href', './#'+s.id).attr('onclick', 'MAIN.connectToServer(event)')
+					.append($('<a>').attr('id', s.id).attr('href', './#'+s.id).attr('onclick', 'CATAN.connectToServer(event)')
 						.text(s.name))
 					)
 				.append($('<td>').attr('class', 'players').text(s.schema))
@@ -50,101 +116,100 @@ MAIN.loadServerList = function(data) {
 
 };
 
-MAIN.connectToServer = function(event) {
+CATAN.connectToServer = function(id) {
 
-	event = event || window.event;
-    var target = event.target || event.srcElement;
+	if(typeof id !== 'string') {
+		var event = id || window.event;
+		var target = event.target || event.srcElement;
+		id = target.id;
+	}
 
-	this.server = io.connect('http://localhost:17153/' + target.id);
+	this.chat = new Chatbox();
 
-	this.server.on('connected', function(data) {
+	this.server = io.connect('http://'+IP+':17153/' + id);
+	this.setupSocket(this.server);
 
-	});
-
-	this.server.on('PlayerJoin', function(data) {
-		console.log(data);
-	});
+	window.location.hash = id;
 
 };
 
-MAIN.setupGame = function() {
+CATAN.onConnection = function() {
 
-}
+	var socket = this.server;
 
-MAIN.Initialize();
+	console.log("SENDING READY");
+	console.log(socket);
+	socket.emit( 'playerReady', {} );
 
+};
 
+CATAN.setupGame = function() {
 
-/* --------------------------------------------
-	OLD
--------------------------------------------- */
+	$('#lobby').remove();
 
-var container, stats;
-var camera, scene, renderer;
-var composer, renderTarget;
-var cameraSkybox, sceneSkybox, skyboxTarget;
-var skyboxMesh, textureSkybox;
-var mesh;
+	$('body').append($('<div>').attr('id', 'game'));
 
-var collisionObjects = [];
-var lastSelection;
+	this.precacheModels();
 
-var precached = 0,
-totalPrecached = 0;
+};
 
-// TODO: make an asset manager
-function precacheModels() {
-	
-	CATAN.setSchema("Classic");
+CATAN.setupSocket = function(socket) {
 
-	document.getElementById("game").innerHTML = "<center><font size=72>PRECACHING...</font></center>";
+	var self = this;
 
-	console.log("PRECACHING MODELS...");
+	socket.on('connectionStatus', function(data) {
 
-	function precacheFinished() {
-		precached++;
-		if (precached == totalPrecached) {		
-			console.log("DONE!");
-			document.getElementById("game").innerHTML = null;
-			
-			init();
-			animate();
-			connect();
-		}
-	}
+		if(data.success == true) {
+			console.log("Successfully connected to server");
+			CATAN.setupGame();
+		} else {
+			console.log(data.message);
+		};
 
-	var resource = 0;
-	function resourceFinished( geometry ) {
-		CATAN.getSchema().Resources[resource].geometry = geometry;
-		resource++;
-		precacheFinished();
-	}
-	
-	// Precache resources
-	var loader = new THREE.JSONLoader( true );
-	for ( var i = 0; i < NUM_RESOURCES; i++ ) {
-		var res = CATAN.getSchema().Resources[i];
-		loader.load( res.url, resourceFinished );
-		totalPrecached++;
-	}
-	
-	// Precache robber
-	loader.load( CATAN.getSchema().Robber.url, function(geometry) {
-		CATAN.getSchema().Robber.geometry = geometry;
-		precacheFinished();
 	});
-	totalPrecached++;
-	
-}
 
-function connect() {
+	socket.on('boardTiles', function (data) {
 
-	socket = io.connect('http://localhost:17153');
+		console.log("Received board tiles");
+
+		var tiles = data.tiles;
+		CATAN.Board.hexTiles = [];
+
+		for(var i in tiles) {
+
+			var tile = new CATAN.HexTile();
+			tile.setPosition(tiles[i].pos);
+			tile.setResource(tiles[i].resource);
+			tile.setToken(tiles[i].token);
+			tile.setupMesh();
+
+			CATAN.Board.hexTiles.push(tile);
+
+		}
+
+
+	});
+
+	/*socket.on('boardPieces', function (data) {
+
+		var tiles = data.tiles;
+
+		for(var i in tiles) {
+
+			var tile = new CATAN.HexTile();
+			tile.setPosition(tiles[i].pos);
+			tile.setResource(tiles[i].resource);
+			tile.setToken(tiles[i].token);
+
+		}
+
+	});
 
 	socket.on('BoardCreated', function (data) {
-		NET.Resources = data.Resources
-		NET.NumberTokens = data.NumberTokens
-		BOARD.setupBoard()
+		this.NET.Resources = data.Resources;
+		this.NET.NumberTokens = data.NumberTokens;
+
+		BOARD.setupBoard();
 
 		for(var i=0; i < data.Buildings.length; i++) {
 			var id = data.Buildings[i].id,
@@ -182,65 +247,129 @@ function connect() {
 		} )
 
 		corner.Collision.material = material
-	});
+	});*/
 
 	socket.on('PlayerJoin', function (data) {
-		CHATBOX.AddLine(data.Name + " has joined the game (" + data.Address.address + ":" + data.Address.port + ")")
+		self.chat.AddLine(data.Name + " has joined the game (" + data.Address.address + ":" + data.Address.port + ")")
 	});
 
 	socket.on('PlayerLeave', function (data) {
-		CHATBOX.AddLine(data.Name + " has disconnected")
+		self.chat.AddLine(data.Name + " has disconnected")
 	});
 
 	socket.on('ChatReceive', function (data) {
-		CHATBOX.AddLine(data, "player")
+		self.chat.AddLine(data, "player")
 	});
 
 }
 
+// TODO: make an asset manager
+CATAN.precacheModels = function() {
+
+	$('#game').html("<center><font size=72>PRECACHING...</font></center>");
+
+	console.log("PRECACHING MODELS...");
+
+	function precacheFinished() {
+		precached++;
+		if (precached == totalPrecached) {		
+			console.log("DONE!");
+			document.getElementById("game").innerHTML = null;
+			
+			init();
+			animate();
+			CATAN.onConnection();
+		}
+	}
+
+	var resource = 0;
+	function resourceFinished( geometry ) {
+		CATAN.getSchema().Resources[resource].geometry = geometry;
+		resource++;
+		precacheFinished();
+	}
+	
+	// Precache resources
+	var loader = new THREE.JSONLoader( true );
+	for ( var i = 0; i < NUM_RESOURCES; i++ ) {
+		var res = CATAN.getSchema().Resources[i];
+		loader.load( res.url, resourceFinished );
+		totalPrecached++;
+	}
+	
+	// Precache robber
+	loader.load( CATAN.getSchema().Robber.url, function(geometry) {
+		CATAN.getSchema().Robber.geometry = geometry;
+		precacheFinished();
+	});
+	totalPrecached++;
+	
+}
+
+
+/* --------------------------------------------
+	OLD
+-------------------------------------------- */
+
+var container, stats;
+var camera, scene, renderer;
+var cameraSkybox, sceneSkybox, skyboxTarget;
+var skyboxMesh, textureSkybox;
+var mesh;
+
+var collisionObjects = [];
+var lastSelection;
+
+var precached = 0,
+totalPrecached = 0;
+
 function init() {
 
 	container = document.createElement( 'div' );
-	document.getElementById("game").appendChild( container );
+	$('#game').append( container );
 
+	// Environment
 	createCamera();
 	createControls();
 	createLighting();
 	createSkybox();
-
-	//BOARD.setupBoard();
-	
 	createWater();
-	//createGrid();
-	//createHexGrid();
 	
-	//
-	
+	// WebGL Renderer
 	renderer = new THREE.WebGLRenderer( { clearColor: 0x00aaff, clearAlpha: 1, antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.autoClear = false;
 
 	container.appendChild(renderer.domElement);
-	
-	//applyPostProcessing();
 
-	//
-
+	// Stats.js fps counter
 	stats = new Stats();
 	stats.domElement.style.position = 'absolute';
 	stats.domElement.style.top = '0px';
 	container.appendChild( stats.domElement );
 	
-	window.addEventListener( 'resize', onWindowResize, false );
+	// Fill web browser
+	window.addEventListener( 'resize', function ( event ) {
+
+		halfWidth = window.innerWidth / 2;
+		halfHeight = window.innerHeight / 2;
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+		cameraSkybox.aspect = window.innerWidth / window.innerHeight;
+		cameraSkybox.updateProjectionMatrix();
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+	}, false );
 
 }
 
 function createCamera() {
 
 	scene = new THREE.Scene();
-	
 	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 10000 );
-	
 	scene.add( camera );
 	
 }
@@ -314,28 +443,8 @@ function createWater() {
 	
 }
 
-/*function createGrid() {
-
-	var plane = new THREE.Mesh(new THREE.PlaneGeometry(500,500,20,20),
-		new THREE.MeshLambertMaterial({ color: 0x444444, wireframe: true }));
-		
-	plane.rotation.x = -Math.PI/2;
-	
-	scene.add(plane);
-	
-}
-
-function createHexGrid() {
-	
-	var board = BOARD;
-	var cells = board.getCellGeometry();
-	
-	for ( var i = 0; i < cells.length; i++ ) {
-		scene.add( cells[i] );
-	}
-	
-}*/
-
+/*
+var composer, renderTarget;
 function applyPostProcessing() {
 	
 	var shaderVignette = THREE.ShaderExtras[ "vignette" ];
@@ -357,22 +466,7 @@ function applyPostProcessing() {
 	
 	composer.addPass( effectVignette );
 	
-}
-
-function onWindowResize( event ) {
-
-	halfWidth = window.innerWidth / 2;
-	halfHeight = window.innerHeight / 2;
-
-	renderer.setSize( window.innerWidth, window.innerHeight );
-
-	cameraSkybox.aspect = window.innerWidth / window.innerHeight;
-	cameraSkybox.updateProjectionMatrix();
-
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
-
-}
+}*/
 
 //
 
@@ -398,7 +492,5 @@ function render() {
 	renderer.clear();
 	renderer.render( sceneSkybox, cameraSkybox );
 	renderer.render( scene, camera );
-	
-	//composer.render( 0.1 );
 	
 }

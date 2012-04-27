@@ -15,9 +15,9 @@ HexCorner = function() {
 	
 };
 
-HexCorner.prototype = new Entity();
+HexCorner.prototype = new CATAN.Entity();
 HexCorner.prototype.constructor = HexCorner;
-HexCorner.prototype.super = Entity.prototype;
+HexCorner.prototype.super = CATAN.Entity.prototype;
 
 HexCorner.prototype.CanBuild = function(ply) {
 	return true;

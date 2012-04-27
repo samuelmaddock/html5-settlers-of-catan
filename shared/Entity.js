@@ -2,7 +2,7 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
  
-Entity = function() {
+CATAN.Entity = function() {
 
 	this.Id = -1;
 	this.Owner = -1;
@@ -12,32 +12,32 @@ Entity = function() {
 	
 };
 
-Entity.prototype = new Entity();
+CATAN.Entity.prototype = new CATAN.Entity();
 
-Entity.prototype.HasOwner = function() {
+CATAN.Entity.prototype.HasOwner = function() {
 	return (this.Owner != -1)
 }
 
-Entity.prototype.getOwner = function() { return this.Owner; }
-Entity.prototype.SetOwner = function(ply) {
+CATAN.Entity.prototype.getOwner = function() { return this.Owner; }
+CATAN.Entity.prototype.SetOwner = function(ply) {
 	if(typeof ply === 'undefined') return;
 	this.Owner = ply.getID()
 	ply.setOwnership(this)
 }
 
 /* -----------------------------------------------
-	Entity.getPosition
-	Entity.setPosition
+	CATAN.Entity.getPosition
+	CATAN.Entity.setPosition
 
 	Desc: Entity's world position
 ------------------------------------------------*/
-Entity.prototype.getPosition = function() { return this.position; }
-Entity.prototype.setPosition = function(pos) { this.position = pos; }
+CATAN.Entity.prototype.getPosition = function() { return this.position; }
+CATAN.Entity.prototype.setPosition = function(pos) { this.position = pos; }
 
-Entity.prototype.getAngle = function() { return this.angle; }
-Entity.prototype.setAngle = function(ang) { this.angle = ang; }
+CATAN.Entity.prototype.getAngle = function() { return this.angle; }
+CATAN.Entity.prototype.setAngle = function(ang) { this.angle = ang; }
 
-Entity.prototype.setup = function(geometry, pos, ang) {
+CATAN.Entity.prototype.setup = function(geometry, pos, ang) {
 
 	this.position = pos;
 	this.angle = ang;
@@ -64,13 +64,9 @@ Entity.prototype.setup = function(geometry, pos, ang) {
 
 }
 
-Entity.prototype.remove = function() {
+CATAN.Entity.prototype.remove = function() {
 	
 	scene.remove( this.Mesh )
 	delete this
 	
-}
-
-if(typeof exports !== 'undefined') {
-	module.exports = Entity;
 }
