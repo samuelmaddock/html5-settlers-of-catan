@@ -2,45 +2,46 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
 
-HexEdge = function() {
-	
+CATAN.HexEdge = function() {
+		
+	this.create();
+
 	this.Building = BUILDING_ROAD;
 	
 	this.AdjacentEdges = [];
+	this.AdjacentCorners = [];
 	
 };
 
-HexEdge.prototype = new CATAN.Entity();
-HexEdge.prototype.constructor = HexEdge;
-HexEdge.prototype.super = CATAN.Entity.prototype;
+CATAN.HexEdge.prototype = new CATAN.Entity();
+CATAN.HexEdge.prototype.constructor = CATAN.HexEdge;
+CATAN.HexEdge.prototype.super = CATAN.Entity.prototype;
 
-HexEdge.prototype.CanBuild = function(ply) {
-	return true;
-}
+CATAN.HexEdge.prototype.canBuild = function(ply) {
 
-HexEdge.prototype.setup = function( orientation ) {
-	
-	this.position = orientation.pos;
-	this.angle = orientation.ang;
+	if(this.hasOwner()) return false;
 
-	if (CLIENT) {
-
-		this.Collision = new THREE.Mesh(
-			new THREE.CubeGeometry(40,12,12),
-			new THREE.MeshBasicMaterial( { opacity: 0, color: 0x000000 } )
-		);
-		
-		this.Collision.position = this.position;
-		this.Collision.rotation = this.angle;
-		this.Collision.Parent = this;
-		scene.add( this.Collision );
-		
-		collisionObjects.push( this.Collision );
-
+	// Must build near adjacent corner
+	for(var i in this.AdjacentCorners) {
+		if(ply.isOwner(this.AdjacentCorners[i])) return true;
 	}
-	
+
+	return false;
+
 }
 
-if(typeof exports !== 'undefined') {
-	module.exports = HexEdge;
+CATAN.HexEdge.prototype.setupMesh = function() {
+
+	this.Collision = new THREE.Mesh(
+		new THREE.CubeGeometry(40,12,12),
+		new THREE.MeshBasicMaterial( { opacity: 0 } )
+	);
+	
+	this.Collision.position = this.position;
+	this.Collision.rotation = this.angle;
+	this.Collision.Parent = this;
+	scene.add( this.Collision );
+	
+	collisionObjects.push( this.Collision );
+	
 }

@@ -54,7 +54,7 @@ Chatbox.prototype.Send = function() {
 
 	if(entry.val() == "") return;
 
-	CATAN.server.emit('chatSend', {
+	CATAN.server.emit('playerChat', {
 		text: entry.val()
 	});
 
@@ -71,12 +71,11 @@ Chatbox.prototype.AddLine = function(data, type) {
 		id = "cl_" + (this.log.length + 1);
 		text = this.Cleanse(data.Text);
 
-		var name = this.Cleanse(data.Name),
-		col = this.Hex2String(data.Color);
+		var col = this.Hex2String(data.ply.getColor());
 
-		$('#log').append('<table id="' + id + '" class="chatline"><tr><td class="name" style="color: ' + col + ';">' + name + '</td><td>' + text + '</td></tr></table>');
+		$('#log').append('<table id="' + id + '" class="chatline"><tr><td class="name" style="color: ' + col + ';">' + data.ply.getName() + '</td><td>' + text + '</td></tr></table>');
 		
-		this.log.push({ Name: name, Text: text })
+		this.log.push({ Name: data.ply.getName(), Text: text })
 
 	} else { // message sent from server
 

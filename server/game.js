@@ -1,32 +1,40 @@
-require('../shared/board.js');
-require('./player.js');
+require('../shared/player.js');
+require('./board.js');
+require('./turnmanager.js');
 
 CATAN.Game = function(socket,name,schema,public) {
 
 	this.id = this._createId();
-
-	this.owner = socket.id;
+	this.owner = null; // set on first player connection
 
 	this.name = (typeof name !== 'undefined') ? name : "Settlers Of Catan";
 	this.schema = (typeof schema !== 'undefined') ? schema : "Classic";	// Default schema to Classic
 	this.public = (typeof public !== undefined) ? public : true;
 
-
+	this.state = STATE_WAITING;
 	this.players = [];
-
+	this.entities = [];
 	this.board = new CATAN.Board(this);
+	this.turnManager = new CATAN.TurnManager(this);
 
-	// Setup server
+	// Setup sockets
 	this.namespace = '/' + this.id;
 	this.sockets = CATAN.Server.of(this.namespace);
+	this.sockets.on( 'connection', this.onPlayerConnection );
 
-	// Setup socket hooks
-	this.sockets.on( 'connection',		this.onPlayerConnection );
+	this.started = Date.now();
 
-	console.log( '[' + this.id + '] Server initialized...');
+	/*var self = this;
+	setTimeout( function() {
+		if(typeof self == 'undefined') return;
+		if(!self._isValid()) { console.log("no ply"); self._shutdown(); };
+		console.log(self);
+	}, 1000 * 10);*/
+
+	socket.emit('serverReady', { id: this.id });
+
 	CATAN.GameCount++;
-
-	socket.emit('serverReady', { id: this.id })
+	console.log( '['+this.id+'][#'+CATAN.GameCount+'] Server initialized...');
 
 };
 
@@ -35,13 +43,11 @@ CATAN.Game.prototype = {
 	constructor: CATAN.Game,
 
 	_createId: function(uri) {
-
 		// http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
 		return 'xxxxx'.replace(/[xy]/g, function(c) {
 			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
 			return v.toString(16);
 		});
-
 	},
 
 	_shutdown: function() {
@@ -54,25 +60,31 @@ CATAN.Game.prototype = {
 		}
 	},
 
+	_isValid: function() {
+		return (this.getPlayers().length > 0);
+	},
+
+	emit: function(name,data) {
+		this.sockets.emit(name,data);
+	},
+
+	isValidEntity: function(ent) {
+		return typeof ent != 'undefined';
+	},
+
 	/* --------------------------------------------
 		Schema
 	-------------------------------------------- */
 	setSchema: function(schema) {
-
 		this.schema = (schema !== undefined) ? schema : "Classic";
-
 	},
 
 	getSchema: function(schema) {
-
 		return CATAN.Schemas[this.schema];
-
 	},
 
 	getMaxPlayers: function(schema) {
-
 		return this.getSchema().MaxPlayers;
-
 	},
 
 	/* --------------------------------------------
@@ -86,10 +98,12 @@ CATAN.Game.prototype = {
 		return ply.getID() == this.owner;
 	},
 
-	getPlayers: function(schema) {
-
+	getPlayers: function() {
 		return this.players;
+	},
 
+	getNumPlayers: function() {
+		return this.players.length;
 	},
 
 	getByID: function(id) {
@@ -114,8 +128,55 @@ CATAN.Game.prototype = {
 	/* --------------------------------------------
 		Misc
 	-------------------------------------------- */
+	getEntById: function(id) {
+		for(var i in this.entities) {
+			if(this.entities[i].getEntId() == id) {
+				return this.entities[i];
+			}
+		}
+	},
+
 	getColor: function() {
 		return Math.round( 0xffffff * Math.random() );
+	},
+
+	getOwner: function() {
+		return this.owner;
+	},
+
+	setOwner: function(ply) {
+		this.owner = ply.getID();
+		// TODO: inform players of new ownership
+	},
+
+	hasValidOwner: function() {
+		for(i in this.players) {
+			var ply = this.players[i];
+			if (ply.getID() == this.owner) {
+				return true;
+			};
+		};
+		return false;
+	},
+
+	getState: function() {
+		return this.state;
+	},
+
+	setState: function(state) {
+
+		var messages = [
+			"",
+			"Setup has begun",
+			"Game is now in-progress",
+			"Game has ended"
+		];
+
+		this.emit('GameUpdate', {
+			message: messages[state]
+		});
+
+		this.state = state;
 	},
 
 	/* --------------------------------------------
@@ -128,39 +189,51 @@ CATAN.Game.prototype = {
 
 		// Check max players
 		if(self.getMaxPlayers() <= self.getPlayers().length) {
-
 			socket.emit('connectionStatus', {
 				success: false,
-				message: 'Server is full'
+				message: 'Server is full.'
 			});
-
 			return;
+		};
 
+		// Check state
+		if(self.getState() != STATE_WAITING) {
+			socket.emit('connectionStatus', {
+				success: false,
+				message: 'Game is already in-progress.'
+			});
+			return;
 		};
 
 		// Create new player
-		var ply = new CATAN.Player(socket);
+		var ply = new CATAN.Player();
 		ply.connect(self, socket);
 
-		// check for duplicate names
+		// Check for duplicate names
 		var players = self.getPlayers();
 		for(var i in players) {
-			if((players[i].Name == ply.Name) && (players[i].NameDup == ply.NameDup)) {
-				ply.NameDup++
+			if((players[i].name == ply.name) && (players[i].nameDup == ply.nameDup)) {
+				ply.nameDup++
 			}
 		}
 
 		self.players.push(ply); // add to player list
 
-		// Inform user of connection
-		ply.socket.emit('connectionStatus', { success: true });
-
-		console.log('[' + self.id + '] Player connected');
+		// First player connection is owner
+		if(!self.hasValidOwner()) {
+			self.setOwner(ply);
+		}
 
 		socket.on( 'playerReady',		function(data) { self.onPlayerJoin(socket,data) } );
+		socket.on( 'playerChat',		function(data) { self.onPlayerChat(socket,data) } );
+		socket.on( 'playerBuild',		function(data) { self.onPlayerBuild(socket,data) } );
 		//socket.on( 'disconnect',		function(data) { self.onPlayerDisconnect(socket,data) } );
-		socket.on( 'chatSend',			function(data) { self.onPlayerChat(socket,data) } );
-		socket.on( 'setupBuilding',		function(data) { self.onPlayerBuild(socket,data) } );
+
+		socket.on( 'startGame',			function(data) { self.onStartGame(socket,data) } );
+
+		// Inform user of successful connection
+		ply.emit('connectionStatus', { success: true });
+		console.log('[' + self.id + '] Player connected');
 
 	},
 	
@@ -168,29 +241,36 @@ CATAN.Game.prototype = {
 
 		var ply = this.getByID(socket.id);
 		if(!this.isValidPlayer(ply)) return;
+		if(ply.Joined == true) return;
 
-		this.syncBoard(ply);
+		ply.Joined = true;
 
-		this.sockets.emit('PlayerJoin', { Name: ply.getName(), Id: ply.Id, Address: ply.Address });
+		// Send hex tiles, etc.
+		this.syncGame(ply);
+
+		// Announce player join in chat
+		this.emit('PlayerJoin', {
+			id: ply.getID(),
+			name: ply.getName(),
+			color: ply.getColor(),
+			address: ply.address
+		});
 
 	},
 
 	onPlayerDisconnect: function(socket) {
 
 		var ply = this.getByID(socket.id);
-
 		if(!this.isValidPlayer(ply)) return;
 
 		// Remove player buildings
 		for(var i in ply.Buildings) {
 			var building = ply.Buildings[i];
 			building.Owner = -1;
-			this.sockets.emit('BuildingReset', { id: building.Id, building: building.Building });
+			this.emit('BuildingReset', { id: building.Id, building: building.Building });
 
 			delete building;
 		}
-
-		this.sockets.emit('PlayerLeave', { Name: ply.getName(), Id: ply.Id });
 
 		// Remove from player list
 		var players = this.getPlayers();
@@ -201,13 +281,41 @@ CATAN.Game.prototype = {
 			}
 		};
 
+		// End server if empty
+		if(!this._isValid()) {
+			console.log('[' + this.id + '] Terminating server...');
+			return this._shutdown();
+		}
+
+		// Announce player disconnect in chat
+		this.emit('PlayerLeave', { id: ply.getID() });
 		console.log('[' + this.id + '] Player disconnected');
 
-		// End server if empty
-		if(this.getPlayers().length < 1) {
-			console.log('[' + this.id + '] Terminating server...');
-			this._shutdown();
+		// Reassign owner in the case that the owner disconnects
+		if(!this.hasValidOwner()) {
+			this.setOwner(this.getPlayers()[0]);
 		}
+
+		// TODO: check if player held turn
+
+	},
+	
+	onStartGame: function(socket,data) {
+
+		if(this.getState() != STATE_WAITING) return;
+
+		var ply = this.getByID(socket.id);
+		if( (!this.isValidPlayer(ply)) || (this.getOwner() != ply.getID()) ) return;
+
+		if(this.getNumPlayers() < 2) {
+			ply.emit('GameUpdate', {
+				error: true,
+				message: "There must be 2 players in the game to start."
+			});
+			return;
+		}
+
+		this.turnManager.start();
 
 	},
 	
@@ -216,67 +324,92 @@ CATAN.Game.prototype = {
 		var ply = this.getByID(socket.id);
 		if(!this.isValidPlayer(ply)) return;
 
-		var name = ply.getName(),
-			text = data.text.substr(0, 127),
-			col = ply.Color.toString(16);
+		var text = data.text.substr(0, 127);
 
-	    this.sockets.emit('ChatReceive', { Name: name, Text: text, Color: col });
-
-	},
-
-	onPlayerBuild: function(socket) {
-
-		console.log("***onPlayerBuild***");
-		console.log(socket);
+	    this.emit('PlayerChat', { id: ply.getID(), Text: text });
+	    console.log('['+this.id+'] '+ply.getName()+': '+text);
 
 	},
 
-	syncBoard: function(ply) {
+	onPlayerBuild: function(socket,data) {
 
-		var game = ply.Game,
+		var ply = this.getByID(socket.id);
+		if(!this.isValidPlayer(ply)) return;
+
+		if((this.getState() != STATE_SETUP) && (this.getState() != STATE_PLAYING)) return;
+		if(!ply.isTurn()) return;
+
+		var ent = this.getEntById(data.id);
+		if(!this.isValidEntity(ent)) return;
+		if(!ent.canBuild(ply)) return;
+
+		if(this.getState() == STATE_SETUP) {
+			this.turnManager.handleSetupRequest(ply, ent);
+		}
+
+		if(this.getState() == STATE_PLAYING) {
+
+			if(ent.hasOwner()) return;
+
+		}
+
+	},
+
+	syncGame: function(ply) {
+
+		var game = ply.game,
 			board = game.board;
 
-		// Send tile data
+		// Send tiles
 		var tiles = [];
 		for(var i=0; i < board.hexTiles.length; i++) {
-
 			var tile = board.hexTiles[i];
-
 			tiles.push({
+				id: tile.getEntId(),
 				pos: tile.getPosition(),
 				resource: tile.getResource(),
-				token: tile.getToken()
+				token: tile.getToken(),
+				robber: tile.hasRobber()
 			});
-
 		};
+		ply.emit('boardEntities', { type: ENTITY_TILE, ents: tiles });
 
-		ply.socket.emit('boardTiles', { tiles: tiles });
+		// Send corners
+		var corners = [];
+		for(var i=0; i < board.hexCorners.length; i++) {
+			var corner = board.hexCorners[i];
+			corners.push({
+				id: corner.getEntId(),
+				pos: corner.getPosition()
+			});
+		};
+		ply.emit('boardEntities', { type: ENTITY_CORNER, ents: corners });
 
-		// Send player buildings
-		var players = game.getPlayers(),
-			buildings = [];
+		// Send edges
+		var edges = [];
+		for(var i=0; i < board.hexEdges.length; i++) {
+			var edge = board.hexEdges[i];
+			edges.push({
+				id: edge.getEntId(),
+				pos: edge.getPosition(),
+				ang: edge.getAngle()
+			});
+		};
+		ply.emit('boardEntities', { type: ENTITY_EDGE, ents: edges });
 
-		for(var i=0; i < players.length; i++) {
-
+		// Send players
+		var players = game.getPlayers();
+		for(var i in players) {
 			var pl = players[i];
-			if(pl.getID() != ply.getID()) { // Don't check for connecting client
-
-				for(var j=0; j < pl.Buildings.length; j++) {
-
-					var build = pl.Buildings[j];
-					buildings.push({
-						id: build.Id,
-						building: build.Building,
-						color: build.Color
-					});
-
-				};
-
-			};
-
-		};
-
-		ply.socket.emit('boardBuildings', { Buildings: buildings });
+			if(pl.getID() != ply.getID()) {
+				ply.emit('syncPlayer', {
+					id: pl.getID(),
+					name: pl.getName(),
+					color: pl.getColor(),
+					address: pl.address
+				});
+			}
+		}
 
 	}
 

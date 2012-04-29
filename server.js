@@ -6,10 +6,7 @@ global.CLIENT = false;
 /*-------------------------------
   Catan
 -------------------------------*/
-require('./server/enums.js'); // can't use shared/enums.js since they don't use global
-require('./shared/catan.js');
 require('./server/catan.js');
-require('./server/game.js');
 
 /*-------------------------------
   Web Server
@@ -26,6 +23,7 @@ http.listen(_PORT);
 CATAN.Server = io;
 
 io.sockets.on('connection', function(socket) {
+  
   console.log("[MAIN] Client connected");
 
   socket.on('createServer', function(data) {
@@ -61,13 +59,15 @@ io.sockets.on('connection', function(socket) {
   var servers = [];
   for(var i in CATAN.Games) {
     var game = CATAN.Games[i];
-    servers.push({
-      id: game.id,
-      name: game.name,
-      schema: game.schema,
-      players: game.getPlayers().length,
-      max: game.getMaxPlayers()
-    });
+    if( (game.public == true) && (game.getState() == STATE_WAITING) ) {
+      servers.push({
+        id: game.id,
+        name: game.name,
+        schema: game.schema,
+        players: game.getPlayers().length,
+        max: game.getMaxPlayers()
+      });
+    }
   };
 
   socket.emit('loadServerList', { name: name, Servers: servers });

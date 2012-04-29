@@ -1,49 +1,44 @@
 /**
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
-
-if(typeof exports !== 'undefined') {
-	Entity = require('./Entity.js')
-}
  
-HexCorner = function() {
-	
+CATAN.HexCorner = function() {
+		
+	this.create();
+
 	this.Building = BUILDING_SETTLEMENT;
 	
 	this.AdjacentTiles = [];
 	this.AdjacentCorners = [];
-	
+
 };
 
-HexCorner.prototype = new CATAN.Entity();
-HexCorner.prototype.constructor = HexCorner;
-HexCorner.prototype.super = CATAN.Entity.prototype;
+CATAN.HexCorner.prototype = new CATAN.Entity();
+CATAN.HexCorner.prototype.constructor = CATAN.HexCorner;
+CATAN.HexCorner.prototype.super = CATAN.Entity.prototype;
 
-HexCorner.prototype.CanBuild = function(ply) {
+CATAN.HexCorner.prototype.canBuild = function() {
+
+	if(this.hasOwner()) return false;
+
+	// Must build settlement at least two corners away
+	for(var i in this.AdjacentCorners) {
+		if(this.AdjacentCorners[i].hasOwner()) return false;
+	}
+
 	return true;
 }
 
-HexCorner.prototype.setup = function(pos) {
+CATAN.HexCorner.prototype.setupMesh = function() {
 
-	this.position = pos;
+	this.Collision = new THREE.Mesh(
+		new THREE.CubeGeometry(25,25,25),
+		new THREE.MeshBasicMaterial({opacity: 0})
+	);
 
-	if (CLIENT) {
+	this.Collision.position = this.position;
+	this.Collision.Parent = this;
+	scene.add( this.Collision );
+	collisionObjects.push( this.Collision );
 
-		this.Collision = new THREE.Mesh(
-			new THREE.CubeGeometry(25,25,25),
-			new THREE.MeshBasicMaterial({opacity: 0})
-		);
-
-		this.Collision.position = this.position;
-		this.Collision.Parent = this;
-		scene.add( this.Collision );
-		collisionObjects.push( this.Collision );
-		
-	}
-
-}
-
-if(typeof exports !== 'undefined') {
-	Entity = require('./Entity.js')
-	module.exports = HexCorner;
 }

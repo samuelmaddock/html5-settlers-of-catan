@@ -4,6 +4,8 @@
 
 CATAN.HexTile = function(radius) {
 	
+	this.create();
+
 	// Catan
 	this.Resource = -1;
 	this.NumberToken = -1;

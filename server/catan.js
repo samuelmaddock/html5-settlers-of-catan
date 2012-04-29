@@ -1,3 +1,7 @@
+// Include dependencies
+require('./enums.js'); // can't use shared/enums.js since they don't use global
+require('../shared/catan.js');
+
 CATAN.Schemas = [];
 CATAN.Games = [];
 
@@ -35,13 +39,12 @@ CATAN.getTotalPlayers = function() {
 	}
 };
 
-if(typeof exports !== 'undefined') {
+global.CATAN = CATAN;
 
-	global.CATAN = CATAN;
+// Load schemas
+require("fs").readdirSync("./server/schemas").forEach(function(file) {
+	require("./schemas/" + file);
+});
 
-	// Load schemas
-	require("fs").readdirSync("./server/schemas").forEach(function(file) {
-		require("./schemas/" + file);
-	});
-
-};
+// Load necessary files
+require('./game.js');

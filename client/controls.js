@@ -92,9 +92,12 @@ THREE.CatanControls = function ( object, domElement ) {
 	
 	this.onMouseWheel = function( event ) {
 
-		var newRadius = this.radius - event.wheelDeltaY;
-		
-		this.radius = THREE.Math.clamp( newRadius, this.minRadius, this.maxRadius );
+		if(CATAN.chat.enabled) {
+			return;
+		} else {
+			var newRadius = this.radius - event.wheelDeltaY;
+			this.radius = THREE.Math.clamp( newRadius, this.minRadius, this.maxRadius );
+		}
 		
 	};
 	
@@ -154,13 +157,16 @@ THREE.CatanControls = function ( object, domElement ) {
 		var hitObject = intersects[0];
 		if(hitObject) {
 		
-			var parent = hitObject.object.Parent
+			var ent = hitObject.object.Parent;
 
-			if (parent.Building !== undefined) {
-				socket.emit('setupBuilding', {
-					id: parent.Id,
-					building: parent.Building
+			if ((ent.Building !== undefined) && (ent.visible == true)) {
+
+				//console.log("Pressed Entity " + ent.getEntId());
+
+				CATAN.server.emit('playerBuild', {
+					id: ent.getEntId()
 				});
+
 			};
 			
 			lastSelection = hitObject.object;

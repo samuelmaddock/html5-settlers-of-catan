@@ -4,14 +4,15 @@
 
 var CLIENT = true;
 var SERVER = false;
-var IP = '198.82.86.39';
+//var IP = 'http://catan.nodester.com:80/';
+var IP = 'http://127.0.0.1:17153/';
 
 CATAN._init = function() {
 
 	this.setupLobby();
 
 	// Connect to lobby
-	this.socket = io.connect('http://'+IP+':17153');
+	this.socket = io.connect(IP);
 	this.socket.on( 'loadServerList',	this.loadServerList );
 	this.socket.on( 'serverReady', function(data) {
 		CATAN.connectToServer(data.id);
@@ -88,7 +89,7 @@ CATAN.createServer = function() {
 	this.socket.emit('createServer', {
 		name: $("#name").attr('value'),
 		schema: $("#schema").attr('value'),
-		public: ( $("#public").attr('checked') == "checked" )
+		public: ($("#public").attr('checked') == 'checked')
 	});
 
 };
@@ -126,7 +127,7 @@ CATAN.connectToServer = function(id) {
 
 	this.chat = new Chatbox();
 
-	this.server = io.connect('http://'+IP+':17153/' + id);
+	this.server = io.connect(IP + id);
 	this.setupSocket(this.server);
 
 	window.location.hash = id;
@@ -134,13 +135,7 @@ CATAN.connectToServer = function(id) {
 };
 
 CATAN.onConnection = function() {
-
-	var socket = this.server;
-
-	console.log("SENDING READY");
-	console.log(socket);
-	socket.emit( 'playerReady', {} );
-
+	this.server.emit( 'playerReady', {} );
 };
 
 CATAN.setupGame = function() {
@@ -168,97 +163,64 @@ CATAN.setupSocket = function(socket) {
 
 	});
 
-	socket.on('boardTiles', function (data) {
-
-		console.log("Received board tiles");
-
-		var tiles = data.tiles;
-		CATAN.Board.hexTiles = [];
-
-		for(var i in tiles) {
-
-			var tile = new CATAN.HexTile();
-			tile.setPosition(tiles[i].pos);
-			tile.setResource(tiles[i].resource);
-			tile.setToken(tiles[i].token);
-			tile.setupMesh();
-
-			CATAN.Board.hexTiles.push(tile);
-
-		}
-
-
+	socket.on('syncPlayer', function (data) {
+		CATAN.addPlayer(data,false)
 	});
 
-	/*socket.on('boardPieces', function (data) {
+	socket.on('boardEntities', function (data) {
 
-		var tiles = data.tiles;
-
-		for(var i in tiles) {
-
-			var tile = new CATAN.HexTile();
-			tile.setPosition(tiles[i].pos);
-			tile.setResource(tiles[i].resource);
-			tile.setToken(tiles[i].token);
-
+		for(var i in data.ents) {
+			CATAN.create(data.type, data.ents[i]);
 		}
 
 	});
 
-	socket.on('BoardCreated', function (data) {
-		this.NET.Resources = data.Resources;
-		this.NET.NumberTokens = data.NumberTokens;
+	socket.on('setupBuild', function (data) {
 
-		BOARD.setupBoard();
-
-		for(var i=0; i < data.Buildings.length; i++) {
-			var id = data.Buildings[i].id,
-			type = data.Buildings[i].building,
-			color = data.Buildings[i].color;
-			
-			var building = BOARD.getBuildingByID(id,type);
-			
-			var material = new THREE.MeshBasicMaterial({ color: color,
-				opacity: 1
-			});
-
-			building.Collision.material = material;
+		for(var i in data.available) {
+			var ent = CATAN.getEntById(data.available[i]);
+			ent.show(0.33);
 		}
+
 	});
-
-	socket.on('SetupBuilding', function (data) {
-		//console.log("Received Building: " + data.id + ", " + data.building)
-
-		var building = BOARD.getBuildingByID(data.id, data.building);
-		var material = new THREE.MeshBasicMaterial({ color: data.color,
-			opacity: 1
-		});
-
-		building.Collision.material = material;
-	});
-
-	socket.on('BuildingReset', function (data) {
-		//console.log("Received Building: " + data.id + ", " + data.building)
-
-		var corner = BOARD.getBuildingByID(data.id, data.building)
-
-		var material = new THREE.MeshBasicMaterial( {
-			opacity: 0
-		} )
-
-		corner.Collision.material = material
-	});*/
 
 	socket.on('PlayerJoin', function (data) {
-		self.chat.AddLine(data.Name + " has joined the game (" + data.Address.address + ":" + data.Address.port + ")")
+		CATAN.addPlayer(data,true)
 	});
 
 	socket.on('PlayerLeave', function (data) {
-		self.chat.AddLine(data.Name + " has disconnected")
+		var ply = CATAN.getPlayerById(data.id);
+		self.chat.AddLine(ply.getName() + " has disconnected");
 	});
 
-	socket.on('ChatReceive', function (data) {
-		self.chat.AddLine(data, "player")
+	socket.on('PlayerChat', function (data) {
+		data.ply = CATAN.getPlayerById(data.id);
+		self.chat.AddLine(data, "player");
+	});
+
+	socket.on('PlayerBuild', function (data) {
+		var ply = CATAN.getPlayerById(data.id),
+			ent = CATAN.getEntById(data.entid);
+
+		ent.setOwner(ply);
+
+		// End build
+		if( ply.getID() == CATAN.LocalPlayer.getID() ) {
+			for(var i in CATAN.Entities) {
+				var ent2 = CATAN.Entities[i];
+				if(!ent2.hasOwner()) {
+					ent2.hide();
+				}
+			}
+		}
+	});
+
+	socket.on('GameUpdate', function (data) {
+		if(data.error) {
+			self.chat.AddLine(data.message);
+		} else {
+			self.chat.AddLine(data.message);
+		}
 	});
 
 }
