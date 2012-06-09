@@ -42,7 +42,7 @@ CATAN.getTotalPlayers = function() {
 global.CATAN = CATAN;
 
 // Load schemas
-require("fs").readdirSync("./server/schemas").forEach(function(file) {
+require("fs").readdirSync(__dirname+"/schemas").forEach(function(file) {
 	require("./schemas/" + file);
 });
 

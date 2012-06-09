@@ -3,7 +3,7 @@
  */
  
 CATAN.HexCorner = function() {
-		
+
 	this.create();
 
 	this.Building = BUILDING_SETTLEMENT;
@@ -39,6 +39,5 @@ CATAN.HexCorner.prototype.setupMesh = function() {
 	this.Collision.position = this.position;
 	this.Collision.Parent = this;
 	scene.add( this.Collision );
-	collisionObjects.push( this.Collision );
 
 }

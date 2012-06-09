@@ -228,12 +228,11 @@ CATAN.Game.prototype = {
 		socket.on( 'playerChat',		function(data) { self.onPlayerChat(socket,data) } );
 		socket.on( 'playerBuild',		function(data) { self.onPlayerBuild(socket,data) } );
 		//socket.on( 'disconnect',		function(data) { self.onPlayerDisconnect(socket,data) } );
-
 		socket.on( 'startGame',			function(data) { self.onStartGame(socket,data) } );
 
 		// Inform user of successful connection
 		ply.emit('connectionStatus', { success: true });
-		console.log('[' + self.id + '] Player connected');
+		console.log('[' + self.id + '] Player connected (' + self.getNumPlayers() + '/' + self.getMaxPlayers() + ')');
 
 	},
 	

@@ -42,6 +42,4 @@ CATAN.HexEdge.prototype.setupMesh = function() {
 	this.Collision.Parent = this;
 	scene.add( this.Collision );
 	
-	collisionObjects.push( this.Collision );
-	
 }

@@ -1,5 +1,10 @@
+nodepath = process.env.NODE_PATH
+if(nodepath === 'undefined') {
+  console.log("NODE_PATH env variable undefined!")
+  return;
+}
 
-global._PORT = 17153;
+global._PORT = 80;
 global.SERVER = true;
 global.CLIENT = false;
 
@@ -12,7 +17,7 @@ require('./server/catan.js');
   Web Server
 -------------------------------*/
 var http = require('http').createServer(handle),
-  io = require('socket.io').listen(http),
+  io = require(nodepath+'/node_modules/socket.io').listen(http),
   url = require('url'),
   fs = require('fs'),
   path = require('path');
@@ -107,15 +112,53 @@ function debugOutput() {
   return content;
 }
 
-function handle(req, res) {
+function handle(request, response) {
 
-  var uri = url.parse(req.url).pathname;
-  if(uri == '/favicon.ico') return;
+  var uri = url.parse(request.url).pathname;
 
-  var content = debugOutput();
+  if(uri == '/debug') {
+    var content = debugOutput();
+    response.writeHead(404);
+    response.end(content);
+    return;
+  }
 
-  res.writeHead(404);
-  res.end(content);
+  var filePath = uri;
+  if (filePath == '/')
+      filePath = '/index.html';
+
+  var extname = path.extname(filePath);
+  var contentType = 'text/html';
+    switch (extname) {
+      case '.js':
+        contentType = 'text/javascript';
+        break;
+      case '.css':
+        contentType = 'text/css';
+        break;
+  }
+
+  filePath = __dirname + filePath;
+
+  path.exists(filePath, function(exists) {
+
+      if(exists) {
+          fs.readFile(filePath, function(error, content) {
+              if (error) {
+                  response.writeHead(500);
+                  response.end();
+              } else {
+                  response.writeHead(200, { 'Content-Type': contentType });
+                  response.end(content, 'utf-8');
+              }
+          });
+      }
+      else {
+          response.writeHead(404);
+          response.end();
+      }
+
+  });
 
 };
 

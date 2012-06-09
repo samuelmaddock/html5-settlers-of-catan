@@ -3,7 +3,7 @@
   width: 500px;
   height: 200px;
   padding: 5px;
-  font-family: Calibri;
+  font-family: 'Segoe UI', 'Calibri';
   
   position: fixed;
   top: 50%;
@@ -49,6 +49,7 @@
   width: 100%;
   padding: 4px 0 4px 0;
   border: 0;
+  font-family: 'Segoe UI', 'Calibri';
 }
 
 #chatbox #entry:focus {

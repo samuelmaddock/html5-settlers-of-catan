@@ -92,21 +92,25 @@ CATAN.TurnManager.prototype = {
 
 		// Build order check
 		while(true) {
+			// 1 settlement
 			if(settlements < 1) {
 				if(ent.Building != BUILDING_SETTLEMENT) return;
 				break;
 			}
 
+			// 1 settlement, 1 road
 			if(roads < 1) {
 				if(ent.Building != BUILDING_ROAD) return;
 				break;
 			}
 
+			// 2 settlements, 1 road
 			if(settlements < 2) {
 				if(ent.Building != BUILDING_SETTLEMENT) return;
 				break;
 			}
 
+			// 2 settlements, 2 roads
 			if(roads < 2) {
 				if(ent.Building != BUILDING_ROAD) return;
 				break;
@@ -140,6 +144,9 @@ CATAN.TurnManager.prototype = {
 		}
 
 		if(bDone) {
+			// distribute resources
+			
+			
 			this.game.setState(STATE_PLAYING);
 		} else {
 			this.nextTurn();

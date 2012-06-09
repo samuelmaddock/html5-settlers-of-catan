@@ -1,4 +1,6 @@
-Chatbox = function() {
+var Chatbox = function() {
+
+	this.id = 'chatbox';
 
 	this.enabled = false;
 	this.log = []
@@ -16,7 +18,7 @@ Chatbox = function() {
 
 };
 
-Chatbox.prototype = new Chatbox();
+Chatbox.prototype = new CATAN.GUI.create('Panel');
 
 Chatbox.prototype.Toggle = function() {
 
@@ -84,7 +86,7 @@ Chatbox.prototype.AddLine = function(data, type) {
 
 		$('#log').append('<table id="' + id + '" class="chatline note"><tr><td>' + text + '</td></tr></table>');
 
-		this.log.push({ Text: text })
+		this.log.push({ Text: text });
 
 	}
 
@@ -94,7 +96,9 @@ Chatbox.prototype.AddLine = function(data, type) {
 	}, this.fadeTimeout );
 
 	// Send scrollbar to the bottom
-	var log = document.getElementById("log")
-	log.scrollTop = log.scrollHeight
+	var log = document.getElementById("log");
+	log.scrollTop = log.scrollHeight;
 
 };
+
+CATAN.GUI.register( "Chatbox", Chatbox );

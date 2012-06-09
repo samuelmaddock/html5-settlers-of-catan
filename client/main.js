@@ -5,11 +5,11 @@
 var CLIENT = true;
 var SERVER = false;
 //var IP = 'http://catan.nodester.com:80/';
-var IP = 'http://127.0.0.1:17153/';
+var IP = 'http://127.0.0.1:80/';
 
 CATAN._init = function() {
 
-	this.setupLobby();
+	this.Lobby = this.GUI.create('Lobby');
 
 	// Connect to lobby
 	this.socket = io.connect(IP);
@@ -23,63 +23,6 @@ CATAN._init = function() {
 	if(hash !== "") {
 		this.connectToServer(hash);
 	}
-
-};
-
-CATAN.setupLobby = function() {
-
-	// Lobby div
-	$("body").append($('<div>').attr('id', 'lobby'));
-
-	// Player name
-	$('#lobby').append($('<input>')
-		.attr('id', 'plyname')
-		.attr('maxlength', '32')
-		.change( function() {
-			CATAN.socket.emit('changeName', { name: $('#plyname').val() } );
-		})
-	);
-
-	// Server list
-	$('#lobby').append($('<table>').attr('id', 'serverlist')
-		.append($('<thead>')
-			.append($('<tr>')
-				.append($('<td>').attr('class', 'name').text('Name'))
-				.append($('<td>').attr('class', 'players').text('Schema'))
-				.append($('<td>').attr('class', 'players').text('Players'))
-			)
-		)
-		.append($('<tbody>'))
-	);
-
-	// Create a server
-	$('#lobby').append($('<form>')
-		.append($('<h1>').text('Create a server:'))
-		.append($('<input>')
-			.attr('id', 'name')
-			.attr('value', 'Settlers of Catan')
-			.attr('maxlength', '64')
-		)
-		.append($('<select>')
-			.attr('id', 'schema')
-			.append($('<option>')
-				.attr('value', 'Classic')
-				.text('Classic')
-			)
-		)
-		.append($('<input>')
-			.attr('id', 'public')
-			.attr('type', 'checkbox')
-			.attr('value', 'public')
-			.attr('checked', 'true')
-			.text('Public')
-		)
-		.append($('<input>')
-			.attr('type', 'button')
-			.attr('value', 'Connect')
-			.attr('onclick', 'CATAN.createServer()')
-		)
-	);
 
 };
 
@@ -125,8 +68,6 @@ CATAN.connectToServer = function(id) {
 		id = target.id;
 	}
 
-	this.chat = new Chatbox();
-
 	this.server = io.connect(IP + id);
 	this.setupSocket(this.server);
 
@@ -136,11 +77,13 @@ CATAN.connectToServer = function(id) {
 
 CATAN.onConnection = function() {
 	this.server.emit( 'playerReady', {} );
+
+	this.chat = this.GUI.create("Chatbox");
 };
 
 CATAN.setupGame = function() {
 
-	$('#lobby').remove();
+	this.Lobby.remove();
 
 	$('body').append($('<div>').attr('id', 'game'));
 
@@ -177,9 +120,12 @@ CATAN.setupSocket = function(socket) {
 
 	socket.on('setupBuild', function (data) {
 
+		collisionObjects.length = 0
+
 		for(var i in data.available) {
 			var ent = CATAN.getEntById(data.available[i]);
 			ent.show(0.33);
+			collisionObjects.push( ent.Collision );
 		}
 
 	});
