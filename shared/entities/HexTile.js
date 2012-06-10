@@ -105,33 +105,6 @@ HexTile.prototype.setupMesh = function() {
 	CATAN.Game.scene.add( this.Mesh );
 	
 }
-/* -----------------------------------------------
-	HexTile.setupMesh
-
-	Desc: Creates world mesh for tile
-------------------------------------------------*/
-HexTile.prototype.remove = function() {
-
-	CATAN.Game.scene.remove( this.Mesh )
-	CATAN.Game.scene.remove( this.robberMesh )
-	delete this
-	
-}
-
-/* -----------------------------------------------
-	HexTile.getMesh
-
-	Desc: Returns the tile's world mesh
-------------------------------------------------*/
-HexTile.prototype.getMesh = function() {
-
-	if (!this.Mesh) {
-		this.setupMesh();
-	}
-	
-	return this.Mesh;
-
-};
 
 /* -----------------------------------------------
 	HexTile.getCornerPosition( CORNER_ENUM )
@@ -179,16 +152,17 @@ HexTile.prototype.getEdgePosAng = function(EDGE_ENUM) {
 	Desc: Sets the robber on top of the tile
 	TODO: Create actual robber object
 ------------------------------------------------*/
-HexTile.prototype.setRobber = function() {
+HexTile.prototype.setRobber = function(board) {
 
 	this.Robber = true;
 
-	if (!CLIENT) return;
+	var obj = SERVER ? board : CATAN;
 
-	this.robberMesh = new THREE.Mesh( CATAN.getSchema().Robber.geometry, new THREE.MeshBasicMaterial( { color: 0x888888, envMap: CATAN.Game.textureSkybox } ) );
-	this.robberMesh.position = new THREE.Vector3(this.position.x, this.position.y + 5, this.position.z);
-	CATAN.Game.scene.add( this.robberMesh );
+	if(!obj.Robber) {
+		obj.Robber = CATAN.ents.create('Robber');
+	}
 
+	obj.Robber.setTile(this);
 }
 
 CATAN.ents.register('HexTile', HexTile);

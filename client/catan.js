@@ -41,6 +41,8 @@ CATAN.getPlayerById = function(id) {
 CATAN.create = function(name, data) {
 
 	var ent = this.ents.create(name);
+	ent.entid = data.id;
+	ent.setPosition(data.pos);
 
 	if(name == 'HexTile') {
 
@@ -61,10 +63,7 @@ CATAN.create = function(name, data) {
 
 	}
 
-	ent.entid = data.id;
-	ent.setPosition(data.pos);
 	ent.setupMesh();
-
 	this.Entities.push(ent);
 
 	return ent;

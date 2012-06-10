@@ -59,6 +59,21 @@ BaseEntity.prototype.hide = function() {
 };
 
 /* -----------------------------------------------
+	BaseEntity.getMesh
+
+	Desc: Returns the tile's world mesh
+------------------------------------------------*/
+BaseEntity.prototype.getMesh = function() {
+
+	if (!this.Mesh) {
+		this.setupMesh();
+	}
+	
+	return this.Mesh;
+
+};
+
+/* -----------------------------------------------
 	BaseEntity.getPosition
 	BaseEntity.setPosition
 

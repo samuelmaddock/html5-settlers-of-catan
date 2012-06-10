@@ -8,6 +8,7 @@ require('../shared/entities/BaseEntity.js');
 require('../shared/entities/HexTile.js');
 require('../shared/entities/HexCorner.js');
 require('../shared/entities/HexEdge.js');
+require('../shared/entities/Robber.js');
 
 CATAN.Board = function(game) {
 	
@@ -25,8 +26,6 @@ CATAN.Board = function(game) {
 	this.hexEdges = [];
 
 	this.ownedBuildings = [];
-	
-	this.robber = undefined;
 
 	this.setup();
 
@@ -199,8 +198,7 @@ CATAN.Board.prototype.setupResource = function(tile) {
 			console.log("DUPLICATE ROBBER!");
 		}
 		
-		tile.setRobber();
-		this.robber = tile;
+		tile.setRobber(this);
 		
 	}
 
