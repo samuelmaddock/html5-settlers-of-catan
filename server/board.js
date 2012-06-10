@@ -31,37 +31,10 @@ CATAN.Board = function(game) {
 
 }
 
-CATAN.Board.prototype.clearBoard = function() {
-
-	// Remove geometry
-	if (CLIENT) {
-
-		for(var i in this.hexTiles) {
-			this.hexTiles[i].remove()
-		}
-
-		for(var i in this.hexCorners) {
-			this.hexCorners[i].remove()
-		}
-
-		for(var i in this.hexEdges) {
-			this.hexEdges[i].remove()
-		}
-
-	}
-
-	this.hexTiles = [];
-	this.hexCorners = [];
-	delete this.robber;
-
-}
-
 /* -----------------------------------------------
 	Catan Board Setup
 ------------------------------------------------*/
 CATAN.Board.prototype.setup = function() {
-
-	this.clearBoard()
 
 	this.Schema = this.game.getSchema();
 	this.Grid = this.game.getSchema().getGrid();
@@ -83,8 +56,6 @@ CATAN.Board.prototype.setup = function() {
 				tile = this.setupHexTile(x,y);
 				this.setupResource(tile);
 				this.setupNumberToken(tile);
-	
-				if (CLIENT) tile.setupMesh();
 				
 				this.hexTiles.push( tile );
 				
@@ -93,8 +64,9 @@ CATAN.Board.prototype.setup = function() {
 		}
 	}
 	
-	// Create corner entities
+	// Create corner and edge entities
 	var corners = [];
+	var edges = [];
 	for(var i in this.hexTiles) {
 		
 		var tile = this.hexTiles[i];
@@ -123,7 +95,6 @@ CATAN.Board.prototype.setup = function() {
 				
 				corners[posStr] = corner; // set reference for later
 				
-				tile.corners.push(corner);
 				this.hexCorners.push(corner);
 				this.game.entities.push(corner);
 				
@@ -133,20 +104,12 @@ CATAN.Board.prototype.setup = function() {
 			
 			}
 			
-			tile.corners.push( corner ); 
+			tile.corners.push( corner );
+			corner.AdjacentTiles.push(tile);
 			
 		}
-		
-	}
-	delete corners;
-	
-	// Create roads
-	var edges = [];
-	for(var i in this.hexTiles) {
-		
-		var tile = this.hexTiles[i];
-		
-		// Get edge positions
+
+		// Get edge orientations
 		var orientations = [
 			tile.getEdgePosAng(EDGE_T),
 			tile.getEdgePosAng(EDGE_TR),
@@ -173,7 +136,6 @@ CATAN.Board.prototype.setup = function() {
 				
 				edges[posStr] = edge; // set reference for later
 				
-				tile.edges.push(edge);
 				this.hexEdges.push(edge);
 				this.game.entities.push(edge);
 				
@@ -183,18 +145,18 @@ CATAN.Board.prototype.setup = function() {
 			
 			}
 			
-			tile.edges.push( edge ); 
+			tile.edges.push( edge );
+			edge.AdjacentTiles.push(tile);
 			
 		}
 		
 	}
+	delete corners;
 	delete edges;
 
 	// Establish adjacencies
-	if (SERVER) {
-		this.findAdjacentCorners()
-		this.findAdjacentEdges()
-	}
+	this.findAdjacentCorners()
+	this.findAdjacentEdges()
 
 
 	// Create docks
@@ -219,17 +181,13 @@ CATAN.Board.prototype.setupHexTile = function(x,y) {
 
 CATAN.Board.prototype.setupResource = function(tile) {
 
-	if (SERVER) {
-		// Get random possible key
-		var randResource = Math.floor( Math.random() * this.resourceCount.length )
-		
-		// Select resource
-		tile.Resource = this.resourceCount[randResource];
+	// Get random possible key
+	var randResource = Math.floor( Math.random() * this.resourceCount.length )
+	
+	// Select resource
+	tile.Resource = this.resourceCount[randResource];
 
-		this.resourceCount.splice(randResource,1); // remove resource		
-	} else {
-		tile.Resource = NET.Resources[tile.Id-1]
-	}
+	this.resourceCount.splice(randResource,1); // remove resource
 
 	// Setup robber if the resource is desert
 	if (tile.Resource == RESOURCE_DESERT) {
@@ -253,21 +211,13 @@ CATAN.Board.prototype.setupResource = function(tile) {
 ------------------------------------------------*/
 CATAN.Board.prototype.setupNumberToken = function(tile) {
 
-	if (SERVER) {
+	if(tile.Resource == RESOURCE_DESERT) return; // Desert doesn't have a number token
 
-		if(tile.Resource == RESOURCE_DESERT) return; // Desert doesn't have a number token
-
-		var randToken = Math.floor( Math.random() * this.numTokens.length )
-		
-		tile.NumberToken = this.numTokens[randToken];
-		
-		this.numTokens.splice(randToken,1); // remove resource
-		
-	} else {
-
-		tile.NumberToken = NET.NumberTokens[tile.Id-1]
-
-	}
+	var randToken = Math.floor( Math.random() * this.numTokens.length )
+	
+	tile.NumberToken = this.numTokens[randToken];
+	
+	this.numTokens.splice(randToken,1); // remove resource
 
 }
 
@@ -294,21 +244,15 @@ CATAN.Board.prototype.findAdjacentCorners = function() {
 			}
 		
 		}
-		
-	}
 
-	// for edges
-	for(var i in this.hexEdges) {
-	
-		var e = this.hexEdges[i]; // get corner
+		// Loop through all edges
+		for(var j in this.hexEdges) {
 		
-		// Loop through all other corners
-		for(var j in this.hexCorners) {
-		
-			var c = this.hexCorners[j]; // get corner to be compared
-			var distance = Math.floor( e.position.distanceTo(c.position) );
+			var e = this.hexEdges[j]; // get edge to be compared
+			var distance = Math.floor( c.position.distanceTo(e.position) );
 			
-			if (distance <= this.hexRadius) { // if the distance is small enough, the corner is adjacent
+			if (distance <= this.hexRadius) { // if the distance is small enough, the edge is adjacent
+				c.AdjacentEdges.push(e);
 				e.AdjacentCorners.push(c);
 			}
 		
@@ -322,18 +266,18 @@ CATAN.Board.prototype.findAdjacentEdges = function() {
 
 	for(var i in this.hexEdges) {
 	
-		var e = this.hexEdges[i]; // get corner
+		var e = this.hexEdges[i]; // get edge
 		
 		// Loop through all other corners
 		for(var j in this.hexEdges) {
 		
-			var e2 = this.hexEdges[j]; // get corner to be compared
+			var e2 = this.hexEdges[j]; // get edge to be compared
 			
-			if(e.Id != e2.Id) { // check for same corner
+			if(e.Id != e2.Id) { // check for same edge
 
 				var distance = Math.floor( e.position.distanceTo(e2.position) );
 
-				if (distance <= this.hexRadius) { // if the distance is small enough, the corner is adjacent
+				if (distance <= this.hexRadius) { // if the distance is small enough, the edge is adjacent
 					e.AdjacentEdges.push(e2);
 				}
 			

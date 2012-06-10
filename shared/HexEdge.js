@@ -8,6 +8,7 @@ CATAN.HexEdge = function() {
 
 	this.Building = BUILDING_ROAD;
 	
+	this.AdjacentTiles = [];
 	this.AdjacentEdges = [];
 	this.AdjacentCorners = [];
 	

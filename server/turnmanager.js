@@ -144,10 +144,12 @@ CATAN.TurnManager.prototype = {
 		}
 
 		if(bDone) {
+
 			// distribute resources
 			
 			
 			this.game.setState(STATE_PLAYING);
+			
 		} else {
 			this.nextTurn();
 			this.setupNextPlayer(this.getCurrentPlayer());

@@ -30,6 +30,8 @@ CATAN.HexTile = function(radius) {
 	
 	this.edgesX = [];
 	this.edgesY = [];
+
+	this.AdjacentCorners = [];
 	
 };
 
