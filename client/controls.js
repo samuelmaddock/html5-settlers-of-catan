@@ -134,20 +134,35 @@ THREE.CatanControls = function ( object, domElement ) {
 	
 	this.onKeyUp = function( event ) {
 
-		// Enter
+		// Chat Toggle: Enter
 		if(event.which == 13) {
 			CATAN.chat.Toggle();
 		};
 
-		// +
+		// Fullscreen: +/-
 		if(event.which == 187 || event.which == 189) {
 			var elem = document.getElementById('game');
+			if(elem.requestFullScreen) {
+				if(elem.fullScreen) {
+					elem.cancelFullScreen();
+				} else {
+					elem.requestFullScreen();
+					elem.fullScreenKeyboardInputAllowed = true;
+				}
+			}
 			if(elem.webkitRequestFullScreen) {
 				if(elem.webkitIsFullScreen) {
 					elem.webkitCancelFullScreen();
 				} else {
-					elem.requestFullScreen();
+					elem.webkitRequestFullScreen();
 					elem.webkitFullScreenKeyboardInputAllowed = true;
+				}
+			}
+			if(elem.mozRequestFullScreen) {
+				if(elem.mozfullScreen) {
+					elem.mozCancelFullScreen();
+				} else {
+					elem.requestFullScreenWithKeys();
 				}
 			}
 		};
