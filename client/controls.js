@@ -26,8 +26,6 @@ THREE.CatanControls = function ( object, domElement ) {
 	this.onMouseDownPhi = this.phi;
 
 	this.projector = new THREE.Projector();
-	//this.collisionObjects = [];
-	//this.lastObjectSelection;
 	
 	this.onMouseDown = function( event ) {
 
@@ -147,12 +145,14 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		//if(onTurn != true) return; // TODO: prevent tracing while not client's turn
 
+		var camera = CATAN.Game.camera;
+
 		var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
 
-		this.projector.unprojectVector( vector, camera );
+		this.projector.unprojectVector( vector, CATAN.Game.camera );
 
 		var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
-		var intersects = ray.intersectObjects( collisionObjects );
+		var intersects = ray.intersectObjects( CATAN.Game.collisionObjects );
 
 		var hitObject = intersects[0];
 		if(hitObject) {
@@ -169,7 +169,7 @@ THREE.CatanControls = function ( object, domElement ) {
 
 			};
 			
-			lastSelection = hitObject.object;
+			CATAN.Game.lastSelection = hitObject.object;
 			
 		};
 

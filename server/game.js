@@ -301,6 +301,8 @@ CATAN.Game.prototype = {
 	
 	onStartGame: function(socket,data) {
 
+		console.log("test start")
+
 		if(this.getState() != STATE_WAITING) return;
 
 		var ply = this.getByID(socket.id);

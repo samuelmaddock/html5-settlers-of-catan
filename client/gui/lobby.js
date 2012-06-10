@@ -59,40 +59,26 @@ var Lobby = function() {
 
 Lobby.prototype = new CATAN.GUI.create('Panel');
 
-Lobby.prototype.AddServer = function(data, type) {
+Lobby.prototype.loadServerList = function(data, type) {
 
-	var id, text;
+	$('#plyname').attr('value', data.name );
 
-	if(type == "player") { // message sent by player
+	var row = 0;
+	for(var i in data.Servers) {
+		var s = data.Servers[i];
 
-		id = "cl_" + (this.log.length + 1);
-		text = this.Cleanse(data.Text);
+		$("#serverlist").find('tbody')
+			.append($('<tr>').attr('class', 'row'+row)
+				.append($('<td>').attr('class', 'name')
+					.append($('<a>').attr('id', s.id).attr('href', './#'+s.id).attr('onclick', 'CATAN.connectToServer(event)')
+						.text(s.name))
+					)
+				.append($('<td>').attr('class', 'players').text(s.schema))
+				.append($('<td>').attr('class', 'players').text(s.players+'/'+s.max))
+			);
 
-		var col = this.Hex2String(data.ply.getColor());
-
-		$('#log').append('<table id="' + id + '" class="chatline"><tr><td class="name" style="color: ' + col + ';">' + data.ply.getName() + '</td><td>' + text + '</td></tr></table>');
-		
-		this.log.push({ Name: data.ply.getName(), Text: text })
-
-	} else { // message sent from server
-
-		id = "cl_" + (this.log.length + 1);
-		text = this.Cleanse(data);
-
-		$('#log').append('<table id="' + id + '" class="chatline note"><tr><td>' + text + '</td></tr></table>');
-
-		this.log.push({ Text: text });
-
-	}
-
-	// fade out messages
-	setTimeout(function() {
-		$('#' + id).fadeOut();
-	}, this.fadeTimeout );
-
-	// Send scrollbar to the bottom
-	var log = document.getElementById("log");
-	log.scrollTop = log.scrollHeight;
+		row = 1 - row;
+	};
 
 };
 

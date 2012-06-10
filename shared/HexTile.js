@@ -105,7 +105,7 @@ CATAN.HexTile.prototype.setupMesh = function() {
 
 	this.Mesh = new THREE.Mesh( resource.geometry, new THREE.MeshBasicMaterial( { color: resource.color } ) );
 	this.Mesh.position = this.position;
-	scene.add( this.Mesh );
+	CATAN.Game.scene.add( this.Mesh );
 	
 }
 /* -----------------------------------------------
@@ -115,8 +115,8 @@ CATAN.HexTile.prototype.setupMesh = function() {
 ------------------------------------------------*/
 CATAN.HexTile.prototype.remove = function() {
 
-	scene.remove( this.Mesh )
-	scene.remove( this.robberMesh )
+	CATAN.Game.scene.remove( this.Mesh )
+	CATAN.Game.scene.remove( this.robberMesh )
 	delete this
 	
 }
@@ -188,8 +188,8 @@ CATAN.HexTile.prototype.setRobber = function() {
 
 	if (!CLIENT) return;
 
-	this.robberMesh = new THREE.Mesh( CATAN.getSchema().Robber.geometry, new THREE.MeshBasicMaterial( { color: 0x888888, envMap: textureSkybox } ) );
+	this.robberMesh = new THREE.Mesh( CATAN.getSchema().Robber.geometry, new THREE.MeshBasicMaterial( { color: 0x888888, envMap: CATAN.Game.textureSkybox } ) );
 	this.robberMesh.position = new THREE.Vector3(this.position.x, this.position.y + 5, this.position.z);
-	scene.add( this.robberMesh );
+	CATAN.Game.scene.add( this.robberMesh );
 
 }

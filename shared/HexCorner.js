@@ -38,6 +38,6 @@ CATAN.HexCorner.prototype.setupMesh = function() {
 
 	this.Collision.position = this.position;
 	this.Collision.Parent = this;
-	scene.add( this.Collision );
+	CATAN.Game.scene.add( this.Collision );
 
 }
