@@ -134,6 +134,14 @@ CATAN.TurnManager.prototype = {
 			return;
 		}
 
+		// distribute resources
+		if(settlements == 2 && roads == 2) {
+			var tiles = ply.getBuildingsByType(BUILDING_SETTLEMENT)[1].AdjacentTiles;
+			for(var i in tiles) {
+				ply.giveResource(tiles[i].getResource());
+			}
+		}
+
 		var bDone = true,
 			players = this.game.getPlayers();
 
@@ -145,11 +153,8 @@ CATAN.TurnManager.prototype = {
 
 		if(bDone) {
 
-			// distribute resources
-			
-			
 			this.game.setState(STATE_PLAYING);
-			
+
 		} else {
 			this.nextTurn();
 			this.setupNextPlayer(this.getCurrentPlayer());

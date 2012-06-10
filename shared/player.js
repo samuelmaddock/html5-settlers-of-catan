@@ -4,8 +4,14 @@
  
 CATAN.Player = function() {
 
+	this.turn = false
 	this.buildings = [];
-	this.turn = false;
+
+	if(SERVER) {
+		this.Inventory = {
+			Resources: []
+		}
+	}
 
 };
 

@@ -9,8 +9,8 @@ CATAN.HexCorner = function() {
 	this.Building = BUILDING_SETTLEMENT;
 	
 	this.AdjacentTiles = [];
-	this.AdjacentCorners = [];
 	this.AdjacentEdges = [];
+	this.AdjacentCorners = [];
 
 };
 
