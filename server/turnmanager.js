@@ -1,6 +1,7 @@
 CATAN.TurnManager = function(game) {
 
 	this.game = game;
+	this.board = game.board;
 	this.turn = 0;
 	this.currentPlayer;
 
@@ -172,9 +173,11 @@ CATAN.TurnManager.prototype = {
 
 		var entities;
 		if(ply.SetupStep == 0 || ply.SetupStep == 2) {
-			entities = this.game.board.hexCorners;
-		} else if(ply.SetupStep == 1 || ply.SetupStep == 3) {
-			entities = this.game.board.hexEdges;
+			entities = this.board.hexCorners;
+		} else if(ply.SetupStep == 1) {
+			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[0].AdjacentEdges;
+		} else if(ply.SetupStep == 3) {
+			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[1].AdjacentEdges;
 		}
 
 		var buildable = [];
@@ -189,12 +192,19 @@ CATAN.TurnManager.prototype = {
 			available: buildable
 		})
 
-	}
+	},
 
 	/*---------------------------------------
 		Playing
 	---------------------------------------*/
 
+	playingNextPlayer: function(ply) {
+
+		this.game.emit('PlayerTurn', {
+			id: ply.getID()
+		})
+
+	}
 
 	/*---------------------------------------
 		End

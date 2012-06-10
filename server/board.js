@@ -303,10 +303,10 @@ CATAN.Board.prototype.getWorldHexOffset = function() {
 	return new THREE.Vector3( ( (this.cellWidth * w) - r ) / 2, 0, (this.cellHeight * h) / 2 );
 }
 
-CATAN.Board.prototype.getBuildingByID = function(id, building) {
-	if(building == BUILDING_ROAD) {
+CATAN.Board.prototype.getBuildingByID = function(id, BUILDING_ENUM) {
+	if(BUILDING_ENUM == BUILDING_ROAD) {
 		return this.getEdgeByID(id);
-	} else if(building == BUILDING_SETTLEMENT || building == BUILDING_CITY) {
+	} else if(BUILDING_ENUM == BUILDING_SETTLEMENT || BUILDING_ENUM == BUILDING_CITY) {
 		return this.getCornerByID(id);
 	}
 }
@@ -328,3 +328,18 @@ CATAN.Board.prototype.getEdgeByID = function(id) {
 CATAN.Board.prototype.addOwnedBuilding = function(building) {
 	this.ownedBuildings.push(building)
 }
+
+CATAN.Board.prototype.getAvailableBuildings = function(ply, BUILDING_ENUM) {
+
+	var entities = this.board.getBuildingsByType(BUILDING_ENUM);
+
+	var buildable = [];
+	for(var i in entities) {
+		if(entities[i].canBuild(ply)) {
+			buildable.push(entities[i].getEntId());
+		}
+	}
+
+	return buildable;
+
+},
