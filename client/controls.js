@@ -138,6 +138,19 @@ THREE.CatanControls = function ( object, domElement ) {
 		if(event.which == 13) {
 			CATAN.chat.Toggle();
 		};
+
+		// +
+		if(event.which == 187 || event.which == 189) {
+			var elem = document.getElementById('game');
+			if(elem.webkitRequestFullScreen) {
+				if(elem.webkitIsFullScreen) {
+					elem.webkitCancelFullScreen();
+				} else {
+					elem.requestFullScreen();
+					elem.webkitFullScreenKeyboardInputAllowed = true;
+				}
+			}
+		};
 		
 	};
 

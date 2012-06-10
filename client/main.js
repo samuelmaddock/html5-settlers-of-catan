@@ -190,3 +190,7 @@ CATAN.precacheModels = function() {
 	totalPrecached++;
 	
 }
+
+CATAN.Fullscreen = function() {
+	$('#game').webkitRequestFullScreen();
+}

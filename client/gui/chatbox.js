@@ -6,7 +6,7 @@ var Chatbox = function() {
 	this.log = []
 	this.fadeTimeout = 15 * 1000; // time in milliseconds
 
-	$('body').append($('<div>').attr('id', 'chatbox')
+	$('#game').append($('<div>').attr('id', 'chatbox')
 		.html('<div id="log">' +
 			'</div>' +
 			'' +
