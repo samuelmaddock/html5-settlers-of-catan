@@ -2,7 +2,7 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
  
-CATAN.Entity = function() {
+var BaseEntity = function() {
 
 	this.entid = -1;
 	this.Owner = -1;
@@ -14,13 +14,13 @@ CATAN.Entity = function() {
 	
 };
 
-CATAN.Entity.prototype = new CATAN.Entity();
+BaseEntity.prototype = new BaseEntity();
 
-CATAN.Entity.prototype.getEntId = function() { return this.entid; }
+BaseEntity.prototype.getEntId = function() { return this.entid; }
 
-CATAN.Entity.prototype.hasOwner = function() { return (this.Owner != -1); } // temporary
-CATAN.Entity.prototype.getOwner = function() { return this.Owner; }
-CATAN.Entity.prototype.setOwner = function(ply) {
+BaseEntity.prototype.hasOwner = function() { return (this.Owner != -1); } // temporary
+BaseEntity.prototype.getOwner = function() { return this.Owner; }
+BaseEntity.prototype.setOwner = function(ply) {
 
 	if(typeof ply === 'undefined') return;
 	this.Owner = ply.getID()
@@ -36,7 +36,7 @@ CATAN.Entity.prototype.setOwner = function(ply) {
 
 }
 
-CATAN.Entity.prototype.show = function(opacity) {
+BaseEntity.prototype.show = function(opacity) {
 	opacity = (typeof opacity !== 'undefined') ? opacity : 1;
 
 	if(typeof this.Collision !== 'undefined') { // change to mesh later
@@ -49,7 +49,7 @@ CATAN.Entity.prototype.show = function(opacity) {
 	this.visible = true;
 };
 
-CATAN.Entity.prototype.hide = function() {
+BaseEntity.prototype.hide = function() {
 	if(typeof this.Collision !== 'undefined') {
 		this.Collision.material.opacity = 0;
 		this.Collision.material.transparent = false;
@@ -59,30 +59,33 @@ CATAN.Entity.prototype.hide = function() {
 };
 
 /* -----------------------------------------------
-	CATAN.Entity.getPosition
-	CATAN.Entity.setPosition
+	BaseEntity.getPosition
+	BaseEntity.setPosition
 
 	Desc: Entity's world position
 ------------------------------------------------*/
-CATAN.Entity.prototype.getPosition = function() { return this.position; }
-CATAN.Entity.prototype.setPosition = function(pos) { this.position = pos; }
+BaseEntity.prototype.getPosition = function() { return this.position; }
+BaseEntity.prototype.setPosition = function(pos) { this.position = pos; }
 
-CATAN.Entity.prototype.getAngle = function() { return this.angle; }
-CATAN.Entity.prototype.setAngle = function(ang) { this.angle = ang; }
+BaseEntity.prototype.getAngle = function() { return this.angle; }
+BaseEntity.prototype.setAngle = function(ang) { this.angle = ang; }
 
-CATAN.Entity.prototype.build = function(ply) {
+BaseEntity.prototype.build = function(ply) {
 	this.setOwner(ply);
 }
 
-CATAN.Entity.prototype.create = function() {
+BaseEntity.prototype.create = function() {
 	this.entid = ++CATAN.EntityCount;	
 }
 
-CATAN.Entity.prototype.remove = function() {
+BaseEntity.prototype.remove = function() {
 	
-	scene.remove( this.Mesh )
-	delete this
+	if(CLIENT) {
+		CATAN.Game.scene.remove( this.Mesh );
+	}
+
+	delete this;
 	
 }
 
-CATAN.EntityCount = 0;
+CATAN.ents.register('BaseEntity', BaseEntity);

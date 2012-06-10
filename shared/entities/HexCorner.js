@@ -2,7 +2,7 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
  
-CATAN.HexCorner = function() {
+var HexCorner = function() {
 
 	this.create();
 
@@ -14,11 +14,9 @@ CATAN.HexCorner = function() {
 
 };
 
-CATAN.HexCorner.prototype = new CATAN.Entity();
-CATAN.HexCorner.prototype.constructor = CATAN.HexCorner;
-CATAN.HexCorner.prototype.super = CATAN.Entity.prototype;
+HexCorner.prototype = CATAN.ents.create('BaseEntity');
 
-CATAN.HexCorner.prototype.canBuild = function() {
+HexCorner.prototype.canBuild = function() {
 
 	if(this.hasOwner()) return false;
 
@@ -30,7 +28,7 @@ CATAN.HexCorner.prototype.canBuild = function() {
 	return true;
 }
 
-CATAN.HexCorner.prototype.setupMesh = function() {
+HexCorner.prototype.setupMesh = function() {
 
 	this.Collision = new THREE.Mesh(
 		new THREE.CubeGeometry(25,25,25),
@@ -42,3 +40,5 @@ CATAN.HexCorner.prototype.setupMesh = function() {
 	CATAN.Game.scene.add( this.Collision );
 
 }
+
+CATAN.ents.register('HexCorner', HexCorner);

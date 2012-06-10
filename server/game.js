@@ -371,7 +371,7 @@ CATAN.Game.prototype = {
 				robber: tile.hasRobber()
 			});
 		};
-		ply.emit('boardEntities', { type: ENTITY_TILE, ents: tiles });
+		ply.emit('boardEntities', { name: 'HexTile', ents: tiles });
 
 		// Send corners
 		var corners = [];
@@ -382,7 +382,7 @@ CATAN.Game.prototype = {
 				pos: corner.getPosition()
 			});
 		};
-		ply.emit('boardEntities', { type: ENTITY_CORNER, ents: corners });
+		ply.emit('boardEntities', { name: 'HexCorner', ents: corners });
 
 		// Send edges
 		var edges = [];
@@ -394,7 +394,7 @@ CATAN.Game.prototype = {
 				ang: edge.getAngle()
 			});
 		};
-		ply.emit('boardEntities', { type: ENTITY_EDGE, ents: edges });
+		ply.emit('boardEntities', { name: 'HexEdge', ents: edges });
 
 		// Send players
 		var players = game.getPlayers();

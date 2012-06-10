@@ -86,7 +86,7 @@ CATAN.setupSocket = function(socket) {
 	socket.on('boardEntities', function (data) {
 
 		for(var i in data.ents) {
-			CATAN.create(data.type, data.ents[i]);
+			CATAN.create(data.name, data.ents[i]);
 		}
 
 	});

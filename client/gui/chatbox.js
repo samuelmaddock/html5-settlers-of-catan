@@ -18,7 +18,7 @@ var Chatbox = function() {
 
 };
 
-Chatbox.prototype = new CATAN.GUI.create('Panel');
+Chatbox.prototype = CATAN.GUI.create('Panel');
 
 Chatbox.prototype.Toggle = function() {
 

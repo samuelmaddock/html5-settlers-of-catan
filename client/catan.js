@@ -38,13 +38,12 @@ CATAN.getPlayerById = function(id) {
 	}
 }
 
-CATAN.create = function(type, data) {
+CATAN.create = function(name, data) {
 
-	var ent;
+	var ent = this.ents.create(name);
 
-	if(type == ENTITY_TILE) {
+	if(name == 'HexTile') {
 
-		ent = new this.HexTile();
 		ent.setResource(data.resource);
 		ent.setToken(data.token);
 
@@ -52,13 +51,12 @@ CATAN.create = function(type, data) {
 			ent.setRobber();
 		}
 
-	} else if(type == ENTITY_CORNER) {
+	} else if(name == 'HexCorner') {
 
-		ent = new this.HexCorner();
+		// do nothing
 
-	} else if(type == ENTITY_EDGE) {
+	} else if(name == 'HexEdge') {
 
-		ent = new this.HexEdge();
 		ent.setAngle(data.ang);
 
 	}

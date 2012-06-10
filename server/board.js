@@ -3,10 +3,11 @@
  */
 
 THREE = require('./vector.js');
-require('../shared/Entity.js');
-require('../shared/HexTile.js');
-require('../shared/HexCorner.js');
-require('../shared/HexEdge.js');
+require('../shared/ents.js');
+require('../shared/entities/BaseEntity.js');
+require('../shared/entities/HexTile.js');
+require('../shared/entities/HexCorner.js');
+require('../shared/entities/HexEdge.js');
 
 CATAN.Board = function(game) {
 	
@@ -89,7 +90,7 @@ CATAN.Board.prototype.setup = function() {
 			var corner;
 			if (!corners[posStr]) { // create new corner entity
 			
-				corner = new CATAN.HexCorner();
+				corner = CATAN.ents.create('HexCorner');
 				corner.setPosition(positions[j]);
 				corner.Id = this.hexCorners.length + 1; // unique Id
 				
@@ -129,7 +130,7 @@ CATAN.Board.prototype.setup = function() {
 			var edge;
 			if (!edges[posStr]) { // create new edge entity
 			
-				edge = new CATAN.HexEdge();
+				edge = CATAN.ents.create('HexEdge');
 				edge.Id = this.hexEdges.length + 1; // unique Id
 				edge.setPosition(orientations[j].pos);
 				edge.setAngle(orientations[j].ang);
@@ -167,8 +168,9 @@ CATAN.Board.prototype.setupHexTile = function(x,y) {
 
 	// Create new HexGridCell object
 	var offset = this.getWorldHexOffset()
-	var hexTile = new CATAN.HexTile(this.hexRadius);
+	var hexTile = CATAN.ents.create('HexTile');
 	hexTile.Id = this.hexTiles.length + 1;
+	hexTile.setRadius(this.hexRadius);
 	hexTile.setGridIndex(x,y,offset);
 	
 	// Replace value in grid
@@ -205,7 +207,7 @@ CATAN.Board.prototype.setupResource = function(tile) {
 }
 
 /* -----------------------------------------------
-	CATAN.Board.prototype.setupNumberToken( CATAN.HexTile )
+	CATAN.Board.prototype.setupNumberToken( HexTile )
 
 	Desc: Assign number token to hex tile
 ------------------------------------------------*/
@@ -342,4 +344,4 @@ CATAN.Board.prototype.getAvailableBuildings = function(ply, BUILDING_ENUM) {
 
 	return buildable;
 
-},
+}

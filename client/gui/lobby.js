@@ -57,7 +57,7 @@ var Lobby = function() {
 
 };
 
-Lobby.prototype = new CATAN.GUI.create('Panel');
+Lobby.prototype = CATAN.GUI.create('Panel');
 
 Lobby.prototype.loadServerList = function(data, type) {
 

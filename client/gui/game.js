@@ -48,7 +48,7 @@ var Game = function() {
 
 };
 
-Game.prototype = new CATAN.GUI.create('Panel');
+Game.prototype = CATAN.GUI.create('Panel');
 
 Game.prototype.createCamera = function() {
 
