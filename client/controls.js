@@ -69,18 +69,22 @@ THREE.CatanControls = function ( object, domElement ) {
 		} else {
 
 			// Entity hovering
-
 			var ent = CATAN.mouseRayTrace(event);
 
 			if(ent) {
 
 				if(!this.lastTraceHit) {
 					CATAN.onEntityHoverStart(ent);
-					this.lastTraceEnt = ent;
 				} else {
-					CATAN.onEntityHover(ent);
+					if(this.lastTraceEnt && ent != this.lastTraceEnt) {
+						CATAN.onEntityHoverEnd(this.lastTraceEnt);
+						CATAN.onEntityHoverStart(ent);
+					} else {
+						CATAN.onEntityHover(ent);
+					}
 				}
 
+				this.lastTraceEnt = ent;
 				this.lastTraceHit = true;
 
 			} else {

@@ -103,6 +103,12 @@ CATAN.onEntityHoverStart = function(ent) {
 
 	if(!ent.hasOwner()) {
 		$('body').css('cursor','pointer');
+
+		ent.Collision.material = new THREE.MeshBasicMaterial({
+			color: CATAN.LocalPlayer.getColor(),
+			opacity: 0.88,
+			transparent: true
+		});
 	}
 
 }
@@ -110,5 +116,13 @@ CATAN.onEntityHoverStart = function(ent) {
 CATAN.onEntityHoverEnd = function(ent) {
 
 	$('body').css('cursor','default');
+
+	if(!ent.hasOwner()) {
+		ent.Collision.material = new THREE.MeshBasicMaterial({
+			color: 0xffffff,
+			opacity: 0.33,
+			transparent: true
+		});
+	}
 
 }
