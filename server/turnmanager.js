@@ -153,9 +153,9 @@ CATAN.TurnManager.prototype = {
 		}
 
 		if(bDone) {
-
 			this.game.setState(STATE_PLAYING);
-
+			this.nextTurn();
+			this.playingNextPlayer(this.getCurrentPlayer());
 		} else {
 			this.nextTurn();
 			this.setupNextPlayer(this.getCurrentPlayer());
@@ -166,10 +166,6 @@ CATAN.TurnManager.prototype = {
 	setupNextPlayer: function(ply) {
 
 		ply.SetupStep = (typeof ply.SetupStep == 'undefined') ? 0 : ++ply.SetupStep;
-
-		this.game.emit('PlayerTurn', {
-			id: ply.getID()
-		})
 
 		var entities;
 		if(ply.SetupStep == 0 || ply.SetupStep == 2) {
@@ -200,9 +196,7 @@ CATAN.TurnManager.prototype = {
 
 	playingNextPlayer: function(ply) {
 
-		this.game.emit('PlayerTurn', {
-			id: ply.getID()
-		})
+		ply.emit('playingStartTurn')
 
 	}
 

@@ -52,6 +52,7 @@ CATAN.onConnection = function() {
 	this.server.emit( 'playerReady', {} );
 
 	this.chat = this.GUI.create("Chatbox");
+	this.debug = this.GUI.create("Debug");
 };
 
 CATAN.setupGame = function() {
