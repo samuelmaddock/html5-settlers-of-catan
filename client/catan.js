@@ -28,6 +28,20 @@ CATAN.addPlayer = function(data, bChat) {
 	} else if(bChat) {
 		this.chat.AddLine(ply.getName() + " has joined the game (" + ply.address.address + ":" + ply.address.port + ")");
 	}
+
+	this.Game.players.refresh();
+}
+
+CATAN.removePlayer = function(ply) {
+
+	for(var i in this.Players) {
+		if(this.Players[i].getID() == ply.getID()) {
+			this.Players.splice(i,1);
+		}
+	}
+
+	this.Game.players.refresh();
+
 }
 
 CATAN.getPlayerById = function(id) {

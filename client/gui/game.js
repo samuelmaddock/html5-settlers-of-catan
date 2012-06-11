@@ -44,7 +44,8 @@ var Game = function() {
 
 	}, false );
 
-	//this.animate();
+	// Create sub-gui menus
+	this.players = CATAN.GUI.create('Players');
 
 };
 

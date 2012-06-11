@@ -180,7 +180,7 @@ CATAN.Game.prototype = {
 	},
 
 	/* --------------------------------------------
-		Socket Hooks
+		Player Hooks
 	-------------------------------------------- */
 	onPlayerConnection: function(socket) {
 
@@ -224,10 +224,10 @@ CATAN.Game.prototype = {
 			self.setOwner(ply);
 		}
 
+		// Setup player hooks
 		socket.on( 'playerReady',		function(data) { self.onPlayerJoin(socket,data) } );
 		socket.on( 'playerChat',		function(data) { self.onPlayerChat(socket,data) } );
 		socket.on( 'playerBuild',		function(data) { self.onPlayerBuild(socket,data) } );
-		//socket.on( 'disconnect',		function(data) { self.onPlayerDisconnect(socket,data) } );
 		socket.on( 'startGame',			function(data) { self.onStartGame(socket,data) } );
 
 		// Inform user of successful connection
@@ -298,26 +298,7 @@ CATAN.Game.prototype = {
 		// TODO: check if player held turn
 
 	},
-	
-	onStartGame: function(socket,data) {
 
-		if(this.getState() != STATE_WAITING) return;
-
-		var ply = this.getByID(socket.id);
-		if( (!this.isValidPlayer(ply)) || (this.getOwner() != ply.getID()) ) return;
-
-		if(this.getNumPlayers() < 2) {
-			ply.emit('GameUpdate', {
-				error: true,
-				message: "There must be 2 players in the game to start."
-			});
-			return;
-		}
-
-		this.turnManager.start();
-
-	},
-	
 	onPlayerChat: function(socket,data) {
 
 		var ply = this.getByID(socket.id);
@@ -351,6 +332,37 @@ CATAN.Game.prototype = {
 			if(ent.hasOwner()) return;
 
 		}
+
+	},
+
+
+	/* --------------------------------------------
+		Game Hooks
+	-------------------------------------------- */	
+	onStartGame: function(socket,data) {
+
+		if(this.getState() != STATE_WAITING) return;
+
+		// Valid player and player is owner
+		var ply = this.getByID(socket.id);
+		if( (!this.isValidPlayer(ply)) || (this.getOwner() != ply.getID()) ) return;
+
+		// Check if we have at least 2 players
+		if(this.getNumPlayers() < 2) {
+			ply.emit('GameUpdate', {
+				error: true,
+				message: "There must be 2 players in the game to start."
+			});
+			return;
+		}
+
+		this.turnManager.start();
+
+	},
+
+	onPlayerRequestAction: function(socket,data) {
+
+		
 
 	},
 

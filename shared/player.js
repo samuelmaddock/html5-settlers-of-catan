@@ -31,6 +31,14 @@ CATAN.Player.prototype = {
 		return this.color;
 	},
 
+	getColorHex: function() {
+		var x=this.color.toString(16);
+		var y=(6-x.length);
+		var z="000000";
+		var z1 = z.substring(0,y);
+		return "#" + z1 + x;
+	},
+
 	setTurn: function(bTurn) {
 		this.turn = bTurn;
 	},
