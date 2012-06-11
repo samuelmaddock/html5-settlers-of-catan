@@ -50,25 +50,59 @@ THREE.CatanControls = function ( object, domElement ) {
 	
 	this.onMouseMove = function( event ) {
 
-		if( !this.isMouseDown ) return;
+		if(this.isMouseDown) {
 
-		if(CATAN.chat.enabled) {
-			return;
+			if(CATAN.chat.enabled) {
+				return;
+			} else {
+
+				event.preventDefault();
+
+				$('body').css('cursor','move');
+
+				this.theta = - ( ( event.clientX - this.onMouseDownPosition.x ) * 0.5 ) + this.onMouseDownTheta;
+				this.phi = ( ( event.clientY - this.onMouseDownPosition.y ) * 0.5 ) + this.onMouseDownPhi;
+				this.phi = Math.min( 180, Math.max( 0, this.phi ) );
+
+			};
+
 		} else {
 
-			event.preventDefault();
+			// Entity hovering
 
-			this.theta = - ( ( event.clientX - this.onMouseDownPosition.x ) * 0.5 ) + this.onMouseDownTheta;
-			this.phi = ( ( event.clientY - this.onMouseDownPosition.y ) * 0.5 ) + this.onMouseDownPhi;
-			this.phi = Math.min( 180, Math.max( 0, this.phi ) );
+			var ent = CATAN.mouseRayTrace(event);
 
-		};
+			if(ent) {
+
+				if(!this.lastTraceHit) {
+					CATAN.onEntityHoverStart(ent);
+					this.lastTraceEnt = ent;
+				} else {
+					CATAN.onEntityHover(ent);
+				}
+
+				this.lastTraceHit = true;
+
+			} else {
+
+				if(this.lastTraceHit) {
+					CATAN.onEntityHoverEnd(this.lastTraceEnt);
+				}
+
+				this.lastTraceHit = false;
+
+			}
+
+		}
+
 
 	};
 	
 	this.onMouseUp = function( event ) {
 
 		this.isMouseDown = false;
+			
+		$('body').css('cursor','default');
 
 		if(CATAN.chat.enabled) {
 			return;
@@ -81,7 +115,15 @@ THREE.CatanControls = function ( object, domElement ) {
 
 			// Make sure the player didn't drag their mouse
 			if(this.onMouseDownPosition.x == 0 && this.onMouseDownPosition.y == 0) {
-				this.mouseRayTrace(event);
+
+				var ent = CATAN.mouseRayTrace(event);
+
+				if(ent) {
+					CATAN.server.emit('playerBuild', {
+						id: ent.getEntId()
+					});
+				}
+
 			};
 
 		};
@@ -167,40 +209,6 @@ THREE.CatanControls = function ( object, domElement ) {
 			}
 		};
 		
-	};
-
-	this.mouseRayTrace = function( event ) {
-
-		//if(onTurn != true) return; // TODO: prevent tracing while not client's turn
-
-		var camera = CATAN.Game.camera;
-
-		var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
-
-		this.projector.unprojectVector( vector, CATAN.Game.camera );
-
-		var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
-		var intersects = ray.intersectObjects( CATAN.Game.collisionObjects );
-
-		var hitObject = intersects[0];
-		if(hitObject) {
-		
-			var ent = hitObject.object.Parent;
-
-			if ((ent.Building !== undefined) && (ent.visible == true)) {
-
-				//console.log("Pressed Entity " + ent.getEntId());
-
-				CATAN.server.emit('playerBuild', {
-					id: ent.getEntId()
-				});
-
-			};
-			
-			CATAN.Game.lastSelection = hitObject.object;
-			
-		};
-
 	};
 	
 	this.domElement.addEventListener( 'contextmenu', bind( this, this.onContextMenu ), false );

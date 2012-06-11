@@ -71,4 +71,44 @@ CATAN.create = function(name, data) {
 }
 
 CATAN.mouseRayTrace = function( event ) {
+
+	//if(onTurn != true) return; // TODO: prevent tracing while not client's turn
+
+	var camera = CATAN.Game.camera;
+	var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
+
+	CATAN.Game.controls.projector.unprojectVector( vector, CATAN.Game.camera );
+
+	var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
+	var intersects = ray.intersectObjects( CATAN.Game.collisionObjects );
+
+	var hitObject = intersects[0];
+	if(hitObject) {
+	
+		var ent = hitObject.object.Parent;
+
+		if ((ent.Building !== undefined) && (ent.visible == true)) {
+			return ent;
+		};
+		
+		//CATAN.Game.lastSelection = hitObject.object;
+		
+	};
+
 };
+
+CATAN.onEntityHover = function(ent) {}
+
+CATAN.onEntityHoverStart = function(ent) {
+
+	if(!ent.hasOwner()) {
+		$('body').css('cursor','pointer');
+	}
+
+}
+
+CATAN.onEntityHoverEnd = function(ent) {
+
+	$('body').css('cursor','default');
+
+}
