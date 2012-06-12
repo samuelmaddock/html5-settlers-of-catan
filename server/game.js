@@ -137,7 +137,12 @@ CATAN.Game.prototype = {
 	},
 
 	getColor: function() {
-		return Math.round( 0xffffff * Math.random() );
+		//return Math.round( 0xffffff * Math.random() );
+		if(!this.colors) {
+			this.colors = this.getSchema().getColors();
+		}
+		var rand = Math.random() * this.colors.length
+		return this.colors.splice(rand,1)[0];;
 	},
 
 	getOwner: function() {

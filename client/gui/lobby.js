@@ -3,57 +3,65 @@ var Lobby = function() {
 	this.id = 'lobby';
 
 	// Lobby div
-	$("body").append($('<div>').attr('id', this.id));
-
-	// Player name
-	$('#lobby').append($('<input>')
-		.attr('id', 'plyname')
-		.attr('maxlength', '32')
-		.change( function() {
-			CATAN.socket.emit('changeName', { name: $('#plyname').val() } );
-		})
+	$("body").append($('<div>').attr('id', this.id).attr('class','clearfix')
+		.append($('<div>').attr('id', this.id+'-content-head'))
+		.append($('<div>').attr('id', this.id+'-content-main').attr('class','clearfix')
+			.append($('<div>').attr('id', this.id+'-content-left'))
+			.append($('<div>').attr('id', this.id+'-content-right'))
+		)
 	);
 
 	// Server list
-	$('#lobby').append($('<table>').attr('id', 'serverlist')
-		.append($('<thead>')
-			.append($('<tr>')
-				.append($('<td>').attr('class', 'name').text('Name'))
-				.append($('<td>').attr('class', 'players').text('Schema'))
-				.append($('<td>').attr('class', 'players').text('Players'))
+	$('#'+this.id+'-content-left').append($('<div>').attr('id','servers')
+		.append($('<table>').attr('id', 'serverlist')
+			.append($('<thead>')
+				.append($('<tr>')
+					.append($('<td>').attr('class', 'name').text('Name'))
+					.append($('<td>').attr('class', 'players').text('Schema'))
+					.append($('<td>').attr('class', 'players').text('Players'))
+				)
 			)
+			.append($('<tbody>'))
 		)
-		.append($('<tbody>'))
 	);
 
-	// Create a server
-	$('#lobby').append($('<form>')
-		.append($('<h1>').text('Create a server:'))
-		.append($('<input>')
-			.attr('id', 'name')
-			.attr('value', 'Settlers of Catan')
-			.attr('maxlength', '64')
-		)
-		.append($('<select>')
-			.attr('id', 'schema')
-			.append($('<option>')
-				.attr('value', 'Classic')
-				.text('Classic')
+	$('#'+this.id+'-content-right')
+		// Create a server
+		.append($('<form>')
+			.append($('<h1>').text('Create a server:'))
+			.append($('<input>')
+				.attr('id', 'name')
+				.attr('value', 'Settlers of Catan')
+				.attr('maxlength', '64')
+			)
+			.append($('<select>')
+				.attr('id', 'schema')
+				.append($('<option>')
+					.attr('value', 'Classic')
+					.text('Classic')
+				)
+			)
+			.append($('<input>')
+				.attr('id', 'public')
+				.attr('type', 'checkbox')
+				.attr('value', 'public')
+				.attr('checked', 'true')
+				.text('Public')
+			)
+			.append($('<input>')
+				.attr('type', 'button')
+				.attr('value', 'Connect')
+				.attr('onclick', 'CATAN.createServer()')
 			)
 		)
+		// Player name
 		.append($('<input>')
-			.attr('id', 'public')
-			.attr('type', 'checkbox')
-			.attr('value', 'public')
-			.attr('checked', 'true')
-			.text('Public')
+			.attr('id', 'plyname')
+			.attr('maxlength', '32')
+			.change( function() {
+				CATAN.socket.emit('changeName', { name: $('#plyname').val() } );
+			})
 		)
-		.append($('<input>')
-			.attr('type', 'button')
-			.attr('value', 'Connect')
-			.attr('onclick', 'CATAN.createServer()')
-		)
-	);
 
 };
 

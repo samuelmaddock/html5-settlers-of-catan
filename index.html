@@ -1,7 +1,7 @@
 <!--
 
 	HTML5 Settlers of Catan
-	https://github.com/samuelmaddock/HTML5-Settlers-of-Catan
+	https://github.com/samuelmaddock/html5-settlers-of-catan
 
 -->
 <!DOCTYPE html>
@@ -11,47 +11,74 @@
 	<title>Lobby</title>
 
 	<style>
+	/* CSS Reset */
+	html, body, div, span, applet, object, iframe,
+	h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+	a, abbr, acronym, address, big, cite, code,
+	del, dfn, em, img, ins, kbd, q, s, samp,
+	small, strike, strong, sub, sup, tt, var,
+	b, u, i, center,
+	dl, dt, dd, ol, ul, li,
+	fieldset, form, label, legend,
+	table, caption, tbody, tfoot, thead, tr, th, td,
+	article, aside, canvas, details, embed, 
+	figure, figcaption, footer, header, hgroup, 
+	menu, nav, output, ruby, section, summary,
+	time, mark, audio, video {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		font-size: 100%;
+		font: inherit;
+		vertical-align: baseline;
+	}
+	/* HTML5 display-role reset for older browsers */
+	article, aside, details, figcaption, figure, 
+	footer, header, hgroup, menu, nav, section {
+		display: block;
+	}
 	body {
-		font-family: Monospace;
+		line-height: 1;
+	}
+	ol, ul {
+		list-style: none;
+	}
+	blockquote, q {
+		quotes: none;
+	}
+	blockquote:before, blockquote:after,
+	q:before, q:after {
+		content: '';
+		content: none;
+	}
+	table {
+		border-collapse: collapse;
+		border-spacing: 0;
+	}
+
+	html {margin:0px;padding:0px;}
+
+	body {
+		font-family: 'Segoe UI', sans-serif;
 		background-color: #f0f0f0;
 		margin: 0px;
 		overflow: hidden;
 	}
 
-	#lobby {
-		width: 600px;
-		margin: 0 auto;
-	}
-
-	#serverlist {
-		width: 100%;
-		border-spacing: 0px;
-	}
-
-	#serverlist td {
-		padding: 4px;
-	}
-
-	#serverlist tr.row0 {
-	}
-
-	#serverlist tr.row1 {
-		background-color: #DDD;
-	}
-
-	#serverlist thead {
-		background-color: #000;
-		color: #EEE;
-	}
-
-	#serverlist td.name {
-		width: 60%;
-	}
-
-	#serverlist td.players {
-		text-align: center;
-		width: 20%;
-	}
+	/* slightly enhanced, universal clearfix hack */
+	.clearfix:after {
+	     visibility: hidden;
+	     display: block;
+	     font-size: 0;
+	     content: " ";
+	     clear: both;
+	     height: 0;
+	     }
+	.clearfix { display: inline-block; }
+	/* start commented backslash hack \*/
+	* html .clearfix { height: 1%; }
+	.clearfix { display: block; }
+	/* close commented backslash hack */
 	</style>
 
 	<!-- Libraries -->
@@ -78,6 +105,7 @@
 	<script src="client/gui/players.js"></script>
 	<link rel="stylesheet" href="client/gui/chatbox.css" type="text/css">
 	<link rel="stylesheet" href="client/gui/debug.css" type="text/css">
+	<link rel="stylesheet" href="client/gui/lobby.css" type="text/css">
 	<link rel="stylesheet" href="client/gui/players.css" type="text/css">
 
 	<script src="shared/player.js"></script>

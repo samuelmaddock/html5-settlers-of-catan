@@ -1,0 +1,59 @@
+#lobby {
+	width: 100%;
+}
+#lobby-content-main {
+	width: 1000px;
+	margin: 0 auto;
+}
+#lobby-content-left {
+	width: 560px;
+	margin-right: 40px;
+	float: left;
+}
+#lobby-content-right {
+	width: 400px;
+	float: left;
+}
+
+#lobby-content-head {
+	height: 160px;
+	background: #444;
+	margin-bottom: 35px;
+}
+
+/*
+	Server List
+*/
+div#servers {
+	width: 100%;
+}
+
+#serverlist {
+	width: 100%;
+	border-spacing: 0px;
+}
+
+#serverlist td {
+	padding: 4px;
+}
+
+#serverlist tr.row0 {
+}
+
+#serverlist tr.row1 {
+	background-color: #DDD;
+}
+
+#serverlist thead {
+	background-color: #000;
+	color: #EEE;
+}
+
+#serverlist td.name {
+	width: 60%;
+}
+
+#serverlist td.players {
+	text-align: center;
+	width: 20%;
+}

@@ -35,6 +35,15 @@ Classic.getNumberTokens = function() {
 	return [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12];
 }
 
+Classic.getColors = function() {
+	return [
+		0x2e90e6, // blue
+		0x2ee63a, // green
+		0xe62e2e, // red
+		0xca2ee6 // purple
+	];
+}
+
 Classic.Resources = [
 	
 	{
