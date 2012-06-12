@@ -57,7 +57,7 @@ io.sockets.on('connection', function(socket) {
   });
 
   var saveName = CATAN.Names[socket.handshake.address.address];
-  var name = (typeof saveName !== 'undefined') ? saveName : ('Unknown Player ' + (CATAN.ClientCount++));
+  var name = (typeof saveName !== 'undefined') ? saveName : ('Settler');
   socket.set('name', name)
 
   // Send player list to new clients
