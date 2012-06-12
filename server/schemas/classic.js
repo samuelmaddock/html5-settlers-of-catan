@@ -37,10 +37,10 @@ Classic.getNumberTokens = function() {
 
 Classic.getColors = function() {
 	return [
-		0x2e90e6, // blue
-		0x2ee63a, // green
-		0xe62e2e, // red
-		0xca2ee6 // purple
+		0x2BB1CC, // blue 
+		0x259C31, // green
+		0xCC332B, // red
+		0x912BCC // purple
 	];
 }
 

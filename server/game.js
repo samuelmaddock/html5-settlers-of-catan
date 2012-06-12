@@ -302,6 +302,9 @@ CATAN.Game.prototype = {
 
 		// TODO: check if player held turn
 
+		// Re-add color to available list
+		this.colors.push(ply.getColor())
+
 	},
 
 	onPlayerChat: function(socket,data) {
