@@ -13,10 +13,6 @@ global.BUILDING_ROAD		= 0
 global.BUILDING_SETTLEMENT	= 1
 global.BUILDING_CITY		= 2
 
-global.ENTITY_TILE		= 0
-global.ENTITY_CORNER	= 1
-global.ENTITY_EDGE		= 2
-
 global.CORNER_TL	= 0
 global.CORNER_TR 	= 1
 global.CORNER_R 	= 2

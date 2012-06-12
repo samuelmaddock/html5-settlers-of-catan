@@ -42,8 +42,8 @@ CATAN.getTotalPlayers = function() {
 global.CATAN = CATAN;
 
 // Load schemas
-require("fs").readdirSync(__dirname+"/schemas").forEach(function(file) {
-	require("./schemas/" + file);
+require("fs").readdirSync("./html5-settlers-of-catan/shared/schemas").forEach(function(file) {
+	require("../shared/schemas/" + file);
 });
 
 // Load necessary files
