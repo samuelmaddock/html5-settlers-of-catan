@@ -1,4 +1,5 @@
 #lobby {
+	color: #666;
 	width: 100%;
 }
 #lobby-content-main {
@@ -19,6 +20,28 @@
 	height: 160px;
 	background: #444;
 	margin-bottom: 35px;
+	text-align: center;
+}
+
+.content-box {
+	background-color: #EEE;
+	padding: 10px;
+	margin-bottom: 20px;
+	border: 1px solid #AAA;
+	box-shadow: 0px 1px 10px rgba(0,0,0,0.1);
+}
+
+.content-box h3 {
+	margin-bottom: 10px;
+}
+
+.content-box a, .content-box a:visited, .content-box a:active {
+	color: #666;
+	text-decoration: none;
+}
+
+.content-box a:hover {
+	text-decoration: underline;
 }
 
 /*
@@ -41,12 +64,11 @@ div#servers {
 }
 
 #serverlist tr.row1 {
-	background-color: #DDD;
+	background-color: #E0E0E0;
 }
 
 #serverlist thead {
-	background-color: #000;
-	color: #EEE;
+	background-color: #CCC;
 }
 
 #serverlist td.name {

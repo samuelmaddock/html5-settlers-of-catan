@@ -258,7 +258,8 @@ CATAN.Game.prototype = {
 		// Check for duplicate names
 		var players = this.getPlayers();
 		for(var i in players) {
-			if((players[i].getID() != ply.getID()) && (players[i].name == ply.name) && (players[i].nameDup == ply.nameDup)) {
+			var pl = players[i]
+			if((pl.getID() != ply.getID()) && (pl.name == ply.name) && (pl.nameDup == ply.nameDup)) {
 				ply.nameDup++
 			}
 		}

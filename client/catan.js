@@ -2,6 +2,21 @@ CATAN.Schemas = [];
 CATAN.Players = [];
 CATAN.Entities = [];
 
+CATAN.Notify = function(title,subtitle) {
+	if(window.webkitNotifications) {
+		if(window.webkitNotifications.checkPermission() == 0) {
+			var note = window.webkitNotifications.createNotification('',title,subtitle);
+			note.show();
+			console.log(note);
+			setTimeout(function(){note.cancel()},10000)
+		} else {
+			window.webkitNotifications.requestPermission(this.Notify);
+		}
+	} else {
+		console.log("Notifications are not supported for this Browser/OS version yet.");
+	}
+}
+
 CATAN.getName = function() {
 	return (localStorage && localStorage.Name) ? localStorage.Name : "Settler";
 }

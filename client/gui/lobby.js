@@ -4,7 +4,9 @@ var Lobby = function() {
 
 	// Lobby div
 	$("body").append($('<div>').attr('id', this.id).attr('class','clearfix')
-		.append($('<div>').attr('id', this.id+'-content-head'))
+		.append($('<div>').attr('id', this.id+'-content-head')
+			.append($('<h1>').text('Settlers of Catan'))
+		)
 		.append($('<div>').attr('id', this.id+'-content-main').attr('class','clearfix')
 			.append($('<div>').attr('id', this.id+'-content-left'))
 			.append($('<div>').attr('id', this.id+'-content-right'))
@@ -13,15 +15,18 @@ var Lobby = function() {
 
 	// Server list
 	$('#'+this.id+'-content-left').append($('<div>').attr('id','servers')
-		.append($('<table>').attr('id', 'serverlist')
-			.append($('<thead>')
-				.append($('<tr>')
-					.append($('<td>').attr('class', 'name').text('Name'))
-					.append($('<td>').attr('class', 'players').text('Schema'))
-					.append($('<td>').attr('class', 'players').text('Players'))
+		.append($('<div>').attr('class','content-box')
+			.append($('<h3>').text('Server List'))
+			.append($('<table>').attr('id', 'serverlist')
+				.append($('<thead>')
+					.append($('<tr>')
+						.append($('<td>').attr('class', 'name').text('Name'))
+						.append($('<td>').attr('class', 'players').text('Schema'))
+						.append($('<td>').attr('class', 'players').text('Players'))
+					)
 				)
+				.append($('<tbody>'))
 			)
-			.append($('<tbody>'))
 		)
 	);
 
@@ -29,49 +34,55 @@ var Lobby = function() {
 
 	$('#'+this.id+'-content-right')
 		// Create a server
-		.append($('<form>')
-			.append($('<h1>').text('Create a server:'))
-			.append($('<input>')
-				.attr('id', 'servername')
-				.attr('value', serverName)
-				.attr('maxlength', '64')
-				.change( function() {
-					if(localStorage) {
-						localStorage.ServerName = $('#servername').val();
-					}
-				})
-			)
-			.append($('<select>')
-				.attr('id', 'schema')
-				.append($('<option>')
-					.attr('value', 'Classic')
-					.text('Classic')
+		.append($('<div>').attr('class','content-box')
+			.append($('<h3>').text('Create a server'))
+			.append($('<form>')
+				.append($('<input>')
+					.attr('id', 'servername')
+					.attr('value', serverName)
+					.attr('maxlength', '64')
+					.change( function() {
+						if(localStorage) {
+							localStorage.ServerName = $('#servername').val();
+						}
+					})
+				)
+				.append($('<select>')
+					.attr('id', 'schema')
+					.append($('<option>')
+						.attr('value', 'Classic')
+						.text('Classic')
+					)
+				)
+				.append($('<input>')
+					.attr('id', 'public')
+					.attr('type', 'checkbox')
+					.attr('value', 'public')
+					.attr('checked', 'true')
+					.text('Public')
+				)
+				.append($('<input>')
+					.attr('type', 'button')
+					.attr('value', 'Connect')
+					.attr('onclick', 'CATAN.createServer()')
 				)
 			)
-			.append($('<input>')
-				.attr('id', 'public')
-				.attr('type', 'checkbox')
-				.attr('value', 'public')
-				.attr('checked', 'true')
-				.text('Public')
-			)
-			.append($('<input>')
-				.attr('type', 'button')
-				.attr('value', 'Connect')
-				.attr('onclick', 'CATAN.createServer()')
-			)
 		)
+
 		// Player name
-		.append($('<input>')
-			.attr('id', 'plyname')
-			.attr('maxlength', '32')
-			.attr('value', CATAN.getName())
-			.change( function() {
-				if(localStorage) {
-					localStorage.Name = $('#plyname').val();
-				}
-				CATAN.socket.emit('changeName', { name: CATAN.getName() } );
-			})
+		.append($('<div>').attr('class','content-box')
+			.append($('<h3>').text('Name'))
+			.append($('<input>')
+				.attr('id', 'plyname')
+				.attr('maxlength', '32')
+				.attr('value', CATAN.getName())
+				.change( function() {
+					if(localStorage) {
+						localStorage.Name = $('#plyname').val();
+					}
+					CATAN.socket.emit('changeName', { name: CATAN.getName() } );
+				})
+			)
 		)
 
 };
