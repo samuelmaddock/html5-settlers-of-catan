@@ -88,17 +88,24 @@ CATAN.setupSocket = function(socket) {
 	socket.on('boardEntities', function (data) {
 
 		for(var i in data.ents) {
-			CATAN.create(data.name, data.ents[i]);
+			var ent = CATAN.ents.create(data.name);
+			ent.setup(data.ents[i]);
 		}
 
 	});
 
 	socket.on('setupBuild', function (data) {
 
+		if(data.building == BUILDING_SETTLEMENT) {
+			CATAN.Notify("Settlers of Catan", "Select a settlement.")
+		} else {
+			CATAN.Notify("Settlers of Catan", "Select a road.")
+		}
+
 		CATAN.Game.collisionObjects.length = 0
 
 		for(var i in data.available) {
-			var ent = CATAN.getEntById(data.available[i]);
+			var ent = CATAN.ents.getById(data.available[i]);
 			ent.show(0.33);
 			CATAN.Game.collisionObjects.push( ent.Collision );
 		}
@@ -122,14 +129,14 @@ CATAN.setupSocket = function(socket) {
 
 	socket.on('PlayerBuild', function (data) {
 		var ply = CATAN.getPlayerById(data.id),
-			ent = CATAN.getEntById(data.entid);
+			ent = CATAN.ents.getById(data.entid);
 
 		ent.setOwner(ply);
 
 		// End build
 		if( ply.getID() == CATAN.LocalPlayer.getID() ) {
-			for(var i in CATAN.Entities) {
-				var ent2 = CATAN.Entities[i];
+			for(var i in CATAN.ents.getAll()) {
+				var ent2 = CATAN.ents.getAll()[i];
 				if(!ent2.hasOwner()) {
 					ent2.hide();
 				}
@@ -192,8 +199,4 @@ CATAN.precacheModels = function() {
 	});
 	totalPrecached++;
 	
-}
-
-CATAN.Fullscreen = function() {
-	$('#game').webkitRequestFullScreen();
 }

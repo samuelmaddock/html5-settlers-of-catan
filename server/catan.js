@@ -2,10 +2,7 @@
 require('./enums.js'); // can't use shared/enums.js since they don't use global
 require('../shared/catan.js');
 
-CATAN.Schemas = [];
 CATAN.Games = [];
-
-CATAN.Names = []; // Store client names by IP
 
 CATAN.ClientCount = 0;
 

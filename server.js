@@ -41,7 +41,6 @@ io.sockets.on('connection', function(socket) {
   socket.on('changeName', function(data) {
     var name = data.name.substr(0, 31);
     socket.set('name', name);
-    CATAN.Names[socket.handshake.address.address] = name;
   });
 
   socket.on('disconnect', function() {

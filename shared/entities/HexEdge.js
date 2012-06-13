@@ -43,4 +43,12 @@ HexEdge.prototype.setupMesh = function() {
 	
 }
 
+if(CLIENT) {
+	HexEdge.prototype.setup = function(data) {
+		this._setup(data);
+		this.setAngle(data.ang);
+		this.setupMesh();
+	}
+}
+
 CATAN.ents.register('HexEdge', HexEdge);

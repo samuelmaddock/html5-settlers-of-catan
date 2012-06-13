@@ -76,10 +76,10 @@ CATAN.TurnManager.prototype = {
 	initSetup: function(ply) {
 
 		this.setupBuildOrder = [
-			{ Resource: BUILDING_SETTLEMENT, Num: 1 },
-			{ Resource: BUILDING_ROAD, Num: 1 },
-			{ Resource: BUILDING_SETTLEMENT, Num: 2 },
-			{ Resource: BUILDING_ROAD, Num: 2 }
+			{ Type: BUILDING_SETTLEMENT, Num: 1 },
+			{ Type: BUILDING_ROAD, Num: 1 },
+			{ Type: BUILDING_SETTLEMENT, Num: 2 },
+			{ Type: BUILDING_ROAD, Num: 2 }
 		];
 
 		this.setupNextPlayer(ply);
@@ -88,34 +88,10 @@ CATAN.TurnManager.prototype = {
 
 	handleSetupRequest: function(ply, ent) {
 
-		var settlements = ply.getBuildingsByType(BUILDING_SETTLEMENT).length,
-			roads = ply.getBuildingsByType(BUILDING_ROAD).length;
-
 		// Build order check
-		while(true) {
-			// 1 settlement
-			if(settlements < 1) {
-				if(ent.Building != BUILDING_SETTLEMENT) return;
-				break;
-			}
-
-			// 1 settlement, 1 road
-			if(roads < 1) {
-				if(ent.Building != BUILDING_ROAD) return;
-				break;
-			}
-
-			// 2 settlements, 1 road
-			if(settlements < 2) {
-				if(ent.Building != BUILDING_SETTLEMENT) return;
-				break;
-			}
-
-			// 2 settlements, 2 roads
-			if(roads < 2) {
-				if(ent.Building != BUILDING_ROAD) return;
-				break;
-			}
+		var stage = this.setupBuildOrder[ply.SetupStep];
+		if(ent.Building != stage.Type || ply.getBuildingsByType(stage.Type).length != stage.Num-1) {
+			return;
 		}
 
 		ent.build(ply);
@@ -126,7 +102,7 @@ CATAN.TurnManager.prototype = {
 		});
 
 		// Update count
-		settlements = ply.getBuildingsByType(BUILDING_SETTLEMENT).length,
+		var settlements = ply.getBuildingsByType(BUILDING_SETTLEMENT).length,
 			roads = ply.getBuildingsByType(BUILDING_ROAD).length;
 
 		// Continue player turn
@@ -184,7 +160,7 @@ CATAN.TurnManager.prototype = {
 		}
 
 		ply.emit('setupBuild', {
-			building: this.setupBuildOrder[ply.SetupStep].Resource,
+			building: this.setupBuildOrder[ply.SetupStep].Type,
 			available: buildable
 		})
 

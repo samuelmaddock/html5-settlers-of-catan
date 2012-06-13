@@ -75,7 +75,7 @@ var Lobby = function() {
 			.append($('<input>')
 				.attr('id', 'plyname')
 				.attr('maxlength', '32')
-				.attr('value', CATAN.getName())
+				.attr('placeholder', 'Settler')
 				.change( function() {
 					if(localStorage) {
 						localStorage.Name = $('#plyname').val();
@@ -84,6 +84,10 @@ var Lobby = function() {
 				})
 			)
 		)
+
+		if(localStorage && localStorage.Name) {
+			$('#plyname').attr('value', CATAN.getName())
+		}
 
 };
 

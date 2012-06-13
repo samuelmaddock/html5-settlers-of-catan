@@ -165,4 +165,19 @@ HexTile.prototype.setRobber = function(board) {
 	obj.Robber.setTile(this);
 }
 
+if(CLIENT) {
+	HexTile.prototype.setup = function(data) {
+		this._setup(data);
+
+		this.setResource(data.resource);
+		this.setToken(data.token);
+
+		this.setupMesh();
+
+		if(data.robber) {
+			this.setRobber();
+		}
+	}
+}
+
 CATAN.ents.register('HexTile', HexTile);

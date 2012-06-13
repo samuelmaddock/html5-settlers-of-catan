@@ -41,4 +41,14 @@ HexCorner.prototype.setupMesh = function() {
 
 }
 
+if(CLIENT) {
+
+	HexCorner.prototype.setup = function(data) {
+		this._setup(data);
+		this.setupMesh();
+	}
+	
+}
+
+
 CATAN.ents.register('HexCorner', HexCorner);

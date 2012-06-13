@@ -1,6 +1,4 @@
-CATAN.Schemas = [];
 CATAN.Players = [];
-CATAN.Entities = [];
 
 CATAN.Notify = function(title,subtitle) {
 	if(window.webkitNotifications) {
@@ -23,14 +21,6 @@ CATAN.getName = function() {
 
 CATAN.getSchema = function() {
 	return this.Schemas["Classic"]; // static for now
-}
-
-CATAN.getEntById = function(id) {
-	for(var i in this.Entities) {
-		if(this.Entities[i].getEntId() == id) {
-			return this.Entities[i];
-		}
-	}
 }
 
 CATAN.addPlayer = function(data, bChat) {
@@ -69,38 +59,6 @@ CATAN.getPlayerById = function(id) {
 			return this.Players[i];
 		}
 	}
-}
-
-CATAN.create = function(name, data) {
-
-	var ent = this.ents.create(name);
-	ent.entid = data.id;
-	ent.setPosition(data.pos);
-
-	if(name == 'HexTile') {
-
-		ent.setResource(data.resource);
-		ent.setToken(data.token);
-
-		if(data.robber == true) {
-			ent.setRobber();
-		}
-
-	} else if(name == 'HexCorner') {
-
-		// do nothing
-
-	} else if(name == 'HexEdge') {
-
-		ent.setAngle(data.ang);
-
-	}
-
-	ent.setupMesh();
-	this.Entities.push(ent);
-
-	return ent;
-
 }
 
 CATAN.mouseRayTrace = function( event ) {

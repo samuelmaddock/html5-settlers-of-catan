@@ -84,7 +84,8 @@ Chatbox.prototype.AddLine = function(data, type) {
 		id = "cl_" + (this.log.length + 1);
 		text = this.Cleanse(data);
 
-		$('#log').append('<table id="' + id + '" class="chatline note"><tr><td>' + text + '</td></tr></table>');
+		//$('#log').append('<table id="' + id + '" class="chatline note"><tr><td>' + text + '</td></tr></table>');
+		CATAN.Notify("Settlers of Catan", text)
 
 		this.log.push({ Text: text });
 

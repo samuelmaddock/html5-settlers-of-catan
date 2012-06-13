@@ -58,6 +58,7 @@ BaseEntity.prototype.hide = function() {
 	this.visible = false;
 };
 
+
 /* -----------------------------------------------
 	BaseEntity.getMesh
 
@@ -101,6 +102,15 @@ BaseEntity.prototype.remove = function() {
 
 	delete this;
 	
+}
+
+if(CLIENT) {
+
+	BaseEntity.prototype._setup = function(data) {
+		this.entid = data.id;
+		this.setPosition(data.pos);
+	}
+
 }
 
 CATAN.ents.register('BaseEntity', BaseEntity);
