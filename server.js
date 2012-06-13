@@ -39,8 +39,9 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('changeName', function(data) {
-    socket.set('name', data.name);
-    CATAN.Names[socket.handshake.address.address] = data.name;
+    var name = data.name.substr(0, 31);
+    socket.set('name', name);
+    CATAN.Names[socket.handshake.address.address] = name;
   });
 
   socket.on('disconnect', function() {
@@ -56,26 +57,16 @@ io.sockets.on('connection', function(socket) {
 
   });
 
-  var saveName = CATAN.Names[socket.handshake.address.address];
-  var name = (typeof saveName !== 'undefined') ? saveName : ('Settler');
-  socket.set('name', name)
-
   // Send player list to new clients
   var servers = [];
   for(var i in CATAN.Games) {
     var game = CATAN.Games[i];
     if( (game.public == true) && (game.getState() == STATE_WAITING) ) {
-      servers.push({
-        id: game.id,
-        name: game.name,
-        schema: game.schema,
-        players: game.getPlayers().length,
-        max: game.getMaxPlayers()
-      });
+      servers.push( game.getStatus() );
     }
   };
 
-  socket.emit('loadServerList', { name: name, Servers: servers });
+  socket.emit('loadServerList', { Servers: servers });
 
 });
 

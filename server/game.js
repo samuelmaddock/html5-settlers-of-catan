@@ -36,6 +36,8 @@ CATAN.Game = function(socket,name,schema,public) {
 	CATAN.GameCount++;
 	console.log( '['+this.id+'][#'+CATAN.GameCount+'] Server initialized...');
 
+    CATAN.Server.sockets.emit( 'serverStatus', { status: 'start', info: this.getStatus() } )
+
 };
 
 CATAN.Game.prototype = {
@@ -51,6 +53,7 @@ CATAN.Game.prototype = {
 	},
 
 	_shutdown: function() {
+    	CATAN.Server.sockets.emit( 'serverStatus', { status: 'shutdown', info: { id: this.id } } );
 		for(var i in CATAN.Games) {
 			if(CATAN.Games[i].id === this.id) {
 				// get rid of reference, let garbage collection do the rest
@@ -62,6 +65,16 @@ CATAN.Game.prototype = {
 
 	_isValid: function() {
 		return (this.getPlayers().length > 0);
+	},
+
+	getStatus: function() {
+		return {
+			id: this.id,
+			name: this.name,
+			schema: this.schema,
+			players: this.getNumPlayers(),
+			max: this.getMaxPlayers()
+		}
 	},
 
 	emit: function(name,data) {
@@ -214,14 +227,6 @@ CATAN.Game.prototype = {
 		var ply = new CATAN.Player();
 		ply.connect(self, socket);
 
-		// Check for duplicate names
-		var players = self.getPlayers();
-		for(var i in players) {
-			if((players[i].name == ply.name) && (players[i].nameDup == ply.nameDup)) {
-				ply.nameDup++
-			}
-		}
-
 		self.players.push(ply); // add to player list
 
 		// First player connection is owner
@@ -241,13 +246,22 @@ CATAN.Game.prototype = {
 
 	},
 	
-	onPlayerJoin: function(socket) {
+	onPlayerJoin: function(socket,data) {
 
 		var ply = this.getByID(socket.id);
 		if(!this.isValidPlayer(ply)) return;
 		if(ply.Joined == true) return;
 
+		ply.name = data.name.substring(0,31);
 		ply.Joined = true;
+
+		// Check for duplicate names
+		var players = this.getPlayers();
+		for(var i in players) {
+			if((players[i].getID() != ply.getID()) && (players[i].name == ply.name) && (players[i].nameDup == ply.nameDup)) {
+				ply.nameDup++
+			}
+		}
 
 		// Send hex tiles, etc.
 		this.syncGame(ply);

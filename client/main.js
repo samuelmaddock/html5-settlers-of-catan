@@ -10,6 +10,7 @@ CATAN._init = function() {
 	// Connect to lobby
 	this.socket = io.connect(IP);
 	this.socket.on( 'loadServerList',	this.Lobby.loadServerList );
+	this.socket.on( 'serverStatus',		this.Lobby.serverUpdate );
 	this.socket.on( 'serverReady', function(data) {
 		CATAN.connectToServer(data.id);
 	});
@@ -26,7 +27,7 @@ CATAN.createServer = function() {
 
 	// Create server list html
 	this.socket.emit('createServer', {
-		name: $("#name").attr('value'),
+		name: $("#servername").attr('value'),
 		schema: $("#schema").attr('value'),
 		public: ($("#public").attr('checked') == 'checked')
 	});
@@ -49,7 +50,7 @@ CATAN.connectToServer = function(id) {
 };
 
 CATAN.onConnection = function() {
-	this.server.emit( 'playerReady', {} );
+	this.server.emit( 'playerReady', { name: CATAN.getName() } );
 
 	this.chat = this.GUI.create("Chatbox");
 	this.debug = this.GUI.create("Debug");

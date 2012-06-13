@@ -25,14 +25,21 @@ var Lobby = function() {
 		)
 	);
 
+	var serverName = (localStorage && localStorage.ServerName) ? localStorage.ServerName : "Settlers of Catan";
+
 	$('#'+this.id+'-content-right')
 		// Create a server
 		.append($('<form>')
 			.append($('<h1>').text('Create a server:'))
 			.append($('<input>')
-				.attr('id', 'name')
-				.attr('value', 'Settlers of Catan')
+				.attr('id', 'servername')
+				.attr('value', serverName)
 				.attr('maxlength', '64')
+				.change( function() {
+					if(localStorage) {
+						localStorage.ServerName = $('#servername').val();
+					}
+				})
 			)
 			.append($('<select>')
 				.attr('id', 'schema')
@@ -58,8 +65,12 @@ var Lobby = function() {
 		.append($('<input>')
 			.attr('id', 'plyname')
 			.attr('maxlength', '32')
+			.attr('value', CATAN.getName())
 			.change( function() {
-				CATAN.socket.emit('changeName', { name: $('#plyname').val() } );
+				if(localStorage) {
+					localStorage.Name = $('#plyname').val();
+				}
+				CATAN.socket.emit('changeName', { name: CATAN.getName() } );
 			})
 		)
 
@@ -67,25 +78,39 @@ var Lobby = function() {
 
 Lobby.prototype = CATAN.GUI.create('Panel');
 
+Lobby.prototype.serverUpdate = function(server) {
+
+	if(server.status == 'start') {
+		CATAN.Lobby.addServer(server.info);
+	}
+
+	if(server.status == 'shutdown') {
+		$('#'+server.info.id).remove();
+	}
+
+}
+
+var row = 0;
+Lobby.prototype.addServer = function(server) {
+
+	$("#serverlist").find('tbody')
+		.append($('<tr>').attr('class', 'row'+row).attr('id', server.id)
+			.append($('<td>').attr('class', 'name')
+				.append($('<a>').attr('href', './#'+server.id).attr('onclick', 'CATAN.connectToServer(event)')
+					.text(server.name))
+				)
+			.append($('<td>').attr('class', 'players').text(server.schema))
+			.append($('<td>').attr('class', 'players').text(server.players+'/'+server.max))
+		);
+
+	row = 1 - row;
+
+};
+
 Lobby.prototype.loadServerList = function(data, type) {
 
-	$('#plyname').attr('value', data.name );
-
-	var row = 0;
 	for(var i in data.Servers) {
-		var s = data.Servers[i];
-
-		$("#serverlist").find('tbody')
-			.append($('<tr>').attr('class', 'row'+row)
-				.append($('<td>').attr('class', 'name')
-					.append($('<a>').attr('id', s.id).attr('href', './#'+s.id).attr('onclick', 'CATAN.connectToServer(event)')
-						.text(s.name))
-					)
-				.append($('<td>').attr('class', 'players').text(s.schema))
-				.append($('<td>').attr('class', 'players').text(s.players+'/'+s.max))
-			);
-
-		row = 1 - row;
+		CATAN.Lobby.addServer(data.Servers[i]);
 	};
 
 };

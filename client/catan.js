@@ -2,6 +2,10 @@ CATAN.Schemas = [];
 CATAN.Players = [];
 CATAN.Entities = [];
 
+CATAN.getName = function() {
+	return (localStorage && localStorage.Name) ? localStorage.Name : "Settler";
+}
+
 CATAN.getSchema = function() {
 	return this.Schemas["Classic"]; // static for now
 }
