@@ -11,7 +11,7 @@ CATAN.Notify = function(data) {
 			
 			if(!data.type || data.type == "default") {
 				var icon = data.icon ? data.icon : '',
-					title = data.title ? data.title : "Settlers of Catan",
+					title = data.title ? data.title : T("#Title"),
 					subtitle = data.subtitle ? data.subtitle : "";
 				note = window.webkitNotifications.createNotification(icon,title,subtitle);
 			} else if(data.type == "html") {
@@ -33,7 +33,7 @@ CATAN.Notify = function(data) {
 }
 
 CATAN.getName = function() {
-	return (localStorage && localStorage.Name) ? localStorage.Name : "Settler";
+	return (localStorage && localStorage.Name) ? localStorage.Name : T("#DefaultName");
 }
 
 CATAN.getSchema = function() {
@@ -52,7 +52,7 @@ CATAN.addPlayer = function(data, bChat) {
 	if(ply.id == this.server.socket.sessionid) {
 		CATAN.LocalPlayer = ply;
 	} else if(bChat) {
-		this.chat.AddLine(ply.getName() + " has joined the game (" + ply.address.address + ":" + ply.address.port + ")");
+		this.chat.AddLine( T("#PlayerConnect", ply.getName(), ply.address.address, ply.address.port) );
 	}
 
 	this.Game.players.refresh();

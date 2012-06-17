@@ -118,7 +118,7 @@ CATAN.setupSocket = function(socket) {
 
 	socket.on('PlayerLeave', function (data) {
 		var ply = self.getPlayerById(data.id);
-		self.chat.AddLine(ply.getName() + " has disconnected");
+		self.chat.AddLine( T("#PlayerDisconnect", ply.getName()) );
 		self.removePlayer(ply);
 	});
 

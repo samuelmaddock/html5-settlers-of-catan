@@ -5,7 +5,7 @@ var Lobby = function() {
 	// Lobby div
 	$("body").append($('<div>').attr('id', this.id).attr('class','clearfix')
 		.append($('<div>').attr('id', this.id+'-content').attr('class','clearfix')
-			.append($('<div>').attr('id', this.id+'-content-header').text("CATAN"))
+			.append($('<div>').attr('id', this.id+'-content-header').text(T("#Title")))
 			.append($('<div>').attr('id', this.id+'-content-main').attr('class','clearfix')
 				.append($('<div>').attr('id', this.id+'-content-left'))
 				.append($('<div>').attr('id', this.id+'-content-right'))
