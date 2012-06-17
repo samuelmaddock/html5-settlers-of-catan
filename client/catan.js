@@ -1,18 +1,35 @@
 CATAN.Players = [];
 
-CATAN.Notify = function(title,subtitle) {
+CATAN.Notify = function(data) {
+
 	if(window.webkitNotifications) {
+
 		if(window.webkitNotifications.checkPermission() == 0) {
-			var note = window.webkitNotifications.createNotification('',title,subtitle);
+
+			var timeout = data.timeout ? data.timeout : 10000,
+				note;
+			
+			if(!data.type || data.type == "default") {
+				var icon = data.icon ? data.icon : '',
+					title = data.title ? data.title : "Settlers of Catan",
+					subtitle = data.subtitle ? data.subtitle : "";
+				note = window.webkitNotifications.createNotification(icon,title,subtitle);
+			} else if(data.type == "html") {
+				var url = data.url ? data.url : "http://google.com/" // replace with 404 page later
+				note = window.webkitNotifications.createHTMLNotification(data.url);
+			}
+
 			note.show();
-			console.log(note);
-			setTimeout(function(){note.cancel()},10000)
+			setTimeout(function(){note.cancel()},timeout);
+
 		} else {
 			window.webkitNotifications.requestPermission(this.Notify);
 		}
+
 	} else {
-		console.log("Notifications are not supported for this Browser/OS version yet.");
+		//alert("Please update your browser.");
 	}
+
 }
 
 CATAN.getName = function() {
@@ -87,33 +104,3 @@ CATAN.mouseRayTrace = function( event ) {
 	};
 
 };
-
-CATAN.onEntityHover = function(ent) {}
-
-CATAN.onEntityHoverStart = function(ent) {
-
-	if(!ent.hasOwner()) {
-		$('body').css('cursor','pointer');
-
-		ent.Collision.material = new THREE.MeshBasicMaterial({
-			color: CATAN.LocalPlayer.getColor(),
-			opacity: 0.88,
-			transparent: true
-		});
-	}
-
-}
-
-CATAN.onEntityHoverEnd = function(ent) {
-
-	$('body').css('cursor','default');
-
-	if(!ent.hasOwner()) {
-		ent.Collision.material = new THREE.MeshBasicMaterial({
-			color: 0xffffff,
-			opacity: 0.33,
-			transparent: true
-		});
-	}
-
-}

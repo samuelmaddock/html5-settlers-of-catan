@@ -14,7 +14,7 @@ Robber.prototype = CATAN.ents.create('BaseEntity');
 
 Robber.prototype.setupMesh = function() {
 
-	this.Mesh = new THREE.Mesh( CATAN.getSchema().Robber.geometry, new THREE.MeshBasicMaterial( { color: 0x888888, envMap: CATAN.Game.textureSkybox } ) );
+	this.Mesh = new THREE.Mesh( CATAN.getSchema().Robber.geometry, new THREE.MeshBasicMaterial( { color: 0x888888 } ) );
 	CATAN.Game.scene.add( this.Mesh );
 
 }
@@ -22,7 +22,7 @@ Robber.prototype.setupMesh = function() {
 Robber.prototype.setTile = function(tile) {
 	this.tile = tile;
 	if(CLIENT) {
-		this.getMesh().position = new THREE.Vector3(tile.position.x, tile.position.y + 5, tile.position.z);
+		this.getMesh().position = new THREE.Vector3(tile.position.x, tile.position.y, tile.position.z);
 	}
 }
 

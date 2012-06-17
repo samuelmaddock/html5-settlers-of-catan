@@ -97,9 +97,9 @@ CATAN.setupSocket = function(socket) {
 	socket.on('setupBuild', function (data) {
 
 		if(data.building == BUILDING_SETTLEMENT) {
-			CATAN.Notify("Settlers of Catan", "Select a settlement.")
+			CATAN.Notify({subtitle:"Select a settlement."});
 		} else {
-			CATAN.Notify("Settlers of Catan", "Select a road.")
+			CATAN.Notify({subtitle:"Select a road."})
 		}
 
 		CATAN.Game.collisionObjects.length = 0
@@ -107,7 +107,7 @@ CATAN.setupSocket = function(socket) {
 		for(var i in data.available) {
 			var ent = CATAN.ents.getById(data.available[i]);
 			ent.show(0.33);
-			CATAN.Game.collisionObjects.push( ent.Collision );
+			CATAN.Game.collisionObjects.push( ent.getMesh() );
 		}
 
 	});
@@ -135,8 +135,9 @@ CATAN.setupSocket = function(socket) {
 
 		// End build
 		if( ply.getID() == CATAN.LocalPlayer.getID() ) {
-			for(var i in CATAN.ents.getAll()) {
-				var ent2 = CATAN.ents.getAll()[i];
+			var entities = CATAN.ents.getByName(["HexCorner","HexEdge"]);
+			for(var i in entities) {
+				var ent2 = entities[i];
 				if(!ent2.hasOwner()) {
 					ent2.hide();
 				}
@@ -176,19 +177,30 @@ CATAN.precacheModels = function() {
 			CATAN.onConnection();
 		}
 	}
-
-	var resource = 0;
-	function resourceFinished( geometry ) {
-		CATAN.getSchema().Resources[resource].geometry = geometry;
-		resource++;
-		precacheFinished();
-	}
 	
+	var buildings = 0,
+	resources = 0;
+
 	// Precache resources
 	var loader = new THREE.JSONLoader( true );
-	for ( var i = 0; i < NUM_RESOURCES; i++ ) {
+	for ( var i = 0; i < RESOURCE_ORE+1; i++ ) {
 		var res = CATAN.getSchema().Resources[i];
-		loader.load( res.url, resourceFinished );
+		loader.load( res.url, function(geometry) {
+			CATAN.getSchema().Resources[resources].geometry = geometry;
+			precacheFinished();
+			resources++;
+		});
+		totalPrecached++;
+	}
+
+	// Precache buildings
+	for ( var j = 0; j < BUILDING_CITY+1; j++ ) {
+		var res = CATAN.getSchema().Buildings[j];
+		loader.load( res.url, function(geometry) {
+			CATAN.getSchema().Buildings[buildings].geometry = geometry;
+			precacheFinished();
+			buildings++;
+		});
 		totalPrecached++;
 	}
 	

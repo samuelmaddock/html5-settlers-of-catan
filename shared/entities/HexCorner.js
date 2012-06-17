@@ -30,14 +30,15 @@ HexCorner.prototype.canBuild = function() {
 
 HexCorner.prototype.setupMesh = function() {
 
-	this.Collision = new THREE.Mesh(
-		new THREE.CubeGeometry(25,25,25),
-		new THREE.MeshBasicMaterial({opacity: 0})
+	this.Mesh = new THREE.Mesh(
+		//new THREE.CubeGeometry(25,25,25),
+		CATAN.getSchema().Buildings[this.Building].geometry,
+		new THREE.MeshLambertMaterial({opacity: 0})
 	);
 
-	this.Collision.position = this.position;
-	this.Collision.Parent = this;
-	CATAN.Game.scene.add( this.Collision );
+	this.Mesh.position = this.position;
+	this.Mesh.Parent = this;
+	CATAN.Game.scene.add( this.Mesh );
 
 }
 

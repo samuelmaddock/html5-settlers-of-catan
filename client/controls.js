@@ -31,20 +31,16 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		this.isMouseDown = true;
 
-		if(CATAN.chat.enabled) {
-			return;
-		} else {
+		if(CATAN.chat.enabled) return;
 
-			event.preventDefault();
+		event.preventDefault();
 
-			// usefull ?
-			this.onMouseDownTheta = this.theta;
-			this.onMouseDownPhi = this.phi;
-			
-			this.onMouseDownPosition.x = event.clientX;
-			this.onMouseDownPosition.y = event.clientY;
-
-		};
+		// usefull ?
+		this.onMouseDownTheta = this.theta;
+		this.onMouseDownPhi = this.phi;
+		
+		this.onMouseDownPosition.x = event.clientX;
+		this.onMouseDownPosition.y = event.clientY;
 
 	};
 	
@@ -52,19 +48,15 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		if(this.isMouseDown) {
 
-			if(CATAN.chat.enabled) {
-				return;
-			} else {
+			if(CATAN.chat.enabled) return;
 
-				event.preventDefault();
+			event.preventDefault();
 
-				$('body').css('cursor','move');
+			$('body').css('cursor','move');
 
-				this.theta = - ( ( event.clientX - this.onMouseDownPosition.x ) * 0.5 ) + this.onMouseDownTheta;
-				this.phi = ( ( event.clientY - this.onMouseDownPosition.y ) * 0.5 ) + this.onMouseDownPhi;
-				this.phi = Math.min( 180, Math.max( 0, this.phi ) );
-
-			};
+			this.theta = - ( ( event.clientX - this.onMouseDownPosition.x ) * 0.5 ) + this.onMouseDownTheta;
+			this.phi = ( ( event.clientY - this.onMouseDownPosition.y ) * 0.5 ) + this.onMouseDownPhi;
+			this.phi = Math.min( 180, Math.max( 0, this.phi ) );
 
 		} else {
 
@@ -74,13 +66,13 @@ THREE.CatanControls = function ( object, domElement ) {
 			if(ent) {
 
 				if(!this.lastTraceHit) {
-					CATAN.onEntityHoverStart(ent);
+					ent.onHoverStart();
 				} else {
 					if(this.lastTraceEnt && ent != this.lastTraceEnt) {
-						CATAN.onEntityHoverEnd(this.lastTraceEnt);
-						CATAN.onEntityHoverStart(ent);
+						this.lastTraceEnt.onHoverEnd();
+						ent.onHoverStart();
 					} else {
-						CATAN.onEntityHover(ent);
+						ent.onHover();
 					}
 				}
 
@@ -90,7 +82,7 @@ THREE.CatanControls = function ( object, domElement ) {
 			} else {
 
 				if(this.lastTraceHit) {
-					CATAN.onEntityHoverEnd(this.lastTraceEnt);
+					this.lastTraceEnt.onHoverEnd();
 				}
 
 				this.lastTraceHit = false;
@@ -108,27 +100,23 @@ THREE.CatanControls = function ( object, domElement ) {
 			
 		$('body').css('cursor','default');
 
-		if(CATAN.chat.enabled) {
-			return;
-		} else {
+		if(CATAN.chat.enabled) return;
 
-			event.preventDefault();
+		event.preventDefault();
 
-			this.onMouseDownPosition.x = event.clientX - this.onMouseDownPosition.x;
-			this.onMouseDownPosition.y = event.clientY - this.onMouseDownPosition.y;
+		this.onMouseDownPosition.x = event.clientX - this.onMouseDownPosition.x;
+		this.onMouseDownPosition.y = event.clientY - this.onMouseDownPosition.y;
 
-			// Make sure the player didn't drag their mouse
-			if(this.onMouseDownPosition.x == 0 && this.onMouseDownPosition.y == 0) {
+		// Make sure the player didn't drag their mouse
+		if(this.onMouseDownPosition.x == 0 && this.onMouseDownPosition.y == 0) {
 
-				var ent = CATAN.mouseRayTrace(event);
+			var ent = CATAN.mouseRayTrace(event);
 
-				if(ent) {
-					CATAN.server.emit('playerBuild', {
-						id: ent.getEntId()
-					});
-				}
-
-			};
+			if(ent) {
+				CATAN.server.emit('playerBuild', {
+					id: ent.getEntId()
+				});
+			}
 
 		};
 
@@ -136,16 +124,18 @@ THREE.CatanControls = function ( object, domElement ) {
 	
 	this.onMouseWheel = function( event ) {
 
-		if(CATAN.chat.enabled) {
-			return;
-		} else {
-			var newRadius = this.radius - event.wheelDeltaY;
-			this.radius = THREE.Math.clamp( newRadius, this.minRadius, this.maxRadius );
-		}
+		if(CATAN.chat.enabled) return;
+
+		var newRadius = this.radius - event.wheelDeltaY;
+		this.radius = THREE.Math.clamp( newRadius, this.minRadius, this.maxRadius );
 		
 	};
 	
 	this.update = function( ) {
+
+		if(Gamepad.supported) {
+			this.updateGamepad();
+		}
 
 		this.object.position.x 
 			= this.radius 
@@ -168,13 +158,9 @@ THREE.CatanControls = function ( object, domElement ) {
 	
 	this.onContextMenu = function( event ) {
 
-		if(CATAN.chat.enabled) {
-			return;
-		} else {
+		if(CATAN.chat.enabled) return;
 
-			event.preventDefault();
-
-		};
+		event.preventDefault();
 		
 	};
 	
@@ -187,30 +173,7 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		// Fullscreen: +/-
 		if(event.which == 187 || event.which == 189) {
-			var elem = document.getElementById('game');
-			if(elem.requestFullScreen) {
-				if(elem.fullScreen) {
-					elem.cancelFullScreen();
-				} else {
-					elem.requestFullScreen();
-					elem.fullScreenKeyboardInputAllowed = true;
-				}
-			}
-			if(elem.webkitRequestFullScreen) {
-				if(elem.webkitIsFullScreen) {
-					elem.webkitCancelFullScreen();
-				} else {
-					elem.webkitRequestFullScreen();
-					elem.webkitFullScreenKeyboardInputAllowed = true;
-				}
-			}
-			if(elem.mozRequestFullScreen) {
-				if(elem.mozfullScreen) {
-					elem.mozCancelFullScreen();
-				} else {
-					elem.requestFullScreenWithKeys();
-				}
-			}
+			this.requestFullscreen();
 		};
 		
 	};
@@ -230,4 +193,62 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		};
 	};
+
+	/* Fullscreen API */
+	this.requestFullscreen = function() {
+
+		// Standard
+		var elem = document.getElementById('game');
+		if(elem.requestFullScreen) {
+			if(elem.fullScreen) {
+				elem.cancelFullScreen();
+			} else {
+				elem.requestFullScreen();
+				elem.fullScreenKeyboardInputAllowed = true;
+			}
+		}
+
+		// Webkit
+		if(elem.webkitRequestFullScreen) {
+			if(elem.webkitIsFullScreen) {
+				elem.webkitCancelFullScreen();
+			} else {
+				elem.webkitRequestFullScreen();
+				elem.webkitFullScreenKeyboardInputAllowed = true;
+			}
+		}
+
+		// Mozilla
+		if(elem.mozRequestFullScreen) {
+			if(elem.mozfullScreen) {
+				elem.mozCancelFullScreen();
+			} else {
+				elem.requestFullScreenWithKeys();
+			}
+		}
+
+	}
+
+	/* Gamepad API Testing */
+	this.updateGamepad = function() {
+		var pads = Gamepad.getStates();
+		for (var i = 0; i < pads.length; ++i) {
+			var pad = pads[i];
+			if (pad) {
+
+				// Thumbstick move
+				var xdelta = - ( ( -(pad.rightStickX+1)*100 ) * 0.5 ),
+					ydelta = ( ( -pad.rightStickY*100 ) * 0.5 );
+				this.theta = xdelta + this.onMouseDownTheta;
+				this.phi = ydelta + this.onMouseDownPhi;
+				this.phi = Math.min( 180, Math.max( 0, this.phi ) );
+
+				// Trigger zoom
+				var diffZoom = pad.leftShoulder1*20 - pad.rightShoulder1*20
+				this.radius = THREE.Math.clamp( this.radius + diffZoom, this.minRadius, this.maxRadius );
+
+			}
+		}
+	}
+
 };

@@ -94,14 +94,15 @@ HexTile.prototype.getNeighborY = function() {};
 	Desc: Creates world mesh for tile
 ------------------------------------------------*/
 HexTile.prototype.setupMesh = function() {
-
-	this.Material = new THREE.MeshBasicMaterial({ color: 0xFF0000, wireframe: true });
 	
 	// Spawn hex mesh
 	var resource = CATAN.getSchema().Resources[this.getResource()];
 
-	this.Mesh = new THREE.Mesh( resource.geometry, new THREE.MeshBasicMaterial( { color: resource.color } ) );
+	var material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture(resource.mat) });
+
+	this.Mesh = new THREE.Mesh( resource.geometry, material );
 	this.Mesh.position = this.position;
+	this.Mesh.rotation.y = (2*Math.PI)/6 * (Math.floor(Math.random() * 6) + 1)
 	CATAN.Game.scene.add( this.Mesh );
 	
 }

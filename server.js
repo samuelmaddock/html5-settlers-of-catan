@@ -126,6 +126,9 @@ function handle(request, response) {
       case '.css':
         contentType = 'text/css';
         break;
+      case '.png':
+        contentType = 'image/png';
+        break;
   }
 
   filePath = __dirname + filePath;

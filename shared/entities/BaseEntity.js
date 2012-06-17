@@ -28,7 +28,7 @@ BaseEntity.prototype.setOwner = function(ply) {
 
 	if(CLIENT) {
 		this.show();
-		this.Collision.material = new THREE.MeshBasicMaterial({
+		this.getMesh().material = new THREE.MeshLambertMaterial({
 			color: ply.getColor(),
 			opacity: 1
 		});
@@ -39,10 +39,10 @@ BaseEntity.prototype.setOwner = function(ply) {
 BaseEntity.prototype.show = function(opacity) {
 	opacity = (typeof opacity !== 'undefined') ? opacity : 1;
 
-	if(typeof this.Collision !== 'undefined') { // change to mesh later
-		this.Collision.material.opacity = opacity;
+	if(typeof this.getMesh() !== 'undefined') { // change to mesh later
+		this.getMesh().material.opacity = opacity;
 		if(opacity < 1) {
-			this.Collision.material.transparent = true;
+			this.getMesh().material.transparent = true;
 		}
 	}
 
@@ -50,9 +50,9 @@ BaseEntity.prototype.show = function(opacity) {
 };
 
 BaseEntity.prototype.hide = function() {
-	if(typeof this.Collision !== 'undefined') {
-		this.Collision.material.opacity = 0;
-		this.Collision.material.transparent = false;
+	if(typeof this.getMesh() !== 'undefined') {
+		this.getMesh().material.opacity = 0;
+		this.getMesh().material.transparent = false;
 	}
 
 	this.visible = false;
@@ -109,6 +109,36 @@ if(CLIENT) {
 	BaseEntity.prototype._setup = function(data) {
 		this.entid = data.id;
 		this.setPosition(data.pos);
+	}
+
+	BaseEntity.prototype.onHover = function() {}
+
+	BaseEntity.prototype.onHoverStart = function() {
+
+		if(!this.hasOwner()) {
+			$('body').css('cursor','pointer');
+
+			this.getMesh().material = new THREE.MeshLambertMaterial({
+				color: CATAN.LocalPlayer.getColor(),
+				opacity: 0.88,
+				transparent: true
+			});
+		}
+
+	}
+
+	BaseEntity.prototype.onHoverEnd = function() {
+
+		$('body').css('cursor','default');
+
+		if(!this.hasOwner()) {
+			this.getMesh().material = new THREE.MeshLambertMaterial({
+				color: 0xffffff,
+				opacity: 0.33,
+				transparent: true
+			});
+		}
+
 	}
 
 }

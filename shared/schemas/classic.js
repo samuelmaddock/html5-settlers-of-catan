@@ -4,37 +4,43 @@ Classic.Resources = [
 	
 	{
 		name: "Desert",
-		url: "models/hex.js",
+		url: "client/models/tile.js",
+		mat: "client/materials/models/tile/desert.png",
 		color: 0xE8E67D
 	},
 	
 	{
 		name: "Lumber",
-		url: "models/hex.js",
+		url: "client/models/tile.js",
+		mat: "client/materials/models/tile/forest.png",
 		color: 0x7A6400
 	},
 	
 	{
 		name: "Brick",
-		url: "models/hex.js",
+		url: "client/models/tile.js",
+		mat: "client/materials/models/tile/hills.png",
 		color: 0xCC1B1B
 	},
 	
 	{
 		name: "Sheep",
-		url: "models/hex.js",
+		url: "client/models/tile.js",
+		mat: "client/materials/models/tile/pastures.png",
 		color: 0x55E076
 	},
 	
 	{
 		name: "Grain",
-		url: "models/hex.js",
+		url: "client/models/tile.js",
+		mat: "client/materials/models/tile/field.png",
 		color: 0xC2AF25
 	},
 	
 	{
 		name: "Ore",
-		url: "models/hex.js",
+		url: "client/models/tile.js",
+		mat: "client/materials/models/tile/mountains.png",
 		color: 0x878787
 	}
 		
@@ -44,19 +50,19 @@ Classic.Buildings = [
 	
 	{
 		name: "Road",
-		url: "models/hex.js",
+		url: "client/models/road.js",
 		cost: [ 0, 1, 1, 0, 0, 0 ] // use resource enums
 	},
 	
 	{
 		name: "Settlement",
-		url: "models/hex.js",
+		url: "client/models/settlement.js",
 		cost: [ 0, 1, 1, 1, 1, 0 ]
 	},
 	
 	{
 		name: "City",
-		url: "models/hex.js",
+		url: "client/models/city.js",
 		cost: [ 0, 0, 0, 0, 2, 3 ]
 	}
 	
@@ -64,7 +70,7 @@ Classic.Buildings = [
 
 Classic.Robber = {
 	name: "Robber",
-	url: "models/robber.js"
+	url: "client/models/robber.js"
 };
 
 Classic.CardCost = [ 0, 0, 0, 1, 1, 1 ]
@@ -72,22 +78,22 @@ Classic.Cards = [
 	
 	{
 		name: "Year of Plenty",
-		url: "materials/cards/yearofplenty.png"
+		url: "client/materials/cards/yearofplenty.png"
 	},
 	
 	{
 		name: "Road Building",
-		url: "materials/cards/roadbuilding.png"
+		url: "client/materials/cards/roadbuilding.png"
 	},
 	
 	{
 		name: "Monopoly",
-		url: "materials/cards/monopoly.png"
+		url: "client/materials/cards/monopoly.png"
 	},
 	
 	{
 		name: "Knight",
-		url: "materials/cards/knight.png"
+		url: "client/materials/cards/knight.png"
 	}
 	
 ];
@@ -96,12 +102,12 @@ Classic.Special = [
 	
 	{
 		name: "Largest Army",
-		url: "materials/special/largestarmy.png"
+		url: "client/materials/special/largestarmy.png"
 	},
 	
 	{
 		name: "Longest Road",
-		url: "materials/special/longestroad.png"
+		url: "client/materials/special/longestroad.png"
 	}
 	
 ];

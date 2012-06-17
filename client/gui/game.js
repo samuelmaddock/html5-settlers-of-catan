@@ -12,21 +12,22 @@ var Game = function() {
 	this.createCamera();
 	this.createControls();
 	this.createLighting();
-	this.createSkybox();
-	this.createWater();
+	//this.createSkybox();
+	//this.createWater();
 	
 	// WebGL Renderer
-	this.renderer = new THREE.WebGLRenderer( { clearColor: 0x00aaff, clearAlpha: 1, antialias: true } );
+	//this.renderer = new THREE.WebGLRenderer( { clearColor: 0x00aaff, clearAlpha: 1, antialias: true } );
+	this.renderer = new THREE.WebGLRenderer( { clearColor: 0x00183B, clearAlpha: 1, antialias: true } );
 	this.renderer.setSize( window.innerWidth, window.innerHeight );
 	this.renderer.autoClear = false;
 
 	this.container.appendChild(this.renderer.domElement);
 
 	// Stats.js fps counter
-	this.stats = new Stats();
+	/*this.stats = new Stats();
 	this.stats.domElement.style.position = 'absolute';
 	this.stats.domElement.style.top = '0px';
-	this.container.appendChild( this.stats.domElement );
+	this.container.appendChild( this.stats.domElement );*/
 	
 	// Fill web browser
 	window.addEventListener( 'resize', function ( event ) {
@@ -36,8 +37,10 @@ var Game = function() {
 
 		CATAN.Game.renderer.setSize( window.innerWidth, window.innerHeight );
 
-		CATAN.Game.cameraSkybox.aspect = window.innerWidth / window.innerHeight;
-		CATAN.Game.cameraSkybox.updateProjectionMatrix();
+		if(CATAN.Game.cameraSkybox) {
+			CATAN.Game.cameraSkybox.aspect = window.innerWidth / window.innerHeight;
+			CATAN.Game.cameraSkybox.updateProjectionMatrix();
+		}
 
 		CATAN.Game.camera.aspect = window.innerWidth / window.innerHeight;
 		CATAN.Game.camera.updateProjectionMatrix();
@@ -87,7 +90,7 @@ Game.prototype.createSkybox = function() {
 	
 	this.sceneSkybox.add( this.cameraSkybox );
 	
-	var path = "materials/skybox/blue01";
+	var path = "client/materials/skybox/blue01";
 	var format = '.png';
 	var urls = [
 		path + 'ft' + format, path + 'bk' + format,
@@ -160,22 +163,26 @@ Game.prototype.animate = function() {
 	requestAnimationFrame( CATAN.Game.animate );
 	
 	CATAN.Game.render();
-	CATAN.Game.stats.update();
+	//CATAN.Game.stats.update();
 
 }
 
 Game.prototype.render = function() {
 
 	this.controls.update();
-	
-	this.skyboxTarget.x = -this.camera.position.x;
-	this.skyboxTarget.y = -this.camera.position.y;
-	this.skyboxTarget.z = -this.camera.position.z;
 
-	this.cameraSkybox.lookAt( this.skyboxTarget );
-	
 	this.renderer.clear();
-	this.renderer.render( this.sceneSkybox, this.cameraSkybox );
+	
+	if(this.sceneSkybox) {
+		this.skyboxTarget.x = -this.camera.position.x;
+		this.skyboxTarget.y = -this.camera.position.y;
+		this.skyboxTarget.z = -this.camera.position.z;
+
+		this.cameraSkybox.lookAt( this.skyboxTarget );
+
+		this.renderer.render( this.sceneSkybox, this.cameraSkybox );
+	}
+	
 	this.renderer.render( this.scene, this.camera );
 	
 }

@@ -31,15 +31,16 @@ HexEdge.prototype.canBuild = function(ply) {
 
 HexEdge.prototype.setupMesh = function() {
 
-	this.Collision = new THREE.Mesh(
-		new THREE.CubeGeometry(40,12,12),
-		new THREE.MeshBasicMaterial( { opacity: 0 } )
+	this.Mesh = new THREE.Mesh(
+		//new THREE.CubeGeometry(40,12,12),
+		CATAN.getSchema().Buildings[this.Building].geometry,
+		new THREE.MeshLambertMaterial( { opacity: 0 } )
 	);
 	
-	this.Collision.position = this.position;
-	this.Collision.rotation = this.angle;
-	this.Collision.Parent = this;
-	CATAN.Game.scene.add( this.Collision );
+	this.Mesh.position = this.position;
+	this.Mesh.rotation = this.angle;
+	this.Mesh.Parent = this;
+	CATAN.Game.scene.add( this.Mesh );
 	
 }
 
