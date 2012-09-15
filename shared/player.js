@@ -4,12 +4,15 @@
  
 CATAN.Player = function() {
 
+	this.name = "Settler";
 	this.nameDup = 0;
 
 	this.turn = false;
 	this.buildings = [];
 
 	if(SERVER) {
+
+		this.status = PLAYER_LOBBY;
 
 		this.Inventory = {
 			Resources: []
@@ -25,10 +28,16 @@ CATAN.Player.prototype = {
 		return this.id;
 	},
 
+	setName: function(name) {
+		// Cleanse name
+		this.name = name.substr(0, 31);
+		if(SERVER) {
+			this.socket.set('name', this.name);
+		}
+	},
+
 	getName: function() {
-		var name = this.name;
-		if(this.nameDup > 0) { name += '('+this.nameDup+')' };
-		return name;
+		return (this.nameDup > 0) ? this.name + '('+this.nameDup+')' : this.name;
 	},
 
 	getColor: function() {

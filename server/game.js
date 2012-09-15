@@ -2,14 +2,13 @@ require('../shared/player.js');
 require('./board.js');
 require('./turnmanager.js');
 
-CATAN.Game = function(socket,name,schema,public) {
-
+CATAN.Game = function(ply,name,schema,public) {
 	this.id = this._createId();
 	this.owner = null; // set on first player connection
 
 	this.name = (typeof name !== 'undefined') ? name : "Settlers Of Catan";
 	this.schema = (typeof schema !== 'undefined') ? schema : "Classic";	// Default schema to Classic
-	this.public = (typeof public !== undefined) ? public : true;
+	this.public = (typeof public !== 'undefined') ? public : true;
 
 	this.state = STATE_WAITING;
 	this.players = [];
@@ -24,20 +23,17 @@ CATAN.Game = function(socket,name,schema,public) {
 
 	this.started = Date.now();
 
-	/*var self = this;
+	ply.emit('serverReady', { id: this.id });
+
+	// Shutdown server after 30 sec with no players
+	var self = this;
 	setTimeout( function() {
 		if(typeof self == 'undefined') return;
-		if(!self._isValid()) { console.log("no ply"); self._shutdown(); };
-		console.log(self);
-	}, 1000 * 10);*/
-
-	socket.emit('serverReady', { id: this.id });
-
-	CATAN.GameCount++;
-	console.log( '['+this.id+'][#'+CATAN.GameCount+'] Server initialized...');
-
-    CATAN.Server.sockets.emit( 'serverStatus', { status: 'start', info: this.getStatus() } )
-
+		if(!self._isValid()) {
+			CATAN.Games.shutdown(self);
+		};
+		delete self;
+	}, 1000 * 30);
 };
 
 CATAN.Game.prototype = {
@@ -52,19 +48,12 @@ CATAN.Game.prototype = {
 		});
 	},
 
-	_shutdown: function() {
-    	CATAN.Server.sockets.emit( 'serverStatus', { status: 'shutdown', info: { id: this.id } } );
-		for(var i in CATAN.Games) {
-			if(CATAN.Games[i].id === this.id) {
-				// get rid of reference, let garbage collection do the rest
-				CATAN.Games.splice(i,1);
-				CATAN.GameCount--;
-			}
-		}
-	},
-
 	_isValid: function() {
 		return (this.getPlayers().length > 0);
+	},
+
+	getID: function() {
+		return this.id;
 	},
 
 	getStatus: function() {
@@ -79,6 +68,10 @@ CATAN.Game.prototype = {
 
 	emit: function(name,data) {
 		this.sockets.emit(name,data);
+	},
+
+	isPublic: function() {
+		return this.public;
 	},
 
 	isValidEntity: function(ent) {
@@ -202,7 +195,9 @@ CATAN.Game.prototype = {
 	-------------------------------------------- */
 	onPlayerConnection: function(socket) {
 
-		var self = CATAN.getGameByNamespace(socket.namespace.name);
+		var ply = CATAN.Players.getBySocket(socket);
+
+		var self = CATAN.Games.getByNamespace(socket.namespace.name);
 		if(typeof self === 'undefined') return;
 
 		// Check max players
@@ -223,8 +218,6 @@ CATAN.Game.prototype = {
 			return;
 		};
 
-		// Create new player
-		var ply = new CATAN.Player();
 		ply.connect(self, socket);
 
 		self.players.push(ply); // add to player list
@@ -235,10 +228,10 @@ CATAN.Game.prototype = {
 		}
 
 		// Setup player hooks
-		socket.on( 'playerReady',		function(data) { self.onPlayerJoin(socket,data) } );
-		socket.on( 'playerChat',		function(data) { self.onPlayerChat(socket,data) } );
-		socket.on( 'playerBuild',		function(data) { self.onPlayerBuild(socket,data) } );
-		socket.on( 'startGame',			function(data) { self.onStartGame(socket,data) } );
+		ply.on( 'playerReady',	function(data) { self.onPlayerJoin(ply,data) } );
+		ply.on( 'playerChat',	function(data) { self.onPlayerChat(ply,data) } );
+		ply.on( 'playerBuild',	function(data) { self.onPlayerBuild(ply,data) } );
+		ply.on( 'startGame',	function(data) { self.onStartGame(ply,data) } );
 
 		// Inform user of successful connection
 		ply.emit('connectionStatus', { success: true });
@@ -246,14 +239,12 @@ CATAN.Game.prototype = {
 
 	},
 	
-	onPlayerJoin: function(socket,data) {
+	onPlayerJoin: function(ply, data) {
 
-		var ply = this.getByID(socket.id);
 		if(!this.isValidPlayer(ply)) return;
-		if(ply.Joined == true) return;
+		if(ply.isInGame()) return;
 
-		ply.name = data.name.substring(0,31);
-		ply.Joined = true;
+		ply.setStatus(PLAYER_CONNECTED);
 
 		// Check for duplicate names
 		var players = this.getPlayers();
@@ -277,9 +268,8 @@ CATAN.Game.prototype = {
 
 	},
 
-	onPlayerDisconnect: function(socket) {
+	onPlayerDisconnect: function(ply) {
 
-		var ply = this.getByID(socket.id);
 		if(!this.isValidPlayer(ply)) return;
 
 		// Remove player buildings
@@ -302,8 +292,7 @@ CATAN.Game.prototype = {
 
 		// End server if empty
 		if(!this._isValid()) {
-			console.log('[' + this.id + '] Terminating server...');
-			return this._shutdown();
+			return CATAN.Games.shutdown(this);
 		}
 
 		// Announce player disconnect in chat
@@ -322,9 +311,8 @@ CATAN.Game.prototype = {
 
 	},
 
-	onPlayerChat: function(socket,data) {
+	onPlayerChat: function(ply, data) {
 
-		var ply = this.getByID(socket.id);
 		if(!this.isValidPlayer(ply)) return;
 
 		var text = data.text.substr(0, 127);
@@ -334,9 +322,8 @@ CATAN.Game.prototype = {
 
 	},
 
-	onPlayerBuild: function(socket,data) {
+	onPlayerBuild: function(ply, data) {
 
-		var ply = this.getByID(socket.id);
 		if(!this.isValidPlayer(ply)) return;
 
 		if((this.getState() != STATE_SETUP) && (this.getState() != STATE_PLAYING)) return;
@@ -362,12 +349,11 @@ CATAN.Game.prototype = {
 	/* --------------------------------------------
 		Game Hooks
 	-------------------------------------------- */	
-	onStartGame: function(socket,data) {
+	onStartGame: function(ply, data) {
 
 		if(this.getState() != STATE_WAITING) return;
 
 		// Valid player and player is owner
-		var ply = this.getByID(socket.id);
 		if( (!this.isValidPlayer(ply)) || (this.getOwner() != ply.getID()) ) return;
 
 		// Check if we have at least 2 players
@@ -448,5 +434,3 @@ CATAN.Game.prototype = {
 	}
 
 };
-
-CATAN.GameCount = 0;

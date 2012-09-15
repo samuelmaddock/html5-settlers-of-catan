@@ -31,3 +31,8 @@ global.STATE_WAITING	= 0
 global.STATE_SETUP		= 1
 global.STATE_PLAYING	= 2
 global.STATE_END		= 3
+
+// Player Status
+global.PLAYER_LOBBY = 0;
+global.PLAYER_JOINING = 1;
+global.PLAYER_CONNECTED = 2;

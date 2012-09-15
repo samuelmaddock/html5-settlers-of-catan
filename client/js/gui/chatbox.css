@@ -1,0 +1,66 @@
+#chatbox {
+  background-color: rgba(0,0,0,0);
+  width: 500px;
+  height: 200px;
+  padding: 5px;
+  font-family: 'Segoe UI', 'Calibri';
+  
+  position: fixed;
+  top: 50%;
+  left: 2%;
+}
+
+#chatbox #log {
+  height: 87%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+#chatbox #log .chatline {
+  color: #EEE;
+  text-shadow: 0px 1px 1px #333;
+}
+
+#chatbox #log .note {
+  font-style: italic;
+}
+
+#chatbox #log .chatline tbody tr {
+  vertical-align: text-top;
+}
+
+#chatbox #log .chatline tbody tr td {
+  max-width: 100%;
+}
+
+#chatbox #log .chatline tbody tr td.name {
+  font-weight: bold;
+  padding: 0 1em 0 0; 
+}
+
+#chatbox #input {
+  display: none;
+  width: 100%;
+}
+
+#chatbox #entry {
+  background-color: rgba(0,0,0,0.33);
+  color: #CCC;
+  width: 100%;
+  padding: 4px 0 4px 0;
+  border: 0;
+  font-family: 'Segoe UI', 'Calibri';
+}
+
+#chatbox #entry:focus {
+  outline: none;
+}
+
+/* Scrollbar */
+#chatbox::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chatbox::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.33);
+}

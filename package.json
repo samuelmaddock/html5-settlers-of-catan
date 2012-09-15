@@ -1,0 +1,12 @@
+{
+	"name":"catan",
+	"node":"0.6.12",
+	"author":"Samuel Maddock",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/samuelmaddock/html5-settlers-of-catan.git"
+	},
+	"dependencies": {
+		"socket.io" : "*"
+	}
+}

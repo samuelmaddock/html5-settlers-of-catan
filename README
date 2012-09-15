@@ -1,31 +1,20 @@
-/* -----------------------------------------------
-
-	HTML5 Settlers of Catan
-	Author:		Samuel Maddock
-	Email:		samuel.maddock@gmail.com
-
-------------------------------------------------*/
+HTML5 Settlers of Catan
+=======================
 
 This project is still in its initial stages of development. Progress continues whenever I have the time to work on it.
 
 
-/* -----------------------------------------------
-	Requirements
-------------------------------------------------*/
+#### Requirements ####
 
 node.JS + socket.io
 
 
-/* -----------------------------------------------
-	Setup
-------------------------------------------------*/
+#### Setup ####
 
-Currently this project is not at a playable state. However, when it is, you will need a node.JS server running 'server.js'
+Deploy the project within a node installation directory, within its own folder. Then run 'node ./catan/server/main.js'
 
 
-/* -----------------------------------------------
-	Links
-------------------------------------------------*/
+#### Links ####
 
 Todo List
 https://trello.com/board/settlers-of-catan/4f926c8525fde2597923d106

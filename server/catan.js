@@ -2,46 +2,38 @@
 require('./enums.js'); // can't use shared/enums.js since they don't use global
 require('../shared/catan.js');
 
-CATAN.Games = [];
-
-CATAN.ClientCount = 0;
-
-CATAN.setupGame = function(socket,name,schema,public) {
-	var game = new this.Game(socket,name,schema,public);
-    this.Games.push(game);
-};
-
-CATAN.getGameByNamespace = function(uri) {
-	for(var i in this.Games) {
-		var game = this.Games[i];
-		if(game.namespace === uri) {
-			return game;
-		}
-	}
-};
-
-CATAN.getGameById = function(id) {
-	for(var i in this.Games) {
-		var game = this.Games[i];
-		if(game.id === id) {
-			return game;
-		}
-	}
-};
-
-CATAN.getTotalPlayers = function() {
-	var numply = 0;
-	for(var i in this.Games) {
-		numply += this.Games[i].getPlayers().length;
-	}
-};
-
-global.CATAN = CATAN;
-
-// Load schemas
-require("fs").readdirSync("./html5-settlers-of-catan/shared/schemas").forEach(function(file) {
-	require("../shared/schemas/" + file);
+// Shared modules
+require("fs").readdirSync("./html5-settlers-of-catan/shared/modules").forEach(function(file) {
+	require("../shared/modules/" + file);
 });
 
-// Load necessary files
-require('./game.js');
+// Server modules
+require("fs").readdirSync("./html5-settlers-of-catan/server/modules").forEach(function(file) {
+	require("../server/modules/" + file);
+});
+
+CATAN.setupSockets = function(io) {
+	this.Server = io;
+	this.Lobby = io.of('/lobby');
+
+	// Socket hooks
+	io.sockets.on('connection', function(socket) {
+		console.log("[MAIN] Client connected");
+		CATAN.Players.connect(socket);
+		socket.emit('loadServerList', { Servers: CATAN.Games.getVisible() });
+	});
+
+	this.Lobby.on('connection', function(socket) {
+		console.log("[LOBBY] Client connected");
+
+		var ply = CATAN.Players.getBySocket(socket);
+
+		socket.on('createServer', function(data) {
+			CATAN.Games.setup(ply, data);
+		});
+
+		socket.on('changeName', function(data) {
+			ply.setName(data.name);
+		});
+	});
+};
