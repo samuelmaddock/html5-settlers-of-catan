@@ -179,14 +179,16 @@ CATAN.Game.prototype = {
 		var messages = [
 			"",	// None
 			"", // Waiting
-			"Setup has begun",
-			"Game is now in-progress",
-			"Game has ended"
+			"StateSetup",
+			"StatePlaying",
+			"StateEnd"
 		];
 
-		this.emit('GameUpdate', {
-			message: messages[state]
-		});
+		if(state > STATE_WAITING) {
+			this.emit('GameUpdate', {
+				message: messages[state]
+			});
+		}
 
 		this.state = state;
 	},

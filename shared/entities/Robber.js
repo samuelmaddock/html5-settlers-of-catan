@@ -15,7 +15,7 @@ Robber.prototype = CATAN.ents.create('BaseEntity');
 
 Robber.prototype.setupMesh = function() {
 	this.Mesh = new THREE.Mesh(
-		CATAN.AssetManager.get(this.model),
+		CATAN.AssetManager.get(this.modelpath),
 		new THREE.MeshBasicMaterial({ color: 0x888888 })
 	);
 

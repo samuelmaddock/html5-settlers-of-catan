@@ -82,14 +82,12 @@ CATAN.setupSocket = function(socket) {
 	var self = this;
 
 	socket.on('connectionStatus', function(data) {
-
 		if(data.success == true) {
 			console.log("Successfully connected to server");
 			CATAN.setupGame();
 		} else {
 			console.log(data.message);
 		};
-
 	});
 
 	socket.on('syncPlayer', function (data) {
@@ -98,20 +96,17 @@ CATAN.setupSocket = function(socket) {
 	});
 
 	socket.on('boardEntities', function (data) {
-
 		for(var i in data.ents) {
 			var ent = CATAN.ents.create(data.name);
 			ent.setup(data.ents[i]);
 		}
-
 	});
 
 	socket.on('setupBuild', function (data) {
-
 		if(data.building == BUILDING_SETTLEMENT) {
-			CATAN.Notify({subtitle:"Select a settlement."});
+			CATAN.Notify({subtitle:T('SelectSettlement')});
 		} else {
-			CATAN.Notify({subtitle:"Select a road."})
+			CATAN.Notify({subtitle:T('SelectRoad')})
 		}
 
 		CATAN.Game.collisionObjects.length = 0
@@ -121,7 +116,6 @@ CATAN.setupSocket = function(socket) {
 			ent.show(0.33);
 			CATAN.Game.collisionObjects.push( ent.getMesh() );
 		}
-
 	});
 
 	socket.on('PlayerJoin', function (data) {
@@ -160,26 +154,22 @@ CATAN.setupSocket = function(socket) {
 
 	socket.on('GameUpdate', function (data) {
 		if(data.error) {
+			// TODO: Display errors in modal
 			self.chat.AddLine(data.message);
 		} else {
-			self.chat.AddLine(data.message);
+			self.chat.AddLine(T(data.message));
 		}
 	});
 
 }
-
-// TODO: make an asset manager
-var precached = 0,
-totalPrecached = 0;
 
 CATAN.precacheModels = function() {
 
 	$('#game').html("<center><font size=72>PRECACHING...</font></center>");
 
 	console.log("PRECACHING MODELS...");
-	
+
 	CATAN.AssetManager.loadAll(function() {
-		console.log("DONE!");
 		document.getElementById("game").innerHTML = null;
 		
 		CATAN.Game = CATAN.GUI.create('Game');
@@ -187,39 +177,6 @@ CATAN.precacheModels = function() {
 
 		CATAN.onConnection();
 	})
-
-	/*var buildings = 0,
-	resources = 0;
-
-	// Precache resources
-	var loader = new THREE.JSONLoader( true );
-	for ( var i = 0; i < RESOURCE_ORE+1; i++ ) {
-		var res = CATAN.getSchema().Resources[i];
-		loader.load( res.url, function(geometry) {
-			CATAN.getSchema().Resources[resources].geometry = geometry;
-			precacheFinished();
-			resources++;
-		});
-		totalPrecached++;
-	}
-
-	// Precache buildings
-	for ( var j = 0; j < BUILDING_CITY+1; j++ ) {
-		var res = CATAN.getSchema().Buildings[j];
-		loader.load( res.url, function(geometry) {
-			CATAN.getSchema().Buildings[buildings].geometry = geometry;
-			precacheFinished();
-			buildings++;
-		});
-		totalPrecached++;
-	}
-	
-	// Precache robber
-	loader.load( CATAN.getSchema().Robber.url, function(geometry) {
-		CATAN.getSchema().Robber.geometry = geometry;
-		precacheFinished();
-	});
-	totalPrecached++;*/
 	
 }
 

@@ -7,13 +7,13 @@ if(CLIENT) {
 		"materials/models/tile/field.png",
 		"materials/models/tile/mountains.png",
 
-		"materials/cards/yearofplenty.png",
+		/*"materials/cards/yearofplenty.png",
 		"materials/cards/roadbuilding.png",
 		"materials/cards/monopoly.png",
 		"materials/cards/knight.png",
 
 		"materials/special/largestarmy.png",
-		"materials/special/longestroad.png",
+		"materials/special/longestroad.png",*/
 
 		"models/tile.js",
 		"models/road.js",

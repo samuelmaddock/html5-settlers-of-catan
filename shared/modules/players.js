@@ -65,7 +65,6 @@ CATAN.Players = (function(CATAN) {
 		if(SERVER) {
 			// Data is socket
 			ply.setSocket(data);
-			this.list.push(ply);
 		} else {
 			ply.id = data.id;
 			ply.setName(data.name);
@@ -79,9 +78,11 @@ CATAN.Players = (function(CATAN) {
 			} else if(bChat) {
 				this.chat.AddLine( T('PlayerConnect', ply.getName(), ply.address.address, ply.address.port) );
 			}
-
+			
 			CATAN.Game.players.refresh();
 		}
+
+		this.list.push(ply);
 
 		return ply;
 	}
