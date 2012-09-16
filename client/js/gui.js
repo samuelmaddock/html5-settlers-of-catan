@@ -1,18 +1,32 @@
-/* GUI Module */
-CATAN.GUI = {}
+CATAN.GUI = (function(CATAN) {
 
-CATAN.GUI.controls = [];
+	var module = {}
 
-CATAN.GUI.create = function(name) {
-	var control = CATAN.GUI.controls[name];
-	if(control) {
-		return new control();
-	}
-};
+	/**
+	 * Module Fields
+	 */
 
-CATAN.GUI.register = function(name,control) {
-	this.controls[name] = control;
-};
+	module.controls = [];
+
+	/**
+	 * Module Methods
+	 */
+
+	module.create = function(name) {
+		var control = this.controls[name];
+		if(control) {
+			return new control();
+		}
+	};
+
+	module.register = function(name,control) {
+		this.controls[name] = control;
+	};
+
+	return module;
+
+}(CATAN));
+
 
 /*
 	Base GUI Controls

@@ -1,11 +1,3 @@
-String.prototype.format = function() {
-	var formatted = this;
-	for(arg in arguments[0]) {
-		formatted = formatted.replace("{" + arg + "}", arguments[0][arg]);
-	}
-	return formatted;
-};
-
 CATAN.Localization = (function(CATAN) {
 
 	var module = {}
@@ -15,7 +7,6 @@ CATAN.Localization = (function(CATAN) {
 	 */
 
 	module.languages = [];
-	module.char = "#";
 
 	/**
 	 * Module Methods
@@ -33,10 +24,8 @@ CATAN.Localization = (function(CATAN) {
 		var self = module;
 		var str = arguments[0];
 
-		if(str.indexOf(self.char) != 0) return str;
-
 		var translations = self.languages[self.getLanguage()];
-		var newstr = (translations && translations[str.slice(1)]) ? translations[str.slice(1)] : str;
+		var newstr = (translations && translations[str]) ? translations[str] : str;
 
 		if(arguments.length > 1) {
 			var args = Array.prototype.slice.call(arguments, 1);

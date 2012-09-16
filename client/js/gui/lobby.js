@@ -5,7 +5,7 @@ var Lobby = function() {
 	// Lobby div
 	$("body").append($('<div>').attr('id', this.id).attr('class','clearfix')
 		.append($('<div>').attr('id', this.id+'-content').attr('class','clearfix')
-			.append($('<div>').attr('id', this.id+'-content-header').text(T("#Title")))
+			.append($('<div>').attr('id', this.id+'-content-header').text(T('Title')))
 			.append($('<div>').attr('id', this.id+'-content-main').attr('class','clearfix')
 				.append($('<div>').attr('id', this.id+'-content-left'))
 				.append($('<div>').attr('id', this.id+'-content-right'))
@@ -16,13 +16,13 @@ var Lobby = function() {
 
 	// Server list
 	$('#'+this.id+'-content-left').append($('<div>').attr('id','servers').attr('class','content-box')
-		.append($('<h3>').text(T('#ServerList')))
+		.append($('<h3>').text(T('ServerList')))
 		.append($('<table>').attr('id', 'serverlist')
 			.append($('<thead>')
 				.append($('<tr>')
-					.append($('<td>').attr('class', 'name').text(T('#ServerListName')))
-					.append($('<td>').attr('class', 'players').text(T('#ServerListSchema')))
-					.append($('<td>').attr('class', 'players').text(T('#ServerListPlayers')))
+					.append($('<td>').attr('class', 'name').text(T('ServerListName')))
+					.append($('<td>').attr('class', 'players').text(T('ServerListSchema')))
+					.append($('<td>').attr('class', 'players').text(T('ServerListPlayers')))
 				)
 			)
 			.append($('<tbody>'))
@@ -42,7 +42,7 @@ var Lobby = function() {
 				.attr('type', 'text')
 				.attr('maxlength', '32')
 				.attr('spellcheck', 'false')
-				.attr('placeholder', T('#PlayerNamePlaceholder'))
+				.attr('placeholder', T('PlayerNamePlaceholder'))
 				.change( function() {
 					if(localStorage) {
 						localStorage.Name = $('#plyname').val();
@@ -54,12 +54,12 @@ var Lobby = function() {
 
 		// Create a server
 		.append($('<div>').attr('class','content-box')
-			.append($('<h3>').text(T('#ServerCreate')))
+			.append($('<h3>').text(T('ServerCreate')))
 			.append($('<form>')
 				.append($('<input>')
 					.attr('type', 'text')
 					.attr('id', 'servername')
-					.attr('placeholder', T('#ServerNamePlaceholder'))
+					.attr('placeholder', T('ServerNamePlaceholder'))
 					.attr('maxlength', '64')
 					.change( function() {
 						if(localStorage) {
@@ -68,13 +68,13 @@ var Lobby = function() {
 					})
 				)
 				.append($('<fieldset>')
-					.append($('<lengend>').text(T('#Configuration')))
+					.append($('<lengend>').text(T('Configuration')))
 					.append($('<select>')
 						.attr('type', 'text')
 						.attr('id', 'schema')
 						.append($('<option>')
 							.attr('value', 'Classic')
-							.text(T('#SchemaClassic'))
+							.text(T('SchemaClassic'))
 						)
 					)
 					.append($('<input>')
@@ -85,12 +85,12 @@ var Lobby = function() {
 					)
 					.append($('<label>')
 						.attr('for', 'public')
-						.text(T('#ServerPublic'))
+						.text(T('ServerPublic'))
 					)
 				)
 				.append($('<input>')
 					.attr('type', 'button')
-					.attr('value', T('#ServerConnect'))
+					.attr('value', T('ServerConnect'))
 					.attr('onclick', 'CATAN.createServer()')
 				)
 			)

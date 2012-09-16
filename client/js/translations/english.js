@@ -1,7 +1,7 @@
 var L = {};
 
+// Common
 L["Title"] = "Settlers of Catan";
-
 L["DefaultName"] = "Settler";
 
 // Lobby
@@ -14,7 +14,7 @@ L["PlayerNamePlaceholder"] = "Your name";
 
 L["ServerCreate"] = "Create Server";
 L["ServerNamePlaceholder"] = "Server Name";
-L["Configuration"] = "Configuration";
+L["ServerConfig"] = "Configuration";
 L["SchemaClassic"] = "Classic";
 L["ServerPublic"] = "Public";
 L["ServerConnect"] = "Connect";

@@ -124,7 +124,7 @@ CATAN.setupSocket = function(socket) {
 
 	socket.on('PlayerLeave', function (data) {
 		var ply = self.getPlayerById(data.id);
-		self.chat.AddLine( T("#PlayerDisconnect", ply.getName()) );
+		self.chat.AddLine( T('PlayerDisconnect', ply.getName()) );
 		self.removePlayer(ply);
 	});
 
@@ -218,3 +218,11 @@ CATAN.precacheModels = function() {
 	totalPrecached++;
 	
 }
+
+String.prototype.format = function() {
+	var formatted = this;
+	for(arg in arguments[0]) {
+		formatted = formatted.replace("{" + arg + "}", arguments[0][arg]);
+	}
+	return formatted;
+};
