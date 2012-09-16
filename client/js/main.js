@@ -170,21 +170,18 @@ CATAN.precacheModels = function() {
 	$('#game').html("<center><font size=72>PRECACHING...</font></center>");
 
 	console.log("PRECACHING MODELS...");
-
-	function precacheFinished() {
-		precached++;
-		if (precached == totalPrecached) {		
-			console.log("DONE!");
-			document.getElementById("game").innerHTML = null;
-			
-			CATAN.Game = CATAN.GUI.create('Game');
-			CATAN.Game.animate();
-
-			CATAN.onConnection();
-		}
-	}
 	
-	var buildings = 0,
+	CATAN.AssetManager.loadAll(function() {
+		console.log("DONE!");
+		document.getElementById("game").innerHTML = null;
+		
+		CATAN.Game = CATAN.GUI.create('Game');
+		CATAN.Game.animate();
+
+		CATAN.onConnection();
+	})
+
+	/*var buildings = 0,
 	resources = 0;
 
 	// Precache resources
@@ -215,7 +212,7 @@ CATAN.precacheModels = function() {
 		CATAN.getSchema().Robber.geometry = geometry;
 		precacheFinished();
 	});
-	totalPrecached++;
+	totalPrecached++;*/
 	
 }
 

@@ -1,3 +1,28 @@
+if(CLIENT) {
+	CATAN.AssetManager.queue([
+		"materials/models/tile/desert.png",
+		"materials/models/tile/forest.png",
+		"materials/models/tile/hills.png",
+		"materials/models/tile/pastures.png",
+		"materials/models/tile/field.png",
+		"materials/models/tile/mountains.png",
+
+		"materials/cards/yearofplenty.png",
+		"materials/cards/roadbuilding.png",
+		"materials/cards/monopoly.png",
+		"materials/cards/knight.png",
+
+		"materials/special/largestarmy.png",
+		"materials/special/longestroad.png",
+
+		"models/tile.js",
+		"models/road.js",
+		"models/settlement.js",
+		"models/city.js",
+		"models/robber.js"
+	]);
+}
+
 var Classic = {};
 
 Classic.Resources = [

@@ -6,6 +6,7 @@ var Robber = function() {
 
 	this.create();
 
+	this.modelpath = "models/robber.js";
 	this.tile = -1;
 
 };
@@ -13,10 +14,12 @@ var Robber = function() {
 Robber.prototype = CATAN.ents.create('BaseEntity');
 
 Robber.prototype.setupMesh = function() {
+	this.Mesh = new THREE.Mesh(
+		CATAN.AssetManager.get(this.model),
+		new THREE.MeshBasicMaterial({ color: 0x888888 })
+	);
 
-	this.Mesh = new THREE.Mesh( CATAN.getSchema().Robber.geometry, new THREE.MeshBasicMaterial( { color: 0x888888 } ) );
 	CATAN.Game.scene.add( this.Mesh );
-
 }
 
 Robber.prototype.setTile = function(tile) {
