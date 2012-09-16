@@ -130,18 +130,18 @@ CATAN.setupSocket = function(socket) {
 	});
 
 	socket.on('PlayerLeave', function (data) {
-		var ply = self.getPlayerById(data.id);
+		var ply = CATAN.Players.getById(data.id);
 		self.chat.AddLine( T('PlayerDisconnect', ply.getName()) );
-		self.removePlayer(ply);
+		CATAN.Players.disconnect(ply);
 	});
 
 	socket.on('PlayerChat', function (data) {
-		data.ply = CATAN.getPlayerById(data.id);
+		data.ply = CATAN.Players.getById(data.id);
 		self.chat.AddLine(data, "player");
 	});
 
 	socket.on('PlayerBuild', function (data) {
-		var ply = CATAN.getPlayerById(data.id),
+		var ply = CATAN.Players.getById(data.id),
 			ent = CATAN.ents.getById(data.entid);
 
 		ent.setOwner(ply);

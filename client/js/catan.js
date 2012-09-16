@@ -38,26 +38,6 @@ CATAN.getSchema = function() {
 	return this.Schemas["Classic"]; // static for now
 }
 
-CATAN.removePlayer = function(ply) {
-
-	for(var i in this.Players) {
-		if(this.Players[i].getID() == ply.getID()) {
-			this.Players.splice(i,1);
-		}
-	}
-
-	this.Game.players.refresh();
-
-}
-
-CATAN.getPlayerById = function(id) {
-	for(var i in this.Players) {
-		if(this.Players[i].getID() == id) {
-			return this.Players[i];
-		}
-	}
-}
-
 CATAN.mouseRayTrace = function( event ) {
 
 	//if(onTurn != true) return; // TODO: prevent tracing while not client's turn
