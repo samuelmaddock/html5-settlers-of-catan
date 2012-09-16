@@ -6,12 +6,12 @@ var Namespace = 'lobby';
 
 CATAN._init = function() {
 
-	// Connect to lobby
+	// Connect to server
 	this.socket = io.connect(IP+Namespace);
 	this.socket.on( 'serverReady', function(data) {
+		console.log("SERVER READY");
 		CATAN.connectToServer(data.id);
 	});
-
 
 	var hash = window.location.hash.toString().substr(1,5);
 	if(hash !== "") {
@@ -43,18 +43,39 @@ CATAN.connectToServer = function(id, isEvent) {
 		id = id.target.hash.substr(1,5);
 	}
 
-	console.log("Connecting to #" + id);
-
 	if(typeof id !== 'string') {
 		var event = id || window.event;
 		var target = event.target || event.srcElement;
 		id = target.id;
 	}
 
+	console.log("Connecting to #" + id);
+
+	// Update name
+	this.socket.emit('changeName', { name: CATAN.getName() } );
+
 	this.server = io.connect(IP + id);
 	this.setupSocket(this.server);
 
 	window.location.hash = id;
+
+	// Make sure the game actually existed
+	var self = this;
+	setTimeout(function() {
+
+		// Game didn't exist
+		if($('#game').length == 0) {
+			// TODO: Display error in modal
+			console.log("Server didn't exist!");
+			window.location.hash = "";
+			self._init();
+		} else {
+			// Disconnect from lobby
+			self.socket.disconnect();
+		}
+
+
+	}, 1000 * 1);
 
 };
 

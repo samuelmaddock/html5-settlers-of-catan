@@ -31,7 +31,6 @@ CATAN.Player.prototype.connect = function(game, socket) {
 	});
 
 	// Make sure player is disconnected from previous game
-	var socket = this.socket;
 	socket.get('gameid', function(err, id) {
 		var game = CATAN.Games.getById(id);
 		if(typeof game !== 'undefined') {

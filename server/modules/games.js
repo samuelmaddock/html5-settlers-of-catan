@@ -86,11 +86,17 @@ CATAN.Games = (function(CATAN) {
 
 		name = (name.length > 2) ? name : "Catan Server";
 
+		// Create new game instance
 		var game = new CATAN.Game(ply, name, schema, data.public);
 		this.list.push(game);
 
+		// Log in console
 		console.log( '['+game.getID()+'][#'+this.getCount()+'] Server initialized...');
 
+		// Alert server creater that the server is ready
+		data.socket.emit('serverReady', { id: game.getID() });
+
+		// Send lobby sockets info about new server
 		if(game.isPublic()) {
 			CATAN.Lobby.emit( 'serverStatus', { status: 'start', info: game.getStatus() } );
 		}

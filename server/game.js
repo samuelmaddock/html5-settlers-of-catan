@@ -23,8 +23,6 @@ CATAN.Game = function(ply,name,schema,public) {
 
 	this.started = Date.now();
 
-	ply.emit('serverReady', { id: this.id });
-
 	// Shutdown server after 30 sec with no players
 	var self = this;
 	setTimeout(function() {

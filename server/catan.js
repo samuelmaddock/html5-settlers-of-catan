@@ -20,7 +20,6 @@ CATAN.setupSockets = function(io) {
 	io.sockets.on('connection', function(socket) {
 		console.log("[MAIN] Client connected");
 		CATAN.Players.connect(socket);
-		socket.emit('loadServerList', { Servers: CATAN.Games.getVisible() });
 	});
 
 	this.Lobby.on('connection', function(socket) {
@@ -29,11 +28,14 @@ CATAN.setupSockets = function(io) {
 		var ply = CATAN.Players.getBySocket(socket);
 
 		socket.on('createServer', function(data) {
+			data.socket = socket; // reference lobby socket
 			CATAN.Games.setup(ply, data);
 		});
 
 		socket.on('changeName', function(data) {
 			ply.setName(data.name);
 		});
+
+		socket.emit('loadServerList', { Servers: CATAN.Games.getVisible() });
 	});
 };
