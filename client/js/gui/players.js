@@ -28,8 +28,9 @@ Players.prototype.addPlayer = function(ply) {
 Players.prototype.refresh = function() {
 
 	// Add panel for new players
-	for(var i in CATAN.Players) {
-		var ply = CATAN.Players[i];
+	var players = CATAN.Players.getAll();
+	for(var i in players) {
+		var ply = players[i];
 		var element = $('#'+ply.getID());
 		if(element.length == 0) {
 			this.addPlayer(ply);
@@ -43,8 +44,8 @@ Players.prototype.refresh = function() {
 		var bFound = false;
 		var id = panels[i].id;
 
-		for(var j in CATAN.Players) {
-			if(CATAN.Players[j].getID() == id) {
+		for(var j in players) {
+			if(players[j].getID() == id) {
 				bFound = true;
 				break;
 			}

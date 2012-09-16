@@ -130,7 +130,7 @@ Lobby.prototype.addServer = function(server) {
 	$("#serverlist").find('tbody')
 		.append($('<tr>').attr('class', 'row'+row).attr('id', server.id)
 			.append($('<td>').attr('class', 'name')
-				.append($('<a>').attr('href', './#'+server.id).attr('onclick', 'CATAN.connectToServer(event)')
+				.append($('<a>').attr('href', './#'+server.id).attr('onclick', 'CATAN.connectToServer(event,true)')
 					.text(server.name)
 				)
 			)

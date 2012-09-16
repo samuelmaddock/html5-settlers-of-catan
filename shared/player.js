@@ -40,6 +40,10 @@ CATAN.Player.prototype = {
 		return (this.nameDup > 0) ? this.name + '('+this.nameDup+')' : this.name;
 	},
 
+	setColor: function(color) {
+		this.color = color;
+	},
+
 	getColor: function() {
 		return this.color;
 	},

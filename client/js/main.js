@@ -15,7 +15,7 @@ CATAN._init = function() {
 
 	var hash = window.location.hash.toString().substr(1,5);
 	if(hash !== "") {
-		this.connectToServer(hash);
+		this.connectToServer(hash,false);
 	} else {
 		this.Lobby = this.GUI.create('Lobby');
 
@@ -36,7 +36,12 @@ CATAN.createServer = function() {
 
 };
 
-CATAN.connectToServer = function(id) {
+CATAN.connectToServer = function(id, isEvent) {
+
+	// Called from clicking on serverlist
+	if(isEvent) {
+		id = id.target.hash.substr(1,5);
+	}
 
 	console.log("Connecting to #" + id);
 
@@ -88,7 +93,8 @@ CATAN.setupSocket = function(socket) {
 	});
 
 	socket.on('syncPlayer', function (data) {
-		CATAN.addPlayer(data,false)
+		data.newply = false;
+		CATAN.Players.connect(data);
 	});
 
 	socket.on('boardEntities', function (data) {
@@ -119,7 +125,8 @@ CATAN.setupSocket = function(socket) {
 	});
 
 	socket.on('PlayerJoin', function (data) {
-		CATAN.addPlayer(data,true)
+		data.newply = true;
+		CATAN.Players.connect(data);
 	});
 
 	socket.on('PlayerLeave', function (data) {

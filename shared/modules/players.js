@@ -59,10 +59,30 @@ CATAN.Players = (function(CATAN) {
 		return this.list.length;
 	}
 
-	module.connect = function(socket) {
+	module.connect = function(data) {
 		var ply = new CATAN.Player();
-		ply.setSocket(socket);
-		this.list.push(ply);
+
+		if(SERVER) {
+			// Data is socket
+			ply.setSocket(data);
+			this.list.push(ply);
+		} else {
+			ply.id = data.id;
+			ply.setName(data.name);
+			ply.setColor(data.color);
+
+			// TODO: Remove this later on
+			ply.address = data.address;
+
+			if(ply.id == CATAN.server.socket.sessionid) {
+				CATAN.LocalPlayer = ply;
+			} else if(bChat) {
+				this.chat.AddLine( T('PlayerConnect', ply.getName(), ply.address.address, ply.address.port) );
+			}
+
+			CATAN.Game.players.refresh();
+		}
+
 		return ply;
 	}
 

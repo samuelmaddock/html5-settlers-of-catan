@@ -27,7 +27,7 @@ CATAN.Player.prototype.connect = function(game, socket) {
 	// Set game name
 	var self = this;
 	socket.get('name', function(err, name) {
-		self.name = name;
+		self.name = (name !== null) ? name : "Settler";
 	});
 
 	// Make sure player is disconnected from previous game
@@ -44,7 +44,7 @@ CATAN.Player.prototype.connect = function(game, socket) {
 	socket.set('gameid', game.id);
 
 	// Assign random player color for now;
-	this.color = game.getColor();
+	this.setColor(game.getColor());
 
 	this.setStatus(PLAYER_JOINING);
 

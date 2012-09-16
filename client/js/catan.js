@@ -1,5 +1,3 @@
-CATAN.Players = [];
-
 CATAN.Notify = function(data) {
 
 	if(window.webkitNotifications) {
@@ -27,7 +25,7 @@ CATAN.Notify = function(data) {
 		}
 
 	} else {
-		//alert("Please update your browser.");
+		this.chat.AddLine(data.subtitle);
 	}
 
 }
@@ -38,24 +36,6 @@ CATAN.getName = function() {
 
 CATAN.getSchema = function() {
 	return this.Schemas["Classic"]; // static for now
-}
-
-CATAN.addPlayer = function(data, bChat) {
-	var ply = new CATAN.Player();
-	ply.id = data.id;
-	ply.name = data.name;
-	ply.address = data.address;
-	ply.color = data.color;
-
-	this.Players.push(ply);
-
-	if(ply.id == this.server.socket.sessionid) {
-		CATAN.LocalPlayer = ply;
-	} else if(bChat) {
-		this.chat.AddLine( T('PlayerConnect', ply.getName(), ply.address.address, ply.address.port) );
-	}
-
-	this.Game.players.refresh();
 }
 
 CATAN.removePlayer = function(ply) {
