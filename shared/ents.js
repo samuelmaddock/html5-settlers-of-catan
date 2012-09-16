@@ -1,49 +1,62 @@
-/* ents Module */
-CATAN.ents = {}
+CATAN.ents = (function(CATAN) {
 
-CATAN.ents.registered = [];
-CATAN.ents.spawned = [];
+	var module = {}
 
-CATAN.ents.create = function(name) {
-	var ent = this.registered[name];
-	if(ent) {
-		var e = new ent();
-		e.name = name;
-		CATAN.ents.spawned.push(e);
-		return e;
-	}
-};
+	/**
+	 * Module Fields
+	 */
 
-CATAN.ents.register = function(name,ent) {
-	this.registered[name] = ent;
-};
+	module.registered = [];
+	module.spawned = [];
 
-CATAN.ents.getAll = function() {
-	return this.spawned;
-}
+	/**
+	 * Module Methods
+	 */
 
-CATAN.ents.getById = function(id) {
-	for(var i in this.spawned) {
-		if(this.spawned[i].getEntId() == id) {
-			return this.spawned[i];
+	module.create = function(name) {
+		var ent = this.registered[name];
+		if(ent) {
+			var e = new ent();
+			e.name = name;
+			this.spawned.push(e);
+			return e;
 		}
+	};
+
+	module.register = function(name,ent) {
+		this.registered[name] = ent;
+	};
+
+	module.getAll = function() {
+		return this.spawned;
 	}
-}
 
-CATAN.ents.getByName = function(name) {
-	var entities = [];
-
-	if(typeof name == "string") {
-		name = [name];
-	}
-
-	for(var i in this.spawned) {
-		if( name.indexOf(this.spawned[i].name ) != -1) {
-			entities.push(this.spawned[i]);
+	module.getById = function(id) {
+		for(var i in this.spawned) {
+			if(this.spawned[i].getEntId() == id) {
+				return this.spawned[i];
+			}
 		}
 	}
 
-	return entities;
-}
+	module.getByName = function(name) {
+		var entities = [];
+
+		if(typeof name == "string") {
+			name = [name];
+		}
+
+		for(var i in this.spawned) {
+			if( name.indexOf(this.spawned[i].name ) != -1) {
+				entities.push(this.spawned[i]);
+			}
+		}
+
+		return entities;
+	}
+
+	return module;
+
+}(CATAN));
 
 CATAN.EntityCount = 0;

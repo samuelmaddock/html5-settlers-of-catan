@@ -27,10 +27,11 @@ global.EDGE_B	= 3
 global.EDGE_BL	= 4
 global.EDGE_TL	= 5
 
-global.STATE_WAITING	= 0
-global.STATE_SETUP		= 1
-global.STATE_PLAYING	= 2
-global.STATE_END		= 3
+global.STATE_NONE		= 0
+global.STATE_WAITING	= 1
+global.STATE_SETUP		= 2
+global.STATE_PLAYING	= 3
+global.STATE_END		= 4
 
 // Player Status
 global.PLAYER_LOBBY = 0;

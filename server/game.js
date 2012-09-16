@@ -10,7 +10,7 @@ CATAN.Game = function(ply,name,schema,public) {
 	this.schema = (typeof schema !== 'undefined') ? schema : "Classic";	// Default schema to Classic
 	this.public = (typeof public !== 'undefined') ? public : true;
 
-	this.state = STATE_WAITING;
+	this.state = STATE_NONE;
 	this.players = [];
 	this.entities = [];
 	this.board = new CATAN.Board(this);
@@ -27,8 +27,8 @@ CATAN.Game = function(ply,name,schema,public) {
 
 	// Shutdown server after 30 sec with no players
 	var self = this;
-	setTimeout( function() {
-		if(typeof self == 'undefined') return;
+	setTimeout(function() {
+		if(self.getState() > STATE_NONE) return;
 		if(!self._isValid()) {
 			CATAN.Games.shutdown(self);
 		};
@@ -177,7 +177,8 @@ CATAN.Game.prototype = {
 	setState: function(state) {
 
 		var messages = [
-			"",
+			"",	// None
+			"", // Waiting
 			"Setup has begun",
 			"Game is now in-progress",
 			"Game has ended"
@@ -200,20 +201,20 @@ CATAN.Game.prototype = {
 		var self = CATAN.Games.getByNamespace(socket.namespace.name);
 		if(typeof self === 'undefined') return;
 
+		// Check state
+		if(self.getState() > STATE_WAITING) {
+			socket.emit('connectionStatus', {
+				success: false,
+				message: 'Game is already in-progress.'
+			});
+			return;
+		};
+
 		// Check max players
 		if(self.getMaxPlayers() <= self.getPlayers().length) {
 			socket.emit('connectionStatus', {
 				success: false,
 				message: 'Server is full.'
-			});
-			return;
-		};
-
-		// Check state
-		if(self.getState() != STATE_WAITING) {
-			socket.emit('connectionStatus', {
-				success: false,
-				message: 'Game is already in-progress.'
 			});
 			return;
 		};
@@ -225,6 +226,7 @@ CATAN.Game.prototype = {
 		// First player connection is owner
 		if(!self.hasValidOwner()) {
 			self.setOwner(ply);
+			self.setState(STATE_WAITING);
 		}
 
 		// Setup player hooks
