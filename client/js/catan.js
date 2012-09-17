@@ -35,7 +35,7 @@ CATAN.getName = function() {
 }
 
 CATAN.getSchema = function() {
-	return this.Schemas["Classic"]; // static for now
+	return this.Schemas.get("Classic"); // static for now
 }
 
 CATAN.mouseRayTrace = function( event ) {

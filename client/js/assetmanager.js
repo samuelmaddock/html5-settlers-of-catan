@@ -78,7 +78,7 @@ CATAN.AssetManager = (function(CATAN) {
 	}
 
 	module.isDone = function() {
-		return (this.downloadQueue.length == this.successCount + this.errorCount);
+		return (this.downloadQueue.length <= this.successCount + this.errorCount);
 	}
 
 	module.get = function(path) {

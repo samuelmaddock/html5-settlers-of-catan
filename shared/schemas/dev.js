@@ -102,4 +102,4 @@ Dev.Robber = {
 	url: "models/robber.js"
 };
 
-CATAN.Schemas["Dev"] = Dev;
+CATAN.Schemas.register("Dev", Dev);

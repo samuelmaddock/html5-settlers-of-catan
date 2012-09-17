@@ -139,4 +139,4 @@ GAMETYPE.Special = [
 	
 ];
 
-CATAN.Schemas["Seafarers"] = GAMETYPE;
+CATAN.Schemas.register("Seafarers", GAMETYPE);

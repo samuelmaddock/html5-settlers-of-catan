@@ -6,10 +6,11 @@ var Namespace = 'lobby';
 
 CATAN._init = function() {
 
+	IP = "http://" + window.location.host + ":80/"
+
 	// Connect to server
 	this.socket = io.connect(IP+Namespace);
 	this.socket.on( 'serverReady', function(data) {
-		console.log("SERVER READY");
 		CATAN.connectToServer(data.id);
 	});
 
@@ -59,10 +60,10 @@ CATAN.connectToServer = function(id, isEvent) {
 
 	window.location.hash = id;
 
+	// TODO: Fix bug causing multiple iterations of game board to load
 	// Make sure the game actually existed
 	var self = this;
 	setTimeout(function() {
-
 		// Game didn't exist
 		if($('#game').length == 0) {
 			// TODO: Display error in modal
@@ -73,9 +74,7 @@ CATAN.connectToServer = function(id, isEvent) {
 			// Disconnect from lobby
 			self.socket.disconnect();
 		}
-
-
-	}, 1000 * 1);
+	}, 1000 * 3);
 
 };
 

@@ -84,7 +84,7 @@ CATAN.Game.prototype = {
 	},
 
 	getSchema: function(schema) {
-		return CATAN.Schemas[this.schema];
+		return CATAN.Schemas.get(this.schema);
 	},
 
 	getMaxPlayers: function(schema) {

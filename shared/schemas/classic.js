@@ -232,4 +232,4 @@ if(SERVER) {
 
 }
 
-CATAN.Schemas["Classic"] = Classic;
+CATAN.Schemas.register("Classic", Classic);

@@ -52,7 +52,7 @@ function debugOutput() {
 	content += '</table>';
 
 	content += '<br />Available game schemas:<br />';
-	for(var k in CATAN.Schemas) {
+	for(var k in CATAN.Schemas.getAll()) {
 		content += k + '<br />';
 	}
 

@@ -1,8 +1,3 @@
-// Load schemas
-require("fs").readdirSync("./html5-settlers-of-catan/shared/schemas").forEach(function(file) {
-	require("../../shared/schemas/" + file);
-});
-
 require('../game.js');
 
 CATAN.Games = (function(CATAN) {
