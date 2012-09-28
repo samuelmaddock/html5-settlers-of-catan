@@ -18,9 +18,18 @@ HexEdge.prototype = CATAN.ents.create('BaseEntity');
 HexEdge.prototype.canBuild = function(ply) {
 	if(this.hasOwner()) return false;
 
-	// Must build near adjacent corner
-	for(var i in this.AdjacentCorners) {
-		if(ply.isOwner(this.AdjacentCorners[i])) return true;
+	// Can build near adjacent corner
+	var corners = this.getAdjacentCorners();
+	for(var i in corners) {
+		var corner = corners[i];
+		if(ply.isOwner(corner)) return true;
+	}
+
+	// Can build near adjacent edge
+	var edges = this.getAdjacentEdges();
+	for(var i in edges) {
+		var edge = edges[i];
+		if(ply.isOwner(edge)) return true;
 	}
 
 	return false;

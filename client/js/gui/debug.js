@@ -16,6 +16,10 @@ var Debug = function() {
 	this.addButton("Roll Dice", "CATAN.server.emit('rollDice')");
 	this.addButton("End Turn", "CATAN.server.emit('endTurn')");
 
+	$('#'+this.id).append(
+		$('<div>').attr('id', 'stats')
+	)
+
 };
 
 Debug.prototype = CATAN.GUI.create('Panel');
@@ -25,6 +29,16 @@ Debug.prototype.addButton = function(text,cmd) {
 		.text(text)
 		.attr('onclick',cmd)
 	);
+}
+
+Debug.prototype.updateStats = function() {
+	$('#stats').empty();
+
+	for(var i=0; i < 6; i++) {
+		$('#stats').append($('<p>')
+			.text("Resource #"+i+" "+CATAN.LocalPlayer.getNumResource(i))
+		)
+	}
 }
 
 CATAN.GUI.register( "Debug", Debug );

@@ -188,7 +188,7 @@ if(SERVER) {
 	------------------------------------------------*/
 	GAMEMODE.canPlayerPurchase = function(ply, building) {
 		// Do they have the necessary resources?
-		var cost = this.Buildings[building.getType()];
+		var cost = this.Buildings[building.getType()].cost;
 		for(res in cost) {
 			var amount = cost[res];
 			if(!ply.hasResources(res, amount)) {
@@ -224,7 +224,7 @@ if(SERVER) {
 	// Player has built structure in the playing state.
 	GAMEMODE.onPlayerBuild = function(ply, building) {
 		// Remove resources
-		var cost = this.Buildings[building];
+		var cost = this.Buildings[building.getType()].cost;
 		for(i in cost) {
 			ply.removeResource(i, cost[i]);
 		};

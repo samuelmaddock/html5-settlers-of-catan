@@ -11,15 +11,15 @@ CATAN.Player = function() {
 	this.buildings = [];
 	this.vp = 0;
 
+	this.Inventory = {
+		Resources: [0,0,0,0,0,0]
+	}
+
 	if(SERVER) {
 
 		this.status = PLAYER_LOBBY;
 		this.hasRolledDice = false;
 		this.tempResources = [];
-
-		this.Inventory = {
-			Resources: []
-		}
 
 	}
 
@@ -83,10 +83,12 @@ CATAN.Player.prototype = {
 	},
 
 	giveResource: function(RESOURCE_ENUM, amount) {
-		this.Inventory.Resources[RESOURCE_ENUM] += ( amount !== undefined ? amount : 1);
+		amount = (amount == undefined) ? 1 : Math.abs(amount);
+		this.Inventory.Resources[RESOURCE_ENUM] += amount;
 	},
 
 	removeResource: function(RESOURCE_ENUM, amount) {
+		amount = (amount == undefined) ? 1 : Math.abs(amount);
 		this.Inventory.Resources[RESOURCE_ENUM] -= ( amount !== undefined ? amount : 1);
 	},
 

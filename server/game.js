@@ -68,7 +68,7 @@ CATAN.Game.prototype = {
 		return this.board;
 	},
 
-	emit: function(name,data) {
+	emit: function(name, data) {
 		this.sockets.emit(name,data);
 	},
 
@@ -352,12 +352,13 @@ CATAN.Game.prototype = {
 			if(ent.hasOwner()) return;
 			if(!this.getSchema().canPlayerPurchase(ply, ent)) {
 				ply.notify('InsufficientResources');
+				// console.log(ply.Inventory.Resources);
 				return;
 			}
 
 			ent.build(ply);
 
-			this.game.emit('PlayerBuild', {
+			this.emit('PlayerBuild', {
 				id: ply.getID(),
 				entid: ent.getEntId()
 			});
@@ -404,7 +405,7 @@ CATAN.Game.prototype = {
 		var d1 = Math.floor(Math.random() * (6 - 1 + 1)) + 1,
 			d2 = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
 
-		ply.emit('RolledDice', {
+		this.emit('RolledDice', {
 			d1: d1,
 			d2: d2
 		})
@@ -425,7 +426,7 @@ CATAN.Game.prototype = {
 						var corner = corners[j];
 						if(corner.hasOwner()) {
 							var amount = (corner.isCity()) ? 2 : 1;
-							corner.getOwner().appendResource(tile, token, amount);
+							corner.getOwner().appendResource(tile, tile.getResource(), amount);
 						}
 					}
 				}
@@ -473,9 +474,12 @@ CATAN.Game.prototype = {
 
 			var aedges = corner.getAdjacentEdges();
 			for(var j in aedges) {
-				if(aedges[j].canBuild(ply)) {
-					list.push(aedges[j].getEntId());
+				var aedge = aedges[j];
+				if(aedge.canBuild(ply)) {
+					list.push(aedge.getEntId());
 				}
+
+				// TODO: Add adjacent roads
 			}
 		}
 

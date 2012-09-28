@@ -84,8 +84,8 @@ CATAN.Board.prototype = {
 				tile.getCornerPosition(CORNER_R),
 				tile.getCornerPosition(CORNER_BR),
 				tile.getCornerPosition(CORNER_BL)
-			];
-
+			]
+			
 			for(var j in positions) {
 				
 				var pos = positions[j]; // get corner vector

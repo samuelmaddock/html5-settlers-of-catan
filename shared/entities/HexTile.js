@@ -107,6 +107,32 @@ HexTile.prototype.setupMesh = function() {
 	this.Mesh.rotation.y = (2*Math.PI)/6 * (Math.floor(Math.random() * 6) + 1)
 	
 	CATAN.Game.scene.add( this.Mesh );
+
+	// Number token
+	var text = new THREE.Mesh(
+		new THREE.TextGeometry(this.getToken().toString(), {
+			size: 20,
+			height: 1,
+			curveSegments: 2,
+			font: "helvetiker"
+		}),
+		new THREE.MeshBasicMaterial({ color: 0x000000 })
+	)
+	text.position.x = this.position.x - 8;
+	text.position.y = this.position.y + 2;
+	text.position.z = this.position.z + 8;
+	text.rotation.x = -90 * Math.PI/180;
+
+	var base = new THREE.Mesh(
+		new THREE.CylinderGeometry(18,18,4,12,1,false),
+		new THREE.MeshBasicMaterial({color:0xFFFFFF})
+	)
+	base.position.x = this.position.x;
+	base.position.y = this.position.y;
+	base.position.z = this.position.z;
+
+	CATAN.Game.scene.add(base);
+	CATAN.Game.scene.add(text);
 }
 
 /* -----------------------------------------------
@@ -153,7 +179,6 @@ HexTile.prototype.getEdgePosAng = function(EDGE_ENUM) {
 	HexTile.setRobber
 
 	Desc: Sets the robber on top of the tile
-	TODO: Create actual robber object
 ------------------------------------------------*/
 HexTile.prototype.setRobber = function(board) {
 

@@ -22,6 +22,7 @@ CATAN.Notify = function(data) {
 
 		} else {
 			window.webkitNotifications.requestPermission(this.Notify);
+			this.chat.AddLine(data.subtitle, "forcechat");
 		}
 
 	} else {
@@ -64,3 +65,13 @@ CATAN.mouseRayTrace = function( event ) {
 	};
 
 };
+
+CATAN.endBuildMode = function() {
+	var entities = CATAN.ents.getByName(["HexCorner","HexEdge"]);
+	for(var i in entities) {
+		var ent2 = entities[i];
+		if(!ent2.hasOwner()) {
+			ent2.hide();
+		}
+	}
+}

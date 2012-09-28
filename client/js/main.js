@@ -161,14 +161,8 @@ CATAN.setupSocket = function(socket) {
 		ent.setOwner(ply);
 
 		// End build
-		if( ply.getID() == CATAN.LocalPlayer.getID() ) {
-			var entities = CATAN.ents.getByName(["HexCorner","HexEdge"]);
-			for(var i in entities) {
-				var ent2 = entities[i];
-				if(!ent2.hasOwner()) {
-					ent2.hide();
-				}
-			}
+		if( ply == CATAN.LocalPlayer ) {
+			CATAN.endBuildMode();
 		}
 	});
 
@@ -183,7 +177,7 @@ CATAN.setupSocket = function(socket) {
 
 	socket.on('RolledDice', function (data) {
 		console.log("Rolled Dice");
-		var text = data.d1 + " + " + data.d2 + " = " + (data.d1 + data.d2);
+		var text = "Rolled: " + data.d1 + " + " + data.d2 + " = " + (data.d1 + data.d2);
 
 		CATAN.Notify({
 			title: "Dice results",
@@ -198,10 +192,12 @@ CATAN.setupSocket = function(socket) {
 
 		console.log(data);
 
-		/*for(var i in data.resources) {
+		for(var i in data.resources) {
 			var res = data.resources[i];
 			CATAN.LocalPlayer.giveResource(res.r, res.n);
-		}*/
+		}
+
+		CATAN.debug.updateStats();
 	});
 
 	socket.on('PlayerStartBuild', function (data) {
@@ -224,6 +220,7 @@ CATAN.setupSocket = function(socket) {
 			CATAN.Notify({
 				subtitle:T('PlayerTurn', ply.getName())
 			});
+			CATAN.endBuildMode();
 		}
 	});
 

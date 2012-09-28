@@ -79,6 +79,15 @@ Chatbox.prototype.AddLine = function(data, type) {
 		
 		this.log.push({ Name: data.ply.getName(), Text: text })
 
+	} else if (type == "forcechat") {
+
+		id = "cl_" + (this.log.length + 1);
+		text = this.Cleanse(data);
+
+		$('#log').append('<table id="' + id + '" class="chatline note"><tr><td>' + text + '</td></tr></table>');
+
+		this.log.push({ Text: text });
+
 	} else { // message sent from server
 
 		id = "cl_" + (this.log.length + 1);
