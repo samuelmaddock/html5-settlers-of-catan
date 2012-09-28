@@ -1,12 +1,12 @@
-var GAMETYPE = {};
+var GAMEMODE = {};
 
-GAMETYPE.MaxPlayers = 4;
+GAMEMODE.MaxPlayers = 4;
 
 // Default Catan Board Arrangement
 // 0 = No tile
 // 1 = Resource
 // 2 = Dock?
-GAMETYPE.Grid = [
+GAMEMODE.Grid = [
 	[0,1,1,1,0],
 	[1,1,1,1,1],
 	[1,1,1,1,1],
@@ -14,20 +14,20 @@ GAMETYPE.Grid = [
 	[0,0,1,0,0],
 ]
 
-GAMETYPE.ResourceCount = [RESOURCE_DESERT];
+GAMEMODE.ResourceCount = [RESOURCE_DESERT];
 for(var i=0; i < 4; i++) {
-	GAMETYPE.ResourceCount.push(RESOURCE_LUMBER);
-	GAMETYPE.ResourceCount.push(RESOURCE_SHEEP);
-	GAMETYPE.ResourceCount.push(RESOURCE_GRAIN);
+	GAMEMODE.ResourceCount.push(RESOURCE_LUMBER);
+	GAMEMODE.ResourceCount.push(RESOURCE_SHEEP);
+	GAMEMODE.ResourceCount.push(RESOURCE_GRAIN);
 }
 for(var i=0; i < 3; i++) {
-	GAMETYPE.ResourceCount.push(RESOURCE_BRICK);
-	GAMETYPE.ResourceCount.push(RESOURCE_ORE);
+	GAMEMODE.ResourceCount.push(RESOURCE_BRICK);
+	GAMEMODE.ResourceCount.push(RESOURCE_ORE);
 }
 
-GAMETYPE.NumberTokens = [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12];
+GAMEMODE.NumberTokens = [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12];
 
-GAMETYPE.Resources = [
+GAMEMODE.Resources = [
 	
 	{
 		name: "Desert",
@@ -73,7 +73,7 @@ GAMETYPE.Resources = [
 		
 ]
 
-GAMETYPE.Buildings = [
+GAMEMODE.Buildings = [
 	
 	{
 		name: "Road",
@@ -95,13 +95,13 @@ GAMETYPE.Buildings = [
 	
 ];
 
-GAMETYPE.Robber = {
+GAMEMODE.Robber = {
 	name: "Robber",
 	url: "models/robber.js"
 };
 
-GAMETYPE.CardCost = [ 0, 0, 0, 1, 1, 1 ]
-GAMETYPE.Cards = [
+GAMEMODE.CardCost = [ 0, 0, 0, 1, 1, 1 ]
+GAMEMODE.Cards = [
 	
 	{
 		name: "Year of Plenty",
@@ -125,7 +125,7 @@ GAMETYPE.Cards = [
 	
 ];
 
-GAMETYPE.Special = [
+GAMEMODE.Special = [
 	
 	{
 		name: "Largest Army",
@@ -139,4 +139,4 @@ GAMETYPE.Special = [
 	
 ];
 
-CATAN.Schemas.register("Seafarers", GAMETYPE);
+CATAN.Schemas.register("Seafarers", GAMEMODE);

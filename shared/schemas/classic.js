@@ -23,9 +23,9 @@ if(CLIENT) {
 	]);
 }
 
-var Classic = {};
+var GAMEMODE = {};
 
-Classic.Resources = [
+GAMEMODE.Resources = [
 	
 	{
 		name: "Desert",
@@ -71,7 +71,7 @@ Classic.Resources = [
 		
 ];
 
-Classic.Buildings = [
+GAMEMODE.Buildings = [
 	
 	{
 		name: "Road",
@@ -93,13 +93,13 @@ Classic.Buildings = [
 	
 ];
 
-Classic.Robber = {
+GAMEMODE.Robber = {
 	name: "Robber",
 	url: "models/robber.js"
 };
 
-Classic.CardCost = [ 0, 0, 0, 1, 1, 1 ]
-Classic.Cards = [
+GAMEMODE.CardCost = [ 0, 0, 0, 1, 1, 1 ]
+GAMEMODE.Cards = [
 	
 	{
 		name: "Year of Plenty",
@@ -123,7 +123,7 @@ Classic.Cards = [
 	
 ];
 
-Classic.Special = [
+GAMEMODE.Special = [
 	
 	{
 		name: "Largest Army",
@@ -139,13 +139,13 @@ Classic.Special = [
 
 if(SERVER) {
 
-	Classic.MaxPlayers = 4;
+	GAMEMODE.MaxPlayers = 4;
 
 	// Default Catan Board Arrangement
 	// 0 = No tile
 	// 1 = Resource
 	// 2 = Dock?
-	Classic.getGrid = function() {
+	GAMEMODE.getGrid = function() {
 		return [[0,1,1,1,0],
 				[1,1,1,1,1],
 				[1,1,1,1,1],
@@ -153,7 +153,7 @@ if(SERVER) {
 				[0,0,1,0,0]]
 	}
 
-	Classic.getResources = function() {
+	GAMEMODE.getResources = function() {
 
 		resources = [RESOURCE_DESERT];
 		for(var i=0; i < 4; i++) {
@@ -170,66 +170,73 @@ if(SERVER) {
 
 	}
 
-	Classic.getNumberTokens = function() {
+	GAMEMODE.getNumberTokens = function() {
 		return [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12];
 	}
 
-	Classic.getColors = function() {
+	GAMEMODE.getColors = function() {
 		return [
-			0x2BB1CC, // blue 
-			0x259C31, // green
-			0xCC332B, // red
-			0x912BCC // purple
+			0x2BB1CC,	// blue 
+			0x259C31,	// green
+			0xCC332B,	// red
+			0x912BCC	// purple
 		];
 	}
 
 	/* -----------------------------------------------
 		Gametype Rules
 	------------------------------------------------*/
-	Classic.OnRoll = function(d1,d2) {
-
-		var num = d1 + d2;
-
-		if(num == 7) {
-			this.OnRollSeven();
-		};
-
-	};
-
-	Classic.OnRollSeven = function() {
-		// enable move robber
-	};
-
-	Classic.OnPlayerScore = function(ply) {
-		// check score for win
-	};
-
-	Classic.OnPlayerPurchase = function(ply, building) {
-
-		// CanPlayerPurchase?
-		var cost = this.Buildings[building];
+	GAMEMODE.canPlayerPurchase = function(ply, building) {
+		// Do they have the necessary resources?
+		var cost = this.Buildings[building.getType()];
 		for(res in cost) {
 			var amount = cost[res];
-			if(ply.hasResources(res, amount)) {
-				ply.removeResource(res, amount);
-			} else {
-				return; // not enough resources
+			if(!ply.hasResources(res, amount)) {
+				return false;
 			};
 		};
 
+		// Do they have too many of that structure?
+
+		return true;
+	}
+
+	GAMEMODE.onPlayerRoll = function(ply, d1, d2) {
+
+		var n = d1 + d2;
+
+		if(n == 7) {
+			this.onPlayerRollSeven(ply);
+		};
+
 	};
 
-	Classic.OnPlayerSetBuilding = function(ply, building) {
-		// check building type vs road distance
+	GAMEMODE.onPlayerRollSeven = function(ply) {
+		// enable move robber
 	};
 
-	/*
-		
-		OnRoll(num)
+	GAMEMODE.onPlayerScore = function(ply) {
+		if (ply.getVictoryPoints() >= 10) {
+			// win game
+		}
+	};
 
+	// Player has built structure in the playing state.
+	GAMEMODE.onPlayerBuild = function(ply, building) {
+		// Remove resources
+		var cost = this.Buildings[building];
+		for(i in cost) {
+			ply.removeResource(i, cost[i]);
+		};
 
-	*/
+		if (building.isRoad()) {
+			// check longest road
+		} else if (building.isSettlement() || building.isCity()) {
+			ply.addVictoryPoint();
+			this.onPlayerScore(ply);
+		}
+	};
 
 }
 
-CATAN.Schemas.register("Classic", Classic);
+CATAN.Schemas.register("Classic", GAMEMODE);

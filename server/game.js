@@ -64,6 +64,10 @@ CATAN.Game.prototype = {
 		}
 	},
 
+	getBoard: function() {
+		return this.board;
+	},
+
 	emit: function(name,data) {
 		this.sockets.emit(name,data);
 	},
@@ -99,7 +103,7 @@ CATAN.Game.prototype = {
 	},
 
 	isOwner: function(ply) {
-		return ply.getID() == this.owner;
+		return ply == this.getOwner();
 	},
 
 	getPlayers: function() {
@@ -154,14 +158,14 @@ CATAN.Game.prototype = {
 	},
 
 	setOwner: function(ply) {
-		this.owner = ply.getID();
+		this.owner = ply;
 		// TODO: inform players of new ownership
 	},
 
 	hasValidOwner: function() {
 		for(i in this.players) {
 			var ply = this.players[i];
-			if (ply.getID() == this.owner) {
+			if (ply == this.getOwner()) {
 				return true;
 			};
 		};
@@ -233,7 +237,10 @@ CATAN.Game.prototype = {
 		ply.on( 'playerReady',	function(data) { self.onPlayerJoin(ply,data) } );
 		ply.on( 'playerChat',	function(data) { self.onPlayerChat(ply,data) } );
 		ply.on( 'playerBuild',	function(data) { self.onPlayerBuild(ply,data) } );
-		ply.on( 'startGame',	function(data) { self.onStartGame(ply,data) } );
+		ply.on( 'startGame',	function(data) { self.onPlayerStartGame(ply,data) } );
+		ply.on( 'rollDice',		function(data) { self.onPlayerRollDice(ply,data) } );
+		ply.on( 'startBuild',	function(data) { self.onPlayerStartBuild(ply,data) } );
+		ply.on( 'endTurn',		function(data) { self.onPlayerEndTurn(ply,data) } );
 
 		// Inform user of successful connection
 		ply.emit('connectionStatus', { success: true });
@@ -341,7 +348,21 @@ CATAN.Game.prototype = {
 
 		if(this.getState() == STATE_PLAYING) {
 
+			if(!ply.hasRolledDice) return; // hacker
 			if(ent.hasOwner()) return;
+			if(!this.getSchema().canPlayerPurchase(ply, ent)) {
+				ply.notify('InsufficientResources');
+				return;
+			}
+
+			ent.build(ply);
+
+			this.game.emit('PlayerBuild', {
+				id: ply.getID(),
+				entid: ent.getEntId()
+			});
+
+			this.getSchema().onPlayerBuild(ply, ent);
 
 		}
 
@@ -350,13 +371,13 @@ CATAN.Game.prototype = {
 
 	/* --------------------------------------------
 		Game Hooks
-	-------------------------------------------- */	
-	onStartGame: function(ply, data) {
+	-------------------------------------------- */
+	onPlayerStartGame: function(ply, data) {
 
 		if(this.getState() != STATE_WAITING) return;
 
 		// Valid player and player is owner
-		if( (!this.isValidPlayer(ply)) || (this.getOwner() != ply.getID()) ) return;
+		if( (!this.isValidPlayer(ply)) || (this.getOwner() !== ply) ) return;
 
 		// Check if we have at least 2 players
 		if(this.getNumPlayers() < 2) {
@@ -371,9 +392,110 @@ CATAN.Game.prototype = {
 
 	},
 
-	onPlayerRequestAction: function(socket,data) {
+	onPlayerRollDice: function(ply, data) {
 
-		
+		if(this.getState() != STATE_PLAYING) return;
+		if(!ply.isTurn()) return;
+		if(ply.hasRolledDice) {
+			ply.notify("CantRollDice", MSG_ERROR);
+			return;
+		}
+
+		var d1 = Math.floor(Math.random() * (6 - 1 + 1)) + 1,
+			d2 = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
+
+		ply.emit('RolledDice', {
+			d1: d1,
+			d2: d2
+		})
+
+		var token = d1 + d2;
+
+		if(token == 7) {
+			// move robber
+		} else {
+
+			// Distribute resources
+			var tiles = this.getBoard().getTiles();
+			for(var i in tiles) {
+				var tile = tiles[i];
+				if(tile.getToken() == token) {
+					var corners = tile.getAdjacentCorners();
+					for(var j in corners) {
+						var corner = corners[j];
+						if(corner.hasOwner()) {
+							var amount = (corner.isCity()) ? 2 : 1;
+							corner.getOwner().appendResource(tile, token, amount);
+						}
+					}
+				}
+				
+			}
+
+			// Alert clients of new resources
+			var players = this.getPlayers();
+			for(var i in players) {
+				var pl = players[i];
+				pl.sendResources();
+			}
+
+		}
+
+		ply.hasRolledDice = true;
+
+	},
+
+	onPlayerStartBuild: function(ply, data) {
+
+		if(this.getState() != STATE_PLAYING) return;
+		if(!ply.isTurn()) return;
+
+		if(!ply.hasRolledDice) {
+			ply.notify("MustRollDice", MSG_ERROR);
+			return;
+		}
+
+		// Let players know where they can build
+
+		// TODO: Move board to shared so players can figure this out
+		var list = [];
+
+		var corners = ply.getCorners();
+		for(var i in corners) {
+			var corner = corners[i];
+
+			var acorners = corner.getAdjacentCorners();
+			for(var j in acorners) {
+				if(acorners[j].canBuild()) {
+					list.push(acorners[j].getEntId());
+				}
+			}
+
+			var aedges = corner.getAdjacentEdges();
+			for(var j in aedges) {
+				if(aedges[j].canBuild(ply)) {
+					list.push(aedges[j].getEntId());
+				}
+			}
+		}
+
+		ply.emit('PlayerStartBuild', {
+			available: list
+		});
+
+	},
+
+	onPlayerEndTurn: function(ply, data) {
+
+		if(this.getState() != STATE_PLAYING) return;
+		if(!ply.isTurn()) return;
+
+		if(!ply.hasRolledDice) {
+			ply.notify("MustRollDice", MSG_ERROR);
+			return;
+		}
+
+		this.turnManager.nextTurn();
 
 	},
 

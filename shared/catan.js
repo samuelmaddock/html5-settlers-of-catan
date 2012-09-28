@@ -1,3 +1,7 @@
+/**
+ * @author samuelmaddock / http://samuelmaddock.com/
+ */
+
 var CATAN = CATAN || { VERSION: '1.00' };
 
 CATAN.getVersion = function() {

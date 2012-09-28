@@ -83,6 +83,19 @@ CATAN.Player.prototype.setStatus = function(state) {
 	this.status = state;
 }
 
+CATAN.Player.prototype.notify = function(subtitle, type) {
+	// TODO: Limit amount of time before a new message can be sent
+	
+	if(type === undefined) {
+		type = MSG_DEFAULT;
+	}
+
+	this.emit('Message', {
+		subtitle: subtitle,
+		type: type
+	})
+}
+
 /*
 	Game Methods
 */
@@ -98,4 +111,26 @@ CATAN.Player.prototype.getBuildingsByType = function(type) {
 		};
 	};
 	return ents;
+}
+
+/*
+	Inventory
+*/
+CATAN.Player.prototype.appendResource = function(tile, resource, amount) {
+	this.giveResource(resource, amount);
+	this.tempResources.push({
+		t: tile.getEntId(),
+		r: resource,
+		n: amount
+	});
+}
+
+CATAN.Player.prototype.sendResources = function() {
+	if(this.tempResources.length < 1) return;
+
+	this.emit('GiveResources', {
+		resources: this.tempResources
+	});
+
+	this.tempResources.length = 0;
 }

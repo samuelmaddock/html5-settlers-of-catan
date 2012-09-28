@@ -5,7 +5,8 @@
 var BaseEntity = function() {
 
 	this.entid = -1;
-	this.Owner = -1;
+	this.Owner = null;
+	this.Building = -1;
 
 	this.position = new THREE.Vector3(0,0,0);
 	this.angle = -1;
@@ -18,12 +19,14 @@ BaseEntity.prototype = new BaseEntity();
 
 BaseEntity.prototype.getEntId = function() { return this.entid; }
 
-BaseEntity.prototype.hasOwner = function() { return (this.Owner != -1); } // temporary
+BaseEntity.prototype.getType = function() { return this.Building };
+
+BaseEntity.prototype.hasOwner = function() { return (this.Owner != null); }
 BaseEntity.prototype.getOwner = function() { return this.Owner; }
 BaseEntity.prototype.setOwner = function(ply) {
 
 	if(typeof ply === 'undefined') return;
-	this.Owner = ply.getID()
+	this.Owner = ply;
 	ply.setOwnership(this)
 
 	if(CLIENT) {
@@ -102,6 +105,30 @@ BaseEntity.prototype.remove = function() {
 
 	delete this;
 	
+}
+
+BaseEntity.prototype.isSettlement = function() {
+	return this.getType() == BUILDING_SETTLEMENT;
+}
+
+BaseEntity.prototype.isCity = function() {
+	return this.getType() == BUILDING_CITY;
+}
+
+BaseEntity.prototype.isRoad = function() {
+	return this.getType() == BUILDING_ROAD;
+}
+
+BaseEntity.prototype.getAdjacentTiles = function() {
+	return this.AjacentTiles ? this.AdjacentTiles : [];
+}
+
+BaseEntity.prototype.getAdjacentCorners = function() {
+	return this.AdjacentCorners ? this.AdjacentCorners : [];
+}
+
+BaseEntity.prototype.getAdjacentEdges = function() {
+	return this.AdjacentEdges ? this.AdjacentEdges : [];
 }
 
 if(CLIENT) {

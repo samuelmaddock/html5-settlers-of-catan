@@ -181,6 +181,58 @@ CATAN.setupSocket = function(socket) {
 		}
 	});
 
+	socket.on('RolledDice', function (data) {
+		console.log("Rolled Dice");
+		var text = data.d1 + " + " + data.d2 + " = " + (data.d1 + data.d2);
+
+		CATAN.Notify({
+			title: "Dice results",
+			subtitle: text
+		})
+	});
+
+	socket.on('GiveResources', function (data) {
+		CATAN.Notify({
+			subtitle: "Got resources!"
+		});
+
+		console.log(data);
+
+		/*for(var i in data.resources) {
+			var res = data.resources[i];
+			CATAN.LocalPlayer.giveResource(res.r, res.n);
+		}*/
+	});
+
+	socket.on('PlayerStartBuild', function (data) {
+		CATAN.Game.collisionObjects.length = 0
+
+		for(var i in data.available) {
+			var ent = CATAN.ents.getById(data.available[i]);
+			ent.show(0.33);
+			CATAN.Game.collisionObjects.push( ent.getMesh() );
+		}
+	});
+
+	socket.on('PlayerTurn', function (data) {
+		var ply = CATAN.Players.getById(data.id);
+		if(ply == CATAN.LocalPlayer) {
+			CATAN.Notify({
+				subtitle:T('LocalPlayerTurn')
+			});
+		} else {
+			CATAN.Notify({
+				subtitle:T('PlayerTurn', ply.getName())
+			});
+		}
+	});
+
+	socket.on('Message', function (data) {
+		CATAN.Notify({
+			subtitle:T(data.subtitle)
+		});
+	});
+
 }
 
 CATAN.precacheModels = function() {

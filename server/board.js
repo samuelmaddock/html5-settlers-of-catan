@@ -3,8 +3,11 @@
  */
 
 THREE = require('./vector.js');
-require('../shared/ents.js');
+
+// Require base entity first
 require('../shared/entities/BaseEntity.js');
+
+// Board entities
 require('../shared/entities/HexTile.js');
 require('../shared/entities/HexCorner.js');
 require('../shared/entities/HexEdge.js');
@@ -33,6 +36,9 @@ CATAN.Board = function(game) {
 
 /* -----------------------------------------------
 	Catan Board Setup
+
+	Below is unoptimized prototype code, this
+	should be fixed up later.
 ------------------------------------------------*/
 CATAN.Board.prototype.setup = function() {
 
@@ -104,7 +110,7 @@ CATAN.Board.prototype.setup = function() {
 			
 			}
 			
-			tile.corners.push( corner );
+			tile.AdjacentCorners.push(corner);
 			corner.AdjacentTiles.push(tile);
 			
 		}
@@ -145,7 +151,7 @@ CATAN.Board.prototype.setup = function() {
 			
 			}
 			
-			tile.edges.push( edge );
+			tile.AdjacentEdges.push(edge);
 			edge.AdjacentTiles.push(tile);
 			
 		}
@@ -342,4 +348,16 @@ CATAN.Board.prototype.getAvailableBuildings = function(ply, BUILDING_ENUM) {
 
 	return buildable;
 
+}
+
+CATAN.Board.prototype.getTiles = function() {
+	return this.hexTiles;
+}
+
+CATAN.Board.prototype.getCorners = function() {
+	return this.hexCorners;
+}
+
+CATAN.Board.prototype.getEdges = function() {
+	return this.hexEdges;
 }

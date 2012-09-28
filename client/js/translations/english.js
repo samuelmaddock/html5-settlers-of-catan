@@ -24,6 +24,8 @@ L["SchemaClassic"] = "Classic";			// Classic schema name
 // In-Game
 L["PlayerConnect"] = "{0} has joined the game ({1}:{2}).";	// Player joined
 L["PlayerDisconnect"] = "{0} has disconnected.";			// Player disconnected
+L["PlayerTurn"] = "It is now {0}'s turn.";		// Other player's turn
+L["LocalPlayerTurn"] = "It is now your turn.";	// Local Player's turn
 
 // Game notifications
 L["SelectSettlement"] = "Select a settlement.";		// Setup state, select settlement

@@ -131,7 +131,6 @@ CATAN.TurnManager.prototype = {
 		if(bDone) {
 			this.game.setState(STATE_PLAYING);
 			this.nextTurn();
-			this.playingNextPlayer(this.getCurrentPlayer());
 		} else {
 			this.nextTurn();
 			this.setupNextPlayer(this.getCurrentPlayer());
@@ -145,11 +144,11 @@ CATAN.TurnManager.prototype = {
 
 		var entities;
 		if(ply.SetupStep == 0 || ply.SetupStep == 2) {
-			entities = this.board.hexCorners;
+			entities = this.board.getCorners();
 		} else if(ply.SetupStep == 1) {
-			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[0].AdjacentEdges;
+			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[0].getAdjacentEdges();
 		} else if(ply.SetupStep == 3) {
-			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[1].AdjacentEdges;
+			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[1].getAdjacentEdges();
 		}
 
 		var buildable = [];
@@ -170,10 +169,8 @@ CATAN.TurnManager.prototype = {
 		Playing
 	---------------------------------------*/
 
-	playingNextPlayer: function(ply) {
-
-		ply.emit('playingStartTurn')
-
+	playingAdvanceTurn: function() {
+		this.nextTurn();
 	}
 
 

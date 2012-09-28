@@ -11,8 +11,8 @@ var HexTile = function() {
 	this.NumberToken = -1;
 	this.Robber = false;
 	
-	this.corners = [];
-	this.edges = [];
+	this.AdjacentCorners = [];
+	this.AdjacentEdges = [];
 	
 	this.x = -1;
 	this.y = -1;

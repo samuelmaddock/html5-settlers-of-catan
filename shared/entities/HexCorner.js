@@ -17,18 +17,6 @@ var HexCorner = function() {
 
 HexCorner.prototype = CATAN.ents.create('BaseEntity');
 
-HexCorner.prototype.canBuild = function() {
-
-	if(this.hasOwner()) return false;
-
-	// Must build settlement at least two corners away
-	for(var i in this.AdjacentCorners) {
-		if(this.AdjacentCorners[i].hasOwner()) return false;
-	}
-
-	return true;
-}
-
 HexCorner.prototype.setupMesh = function() {
 	// var path = CATAN.getSchema().Buildings[this.Building];
 
@@ -42,6 +30,18 @@ HexCorner.prototype.setupMesh = function() {
 	this.Mesh.Parent = this;
 
 	CATAN.Game.scene.add( this.Mesh );
+}
+
+HexCorner.prototype.canBuild = function() {
+
+	if(this.hasOwner()) return false;
+
+	// Must build settlement at least two corners away
+	for(var i in this.AdjacentCorners) {
+		if(this.AdjacentCorners[i].hasOwner()) return false;
+	}
+
+	return true;
 }
 
 if(CLIENT) {

@@ -10,7 +10,7 @@ var Debug = function() {
 	// Add buttons
 	this.addButton("Start Game", "CATAN.server.emit('startGame')");
 
-	this.addButton("Build", "CATAN.server.emit('build')");
+	this.addButton("Build", "CATAN.server.emit('startBuild')");
 	this.addButton("Trade", "CATAN.server.emit('trade')");
 	this.addButton("Exchange", "CATAN.server.emit('exchange')");
 	this.addButton("Roll Dice", "CATAN.server.emit('rollDice')");

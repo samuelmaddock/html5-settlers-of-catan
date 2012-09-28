@@ -9,10 +9,13 @@ CATAN.Player = function() {
 
 	this.turn = false;
 	this.buildings = [];
+	this.vp = 0;
 
 	if(SERVER) {
 
 		this.status = PLAYER_LOBBY;
+		this.hasRolledDice = false;
+		this.tempResources = [];
 
 		this.Inventory = {
 			Resources: []
@@ -58,18 +61,25 @@ CATAN.Player.prototype = {
 
 	setTurn: function(bTurn) {
 		this.turn = bTurn;
+		if(SERVER) {
+			this.hasRolledDice = false;
+		}
 	},
 
 	isTurn: function() {
 		return this.turn;
 	},
-		
+	
+	addVictoryPoint: function() {
+		this.vp += 1;
+	},
+
 	getNumResource: function(RESOURCE_ENUM) {
 		return ( this.Inventory.Resources[RESOURCE_ENUM] !== undefined ) ? this.Inventory.Resources[RESOURCE_ENUM] : 0;
 	},
 
 	hasResources: function(RESOURCE_ENUM, amount) {
-		return this.getResource(RESOURCE_ENUM) >= amount;
+		return this.getNumResource(RESOURCE_ENUM) >= amount;
 	},
 
 	giveResource: function(RESOURCE_ENUM, amount) {
@@ -84,13 +94,36 @@ CATAN.Player.prototype = {
 		return this.buildings;
 	},
 
+	getBuildingsByType: function(BUILDING_ENUM) {
+		var list = [];
+		var buildings = this.getBuildings();
+		for(var i in buildings) {
+			if(buildings[i].getType() == BUILDING_ENUM) {
+				list.push(buildings[i]);
+			}
+		}
+		return list;
+	},
+
+	getCorners: function() {
+		var list = [];
+		var buildings = this.getBuildings();
+		for(var i in buildings) {
+			if( (buildings[i].getType() == BUILDING_SETTLEMENT) ||
+				(buildings[i].getType() == BUILDING_CITY) ) {
+				list.push(buildings[i]);
+			}
+		}
+		return list;
+	},
+
 	setOwnership: function(building) {
 		building.Color = this.Color;
 		this.buildings.push(building);
 	},
 
 	isOwner: function(ent) {
-		return ( ent.hasOwner() && ent.getOwner() == this.getID() );
+		return ( ent.hasOwner() && ent.getOwner() == this );
 		/*for(i in this.buildings) {
 			var b = this.buildings[i];
 			if (b.getEntId() == building.getEntId() && b.Building == building.Building) {

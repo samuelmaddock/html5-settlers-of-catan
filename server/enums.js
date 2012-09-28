@@ -37,3 +37,7 @@ global.STATE_END		= 4
 global.PLAYER_LOBBY = 0;
 global.PLAYER_JOINING = 1;
 global.PLAYER_CONNECTED = 2;
+
+// Message Types
+global.MSG_DEFAULT = 0;
+global.MSG_ERROR = 1;
