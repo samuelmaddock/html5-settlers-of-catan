@@ -61,6 +61,9 @@ BaseEntity.prototype.hide = function() {
 	this.visible = false;
 };
 
+BaseEntity.prototype.isVisible = function() {
+	return this.visible;
+}
 
 /* -----------------------------------------------
 	BaseEntity.getMesh
@@ -107,6 +110,10 @@ BaseEntity.prototype.remove = function() {
 	
 }
 
+BaseEntity.prototype.isTile = function() {
+	return this.hasRobber != undefined;
+}
+
 BaseEntity.prototype.isSettlement = function() {
 	return this.getType() == BUILDING_SETTLEMENT;
 }
@@ -145,11 +152,17 @@ if(CLIENT) {
 		if(!this.hasOwner()) {
 			$('body').css('cursor','pointer');
 
-			this.getMesh().material = new THREE.MeshLambertMaterial({
-				color: CATAN.LocalPlayer.getColor(),
-				opacity: 0.88,
-				transparent: true
-			});
+			if(this.isTile()) {
+
+				this.getMesh().material.color = new THREE.Color(CATAN.LocalPlayer.getColor());
+
+			} else {
+				this.getMesh().material = new THREE.MeshLambertMaterial({
+					color: CATAN.LocalPlayer.getColor(),
+					opacity: 0.88,
+					transparent: true
+				});
+			}
 		}
 
 	}
@@ -159,11 +172,17 @@ if(CLIENT) {
 		$('body').css('cursor','default');
 
 		if(!this.hasOwner()) {
-			this.getMesh().material = new THREE.MeshLambertMaterial({
-				color: 0xffffff,
-				opacity: 0.33,
-				transparent: true
-			});
+			if(this.isTile()) {
+
+				this.getMesh().material.color = new THREE.Color(0xffffff);
+
+			} else {
+				this.getMesh().material = new THREE.MeshLambertMaterial({
+					color: 0xffffff,
+					opacity: 0.33,
+					transparent: true
+				});
+			}
 		}
 
 	}

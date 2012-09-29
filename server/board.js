@@ -2,16 +2,18 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
 
-THREE = require('./vector.js');
+if(SERVER) {
+	THREE = require('./vector.js');
 
-// Require base entity first
-require('../shared/entities/BaseEntity.js');
+	// Require base entity first
+	require('../shared/entities/BaseEntity.js');
 
-// Board entities
-require('../shared/entities/HexTile.js');
-require('../shared/entities/HexCorner.js');
-require('../shared/entities/HexEdge.js');
-require('../shared/entities/Robber.js');
+	// Board entities
+	require('../shared/entities/HexTile.js');
+	require('../shared/entities/HexCorner.js');
+	require('../shared/entities/HexEdge.js');
+	require('../shared/entities/Robber.js');
+}
 
 CATAN.Board = function(game) {
 	

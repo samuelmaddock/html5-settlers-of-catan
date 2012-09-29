@@ -22,6 +22,8 @@ var HexTile = function() {
 	
 	this.edgesX = [];
 	this.edgesY = [];
+
+	this.visible = true;
 	
 };
 
@@ -31,7 +33,41 @@ HexTile.prototype.getResource = function() { return this.Resource; };
 HexTile.prototype.setResource = function(resource) { this.Resource = resource; };
 
 HexTile.prototype.getToken = function() { return this.NumberToken; };
-HexTile.prototype.setToken = function(num) { this.NumberToken = num; };
+HexTile.prototype.setToken = function(num) {
+	this.NumberToken = num;
+
+	if(CLIENT && num > 0) {
+		// White circular base
+		if(!this.tokenBase) {
+			this.tokenBase = new THREE.Mesh(
+				new THREE.CylinderGeometry(18,18,4,12,1,false),
+				new THREE.MeshBasicMaterial({color:0xFFFFFF})
+			)
+			this.tokenBase.position.x = this.position.x;
+			this.tokenBase.position.y = this.position.y;
+			this.tokenBase.position.z = this.position.z;
+			CATAN.Game.scene.add(this.tokenBase);
+		}
+
+		// Number token
+		if(!this.tokenText) {
+			this.tokenText = new THREE.Mesh(
+				new THREE.TextGeometry(this.getToken().toString(), {
+					size: 20,
+					height: 1,
+					curveSegments: 2,
+					font: "helvetiker"
+				}),
+				new THREE.MeshBasicMaterial({ color: 0x000000 })
+			)
+			this.tokenText.position.x = this.position.x - 8;
+			this.tokenText.position.y = this.position.y + 2;
+			this.tokenText.position.z = this.position.z + 8;
+			this.tokenText.rotation.x = -90 * Math.PI/180;
+			CATAN.Game.scene.add(this.tokenText);
+		}
+	}
+};
 
 HexTile.prototype.hasRobber = function() { return this.Robber; };
 
@@ -106,33 +142,9 @@ HexTile.prototype.setupMesh = function() {
 	this.Mesh.position = this.position;
 	this.Mesh.rotation.y = (2*Math.PI)/6 * (Math.floor(Math.random() * 6) + 1)
 	
+	this.Mesh.Parent = this;
+
 	CATAN.Game.scene.add( this.Mesh );
-
-	// Number token
-	var text = new THREE.Mesh(
-		new THREE.TextGeometry(this.getToken().toString(), {
-			size: 20,
-			height: 1,
-			curveSegments: 2,
-			font: "helvetiker"
-		}),
-		new THREE.MeshBasicMaterial({ color: 0x000000 })
-	)
-	text.position.x = this.position.x - 8;
-	text.position.y = this.position.y + 2;
-	text.position.z = this.position.z + 8;
-	text.rotation.x = -90 * Math.PI/180;
-
-	var base = new THREE.Mesh(
-		new THREE.CylinderGeometry(18,18,4,12,1,false),
-		new THREE.MeshBasicMaterial({color:0xFFFFFF})
-	)
-	base.position.x = this.position.x;
-	base.position.y = this.position.y;
-	base.position.z = this.position.z;
-
-	CATAN.Game.scene.add(base);
-	CATAN.Game.scene.add(text);
 }
 
 /* -----------------------------------------------
@@ -184,13 +196,16 @@ HexTile.prototype.setRobber = function(board) {
 
 	this.Robber = true;
 
-	var obj = SERVER ? board : CATAN;
+	var robber;
+	var ents = CATAN.ents.getByName('Robber');
 
-	if(!obj.Robber) {
-		obj.Robber = CATAN.ents.create('Robber');
+	if(ents.length < 1) {
+		robber = CATAN.ents.create('Robber');
+	} else {
+		robber = ents[0];
 	}
 
-	obj.Robber.setTile(this);
+	robber.setTile(this);
 }
 
 if(CLIENT) {

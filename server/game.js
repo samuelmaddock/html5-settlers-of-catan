@@ -241,6 +241,7 @@ CATAN.Game.prototype = {
 		ply.on( 'rollDice',		function(data) { self.onPlayerRollDice(ply,data) } );
 		ply.on( 'startBuild',	function(data) { self.onPlayerStartBuild(ply,data) } );
 		ply.on( 'endTurn',		function(data) { self.onPlayerEndTurn(ply,data) } );
+		ply.on( 'movedRobber',	function(data) { self.onPlayerMoveRobber(ply,data) } );
 
 		// Inform user of successful connection
 		ply.emit('connectionStatus', { success: true });
@@ -413,14 +414,14 @@ CATAN.Game.prototype = {
 		var token = d1 + d2;
 
 		if(token == 7) {
-			// move robber
+			this.getSchema().onPlayerRollSeven(ply);
 		} else {
 
 			// Distribute resources
 			var tiles = this.getBoard().getTiles();
 			for(var i in tiles) {
 				var tile = tiles[i];
-				if(tile.getToken() == token) {
+				if(tile.getToken() == token && !tile.hasRobber()) {
 					var corners = tile.getAdjacentCorners();
 					for(var j in corners) {
 						var corner = corners[j];
@@ -453,6 +454,11 @@ CATAN.Game.prototype = {
 
 		if(!ply.hasRolledDice) {
 			ply.notify("MustRollDice", MSG_ERROR);
+			return;
+		}
+
+		if(ply.mustMoveRobber) {
+			ply.notify("MustMoveRobber", MSG_ERROR);
 			return;
 		}
 
@@ -499,7 +505,33 @@ CATAN.Game.prototype = {
 			return;
 		}
 
+		if(ply.mustMoveRobber) {
+			ply.notify("MustMoveRobber", MSG_ERROR);
+			return;
+		}
+
 		this.turnManager.nextTurn();
+
+	},
+
+	onPlayerMoveRobber: function(ply, data) {
+
+		if(this.getState() != STATE_PLAYING) return;
+		if(!ply.isTurn()) return;
+		if(!ply.mustMoveRobber) return;
+
+		var hex = this.getEntById(data.id);
+		if(hex == null) return;
+		if(!hex.isTile()) return;
+		if(hex.hasRobber()) return;
+
+		hex.setRobber();
+
+		this.emit('RobberMoved', {
+			id: hex.getEntId()
+		})
+
+		ply.mustMoveRobber = false;
 
 	},
 

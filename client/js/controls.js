@@ -113,9 +113,7 @@ THREE.CatanControls = function ( object, domElement ) {
 			var ent = CATAN.mouseRayTrace(event);
 
 			if(ent) {
-				CATAN.server.emit('playerBuild', {
-					id: ent.getEntId()
-				});
+				CATAN.onSelectEntity(ent);
 			}
 
 		};

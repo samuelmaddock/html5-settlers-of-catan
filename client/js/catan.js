@@ -1,3 +1,5 @@
+CATAN.Notifications = [];
+
 CATAN.Notify = function(data) {
 
 	if(window.webkitNotifications) {
@@ -18,7 +20,14 @@ CATAN.Notify = function(data) {
 			}
 
 			note.show();
-			setTimeout(function(){note.cancel()},timeout);
+
+			setTimeout(function(){
+				if(note != undefined) {
+					note.cancel();
+				}
+			}, timeout);
+
+			CATAN.Notifications.push(note);
 
 		} else {
 			window.webkitNotifications.requestPermission(this.Notify);
@@ -29,6 +38,14 @@ CATAN.Notify = function(data) {
 		this.chat.AddLine(data.subtitle);
 	}
 
+}
+
+CATAN.ClearNotifications = function() {
+	var notifications = CATAN.Notifications;
+	for(var i in notifications) {
+		notifications[i].cancel();
+	}
+	CATAN.Notifications.length = 0;
 }
 
 CATAN.getName = function() {
@@ -56,7 +73,7 @@ CATAN.mouseRayTrace = function( event ) {
 	
 		var ent = hitObject.object.Parent;
 
-		if ((ent.Building !== undefined) && (ent.visible == true)) {
+		if (ent.isVisible()) {
 			return ent;
 		};
 		
@@ -73,5 +90,19 @@ CATAN.endBuildMode = function() {
 		if(!ent2.hasOwner()) {
 			ent2.hide();
 		}
+	}
+}
+
+CATAN.onSelectEntity = function(ent) {
+	if(!CATAN.LocalPlayer.isTurn()) return;
+
+	if(ent.isTile()) {
+		CATAN.server.emit('movedRobber', {
+			id: ent.getEntId()
+		});
+	} else {
+		CATAN.server.emit('playerBuild', {
+			id: ent.getEntId()
+		});
 	}
 }

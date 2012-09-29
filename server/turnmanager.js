@@ -82,6 +82,12 @@ CATAN.TurnManager.prototype = {
 			{ Type: BUILDING_ROAD, Num: 2 }
 		];
 
+		this.setCurrentPlayer(ply);
+
+		this.game.emit('PlayerTurn', {
+			id: this.getCurrentPlayer().getID()
+		});
+		
 		this.setupNextPlayer(ply);
 
 	},

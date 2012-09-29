@@ -176,21 +176,41 @@ CATAN.setupSocket = function(socket) {
 	});
 
 	socket.on('RolledDice', function (data) {
-		console.log("Rolled Dice");
-		var text = "Rolled: " + data.d1 + " + " + data.d2 + " = " + (data.d1 + data.d2);
+		var token = data.d1 + data.d2;
 
 		CATAN.Notify({
 			title: "Dice results",
-			subtitle: text
-		})
+			subtitle: T('RolledDice', data.d1, data.d2, token)
+		});
+
+		if(token == 7 && CATAN.LocalPlayer.isTurn()) {
+			CATAN.Notify({
+				title: "Dice results",
+				subtitle: T('MoveRobber')
+			});
+			var tiles = CATAN.ents.getByName('HexTile');
+			for(var i in tiles) {
+				var tile = tiles[i];
+				if(!tile.hasRobber()) {
+					CATAN.Game.collisionObjects.push( tile.getMesh() );
+				}
+			}
+		}
+	});
+
+	socket.on('RobberMoved', function (data) {
+		var hex = CATAN.ents.getById(data.id);
+		hex.setRobber();
+
+		if(CATAN.LocalPlayer.isTurn()) {
+			CATAN.Game.collisionObjects.length = 0;
+		}
 	});
 
 	socket.on('GiveResources', function (data) {
 		CATAN.Notify({
 			subtitle: "Got resources!"
 		});
-
-		console.log(data);
 
 		for(var i in data.resources) {
 			var res = data.resources[i];
@@ -211,12 +231,15 @@ CATAN.setupSocket = function(socket) {
 	});
 
 	socket.on('PlayerTurn', function (data) {
+		CATAN.ClearNotifications();
 		var ply = CATAN.Players.getById(data.id);
 		if(ply == CATAN.LocalPlayer) {
+			CATAN.LocalPlayer.setTurn(true);
 			CATAN.Notify({
 				subtitle:T('LocalPlayerTurn')
 			});
 		} else {
+			CATAN.LocalPlayer.setTurn(false);
 			CATAN.Notify({
 				subtitle:T('PlayerTurn', ply.getName())
 			});

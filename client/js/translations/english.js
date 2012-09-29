@@ -26,6 +26,9 @@ L["PlayerConnect"] = "{0} has joined the game ({1}:{2}).";	// Player joined
 L["PlayerDisconnect"] = "{0} has disconnected.";			// Player disconnected
 L["PlayerTurn"] = "It is now {0}'s turn.";		// Other player's turn
 L["LocalPlayerTurn"] = "It is now your turn.";	// Local Player's turn
+L["RolledDice"] = "Rolled: {0} + {1} = {2}";
+L["MustRollDice"] = "You must roll the dice first.";	// Player must roll the dice
+L["CantRollDice"] = "You've already rolled the dice.";	// Player unable to roll the dice
 
 // Game notifications
 L["SelectSettlement"] = "Select a settlement.";		// Setup state, select settlement

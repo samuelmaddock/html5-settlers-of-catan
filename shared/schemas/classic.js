@@ -213,6 +213,7 @@ if(SERVER) {
 
 	GAMEMODE.onPlayerRollSeven = function(ply) {
 		// enable move robber
+		ply.mustMoveRobber = true;
 	};
 
 	GAMEMODE.onPlayerScore = function(ply) {

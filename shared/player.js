@@ -19,6 +19,7 @@ CATAN.Player = function() {
 
 		this.status = PLAYER_LOBBY;
 		this.hasRolledDice = false;
+		this.mustMoveRobber = false;
 		this.tempResources = [];
 
 	}
@@ -73,7 +74,7 @@ CATAN.Player.prototype = {
 	addVictoryPoint: function() {
 		this.vp += 1;
 	},
-
+	
 	getNumResource: function(RESOURCE_ENUM) {
 		return ( this.Inventory.Resources[RESOURCE_ENUM] !== undefined ) ? this.Inventory.Resources[RESOURCE_ENUM] : 0;
 	},
