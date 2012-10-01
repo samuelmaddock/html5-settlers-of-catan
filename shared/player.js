@@ -75,33 +75,44 @@ CATAN.Player.prototype = {
 		this.vp += 1;
 	},
 	
-	getNumResource: function(RESOURCE_ENUM) {
-		return ( this.Inventory.Resources[RESOURCE_ENUM] !== undefined ) ? this.Inventory.Resources[RESOURCE_ENUM] : 0;
+	getNumResource: function(resourceType) {
+		return ( this.Inventory.Resources[resourceType] !== undefined ) ? this.Inventory.Resources[resourceType] : 0;
 	},
 
-	hasResources: function(RESOURCE_ENUM, amount) {
-		return this.getNumResource(RESOURCE_ENUM) >= amount;
+	hasResources: function(resourceType, amount) {
+		return this.getNumResource(resourceType) >= amount;
 	},
 
-	giveResource: function(RESOURCE_ENUM, amount) {
+	giveResource: function(resourceType, amount) {
 		amount = (amount == undefined) ? 1 : Math.abs(amount);
-		this.Inventory.Resources[RESOURCE_ENUM] += amount;
+		this.Inventory.Resources[resourceType] += amount;
 	},
 
-	removeResource: function(RESOURCE_ENUM, amount) {
+	removeResource: function(resourceType, amount) {
 		amount = (amount == undefined) ? 1 : Math.abs(amount);
-		this.Inventory.Resources[RESOURCE_ENUM] -= ( amount !== undefined ? amount : 1);
+		this.Inventory.Resources[resourceType] -= ( amount !== undefined ? amount : 1);
 	},
 
 	getBuildings: function() {
 		return this.buildings;
 	},
 
-	getBuildingsByType: function(BUILDING_ENUM) {
+	getNumBuildings: function(buildingType) {
+		var buildings;
+		if(buildingType == undefined) {
+			buildings = this.getBuildings();
+		} else {
+			buildings = this.getBuildingsByType(buildingType);
+		}
+
+		return buildings.length;
+	},
+
+	getBuildingsByType: function(buildingType) {
 		var list = [];
 		var buildings = this.getBuildings();
 		for(var i in buildings) {
-			if(buildings[i].getType() == BUILDING_ENUM) {
+			if(buildings[i].getType() == buildingType) {
 				list.push(buildings[i]);
 			}
 		}

@@ -73,21 +73,31 @@ GAMEMODE.Resources = [
 
 GAMEMODE.Buildings = [
 	
+	/*
+		name		Building name
+		url			Model path
+		pieces		Maximum amount of pieces per player
+		cost		Resource cost according to order in enums
+	*/
+
 	{
 		name: "Road",
 		url: "models/road.js",
+		pieces: 15,
 		cost: [ 0, 1, 1, 0, 0, 0 ] // use resource enums
 	},
 	
 	{
 		name: "Settlement",
 		url: "models/settlement.js",
+		pieces: 5,
 		cost: [ 0, 1, 1, 1, 1, 0 ]
 	},
 	
 	{
 		name: "City",
 		url: "models/city.js",
+		pieces: 4,
 		cost: [ 0, 0, 0, 0, 2, 3 ]
 	}
 	
@@ -184,11 +194,13 @@ if(SERVER) {
 	}
 
 	/* -----------------------------------------------
-		Gametype Rules
+		Gamemode Rules
 	------------------------------------------------*/
-	GAMEMODE.canPlayerPurchase = function(ply, building) {
+	GAMEMODE.canPlayerPurchase = function(ply, ent) {
+		var building = this.Buildings[ent.getType()];
+
 		// Do they have the necessary resources?
-		var cost = this.Buildings[building.getType()].cost;
+		var cost = building.cost;
 		for(res in cost) {
 			var amount = cost[res];
 			if(!ply.hasResources(res, amount)) {
@@ -197,6 +209,10 @@ if(SERVER) {
 		};
 
 		// Do they have too many of that structure?
+		var pieces = building.pieces;
+		if(ply.getNumBuildings(ent.getType()) >= pieces) {
+			return false;
+		}
 
 		return true;
 	}

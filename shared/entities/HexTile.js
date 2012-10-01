@@ -24,6 +24,9 @@ var HexTile = function() {
 	this.edgesY = [];
 
 	this.bVisible = true;
+
+	// Networked randomized rotation
+	this.yaw = (2*Math.PI)/6 * (Math.floor(Math.random() * 6) + 1);
 	
 };
 
@@ -157,7 +160,6 @@ HexTile.prototype.setupMesh = function() {
 	);
 
 	this.Mesh.position = this.position;
-	this.Mesh.rotation.y = (2*Math.PI)/6 * (Math.floor(Math.random() * 6) + 1)
 	
 	this.Mesh.Parent = this;
 
@@ -212,6 +214,8 @@ if(CLIENT) {
 		this.setToken(data.token);
 
 		this.setupMesh();
+
+		this.Mesh.rotation.y = data.yaw;
 	}
 }
 

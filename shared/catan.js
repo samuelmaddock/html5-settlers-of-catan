@@ -10,4 +10,10 @@ CATAN.getVersion = function() {
 
 if(typeof exports !== 'undefined') {
 	global.CATAN = CATAN;
+	global.SERVER = true;
+	global.CLIENT = false;
+	require('./enums.js');
+} else {
+	SERVER = false;
+	CLIENT = true;
 }

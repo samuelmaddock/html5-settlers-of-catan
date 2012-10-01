@@ -2,8 +2,6 @@
 	Globals
 -------------------------------*/
 global._PORT = 80;
-global.SERVER = true;
-global.CLIENT = false;
 
 /*-------------------------------
 	Catan

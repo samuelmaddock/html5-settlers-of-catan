@@ -1,5 +1,4 @@
 // Include dependencies
-require('./enums.js'); // can't use shared/enums.js since they don't use global
 require('../shared/catan.js');
 
 // Shared modules

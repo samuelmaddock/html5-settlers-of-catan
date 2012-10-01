@@ -1,5 +1,3 @@
-var CLIENT = true;
-var SERVER = false;
 //var IP = 'http://catan.nodester.com:80/';
 var IP = 'http://127.0.0.1:80/';
 var Namespace = 'lobby';

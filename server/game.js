@@ -416,31 +416,7 @@ CATAN.Game.prototype = {
 		if(token == 7) {
 			this.getSchema().onPlayerRollSeven(ply);
 		} else {
-
-			// Distribute resources
-			var tiles = this.getBoard().getTiles();
-			for(var i in tiles) {
-				var tile = tiles[i];
-				if(tile.getToken() == token && !tile.hasRobber()) {
-					var corners = tile.getAdjacentCorners();
-					for(var j in corners) {
-						var corner = corners[j];
-						if(corner.hasOwner()) {
-							var amount = (corner.isCity()) ? 2 : 1;
-							corner.getOwner().appendResource(tile, tile.getResource(), amount);
-						}
-					}
-				}
-				
-			}
-
-			// Alert clients of new resources
-			var players = this.getPlayers();
-			for(var i in players) {
-				var pl = players[i];
-				pl.sendResources();
-			}
-
+			this.distributeResources(token);
 		}
 
 		ply.hasRolledDice = true;
@@ -495,7 +471,6 @@ CATAN.Game.prototype = {
 
 		if( (tile == null) ||			// Valid entity check
 			(!tile.isTile()) ||			// Must be a hex tile
-			(!tile.isDesert()) ||		// Can't place on desert
 			(tile.hasRobber())) return;	// Can't move to same tile
  
 		this.getBoard().getRobber().setTile(tile);
@@ -506,6 +481,44 @@ CATAN.Game.prototype = {
 
 		ply.mustMoveRobber = false;
 
+	},
+
+	/*
+		Additional Game Helpers
+	*/
+
+	distributeResources: function(token) {
+		// Get tiles
+		var tiles = this.getBoard().getTiles();
+		for(var i in tiles) {
+			var tile = tiles[i];
+
+			// Tile token must match and not have the robber
+			if(tile.getToken() == token && !tile.hasRobber()) {
+
+				// Look for player settlements
+				var corners = tile.getAdjacentCorners();
+				for(var j in corners) {
+					var corner = corners[j];
+
+					// Check if player occupies settlement
+					if(corner.hasOwner()) {
+						var amount = (corner.isCity()) ? 2 : 1;
+						corner.getOwner().appendResource(tile, tile.getResource(), amount);
+					}
+
+				}
+
+			}
+			
+		}
+
+		// Alert clients of new resources
+		var players = this.getPlayers();
+		for(var i in players) {
+			var ply = players[i];
+			ply.sendResources();
+		}
 	},
 
 	syncGame: function(ply) {
@@ -534,7 +547,8 @@ CATAN.Game.prototype = {
 			tiles.push({
 				id: tile.getEntId(),
 				resource: tile.getResource(),
-				token: tile.getToken()
+				token: tile.getToken(),
+				yaw: tile.yaw
 			});
 		};
 		ply.emit('boardEntities', { ents: tiles });
