@@ -137,21 +137,21 @@ GAMEMODE.Special = [
 	
 ];
 
+// Default Catan Board Arrangement
+// 0 = No tile
+// 1 = Resource
+// 2 = Dock?
+GAMEMODE.getGrid = function() {
+	return [[0,1,1,1,0],
+			[1,1,1,1,1],
+			[1,1,1,1,1],
+			[1,1,1,1,1],
+			[0,0,1,0,0]]
+}
+
 if(SERVER) {
 
 	GAMEMODE.MaxPlayers = 4;
-
-	// Default Catan Board Arrangement
-	// 0 = No tile
-	// 1 = Resource
-	// 2 = Dock?
-	GAMEMODE.getGrid = function() {
-		return [[0,1,1,1,0],
-				[1,1,1,1,1],
-				[1,1,1,1,1],
-				[1,1,1,1,1],
-				[0,0,1,0,0]]
-	}
 
 	GAMEMODE.getResources = function() {
 
@@ -223,20 +223,29 @@ if(SERVER) {
 	};
 
 	// Player has built structure in the playing state.
-	GAMEMODE.onPlayerBuild = function(ply, building) {
+	GAMEMODE.onPlayerBuild = function(ply, ent) {
 		// Remove resources
-		var cost = this.Buildings[building.getType()].cost;
+		var cost = this.Buildings[ent.getType()].cost;
 		for(i in cost) {
 			ply.removeResource(i, cost[i]);
 		};
 
-		if (building.isRoad()) {
+		if (ent.isRoad()) {
+
 			// check longest road
-		} else if (building.isSettlement() || building.isCity()) {
+			this.checkLongestRoad(ply);
+
+		} else if (ent.isSettlement() || ent.isCity()) {
+
 			ply.addVictoryPoint();
 			this.onPlayerScore(ply);
+
 		}
 	};
+
+	GAMEMODE.checkLongestRoad = function(ply) {
+
+	}
 
 }
 

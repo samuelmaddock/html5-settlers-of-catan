@@ -167,7 +167,7 @@ CATAN.TurnManager.prototype = {
 		ply.emit('setupBuild', {
 			building: this.setupBuildOrder[ply.SetupStep].Type,
 			available: buildable
-		})
+		});
 
 	},
 

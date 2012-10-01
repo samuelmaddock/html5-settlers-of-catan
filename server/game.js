@@ -1,5 +1,5 @@
 require('../shared/player.js');
-require('./board.js');
+require('../shared/board.js');
 require('./turnmanager.js');
 
 CATAN.Game = function(ply,name,schema,public) {
@@ -462,36 +462,7 @@ CATAN.Game.prototype = {
 			return;
 		}
 
-		// Let players know where they can build
-
-		// TODO: Move board to shared so players can figure this out
-		var list = [];
-
-		var corners = ply.getCorners();
-		for(var i in corners) {
-			var corner = corners[i];
-
-			var acorners = corner.getAdjacentCorners();
-			for(var j in acorners) {
-				if(acorners[j].canBuild()) {
-					list.push(acorners[j].getEntId());
-				}
-			}
-
-			var aedges = corner.getAdjacentEdges();
-			for(var j in aedges) {
-				var aedge = aedges[j];
-				if(aedge.canBuild(ply)) {
-					list.push(aedge.getEntId());
-				}
-
-				// TODO: Add adjacent roads
-			}
-		}
-
-		ply.emit('PlayerStartBuild', {
-			available: list
-		});
+		ply.emit('PlayerStartBuild');
 
 	},
 
@@ -520,15 +491,17 @@ CATAN.Game.prototype = {
 		if(!ply.isTurn()) return;
 		if(!ply.mustMoveRobber) return;
 
-		var hex = this.getEntById(data.id);
-		if(hex == null) return;
-		if(!hex.isTile()) return;
-		if(hex.hasRobber()) return;
+		var tile = this.getEntById(data.id);
 
-		hex.setRobber();
+		if( (tile == null) ||			// Valid entity check
+			(!tile.isTile()) ||			// Must be a hex tile
+			(!tile.isDesert()) ||		// Can't place on desert
+			(tile.hasRobber())) return;	// Can't move to same tile
+ 
+		this.getBoard().getRobber().setTile(tile);
 
 		this.emit('RobberMoved', {
-			id: hex.getEntId()
+			id: tile.getEntId()
 		})
 
 		ply.mustMoveRobber = false;
@@ -538,44 +511,7 @@ CATAN.Game.prototype = {
 	syncGame: function(ply) {
 
 		var game = ply.game,
-			board = game.board;
-
-		// Send tiles
-		var tiles = [];
-		for(var i=0; i < board.hexTiles.length; i++) {
-			var tile = board.hexTiles[i];
-			tiles.push({
-				id: tile.getEntId(),
-				pos: tile.getPosition(),
-				resource: tile.getResource(),
-				token: tile.getToken(),
-				robber: tile.hasRobber()
-			});
-		};
-		ply.emit('boardEntities', { name: 'HexTile', ents: tiles });
-
-		// Send corners
-		var corners = [];
-		for(var i=0; i < board.hexCorners.length; i++) {
-			var corner = board.hexCorners[i];
-			corners.push({
-				id: corner.getEntId(),
-				pos: corner.getPosition()
-			});
-		};
-		ply.emit('boardEntities', { name: 'HexCorner', ents: corners });
-
-		// Send edges
-		var edges = [];
-		for(var i=0; i < board.hexEdges.length; i++) {
-			var edge = board.hexEdges[i];
-			edges.push({
-				id: edge.getEntId(),
-				pos: edge.getPosition(),
-				ang: edge.getAngle()
-			});
-		};
-		ply.emit('boardEntities', { name: 'HexEdge', ents: edges });
+			board = game.getBoard();
 
 		// Send players
 		var players = game.getPlayers();
@@ -590,6 +526,27 @@ CATAN.Game.prototype = {
 				});
 			}
 		}
+
+		// Send tiles
+		var tiles = [];
+		for(var i=0; i < board.hexTiles.length; i++) {
+			var tile = board.hexTiles[i];
+			tiles.push({
+				id: tile.getEntId(),
+				resource: tile.getResource(),
+				token: tile.getToken()
+			});
+		};
+		ply.emit('boardEntities', { ents: tiles });
+
+		// Send robber tile
+		var robber = this.getBoard().getRobber();
+		ply.emit('boardEntities', {
+			ents: [{
+				id: robber.getEntId(),
+				tileId: robber.getTile().getEntId()
+			}]
+		});
 
 	}
 

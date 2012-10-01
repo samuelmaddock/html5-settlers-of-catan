@@ -79,6 +79,8 @@ CATAN.connectToServer = function(id, isEvent) {
 };
 
 CATAN.onConnection = function() {
+	this.board = new CATAN.Board();
+
 	this.server.emit( 'playerReady', { name: CATAN.getName() } );
 
 	this.chat = this.GUI.create("Chatbox");
@@ -117,7 +119,7 @@ CATAN.setupSocket = function(socket) {
 
 	socket.on('boardEntities', function (data) {
 		for(var i in data.ents) {
-			var ent = CATAN.ents.create(data.name);
+			var ent = CATAN.ents.getById(data.ents[i].id);
 			ent.setup(data.ents[i]);
 		}
 	});
@@ -199,12 +201,12 @@ CATAN.setupSocket = function(socket) {
 	});
 
 	socket.on('RobberMoved', function (data) {
-		var hex = CATAN.ents.getById(data.id);
-		hex.setRobber();
-
 		if(CATAN.LocalPlayer.isTurn()) {
 			CATAN.Game.collisionObjects.length = 0;
 		}
+
+		var tile = CATAN.ents.getById(data.id);
+		CATAN.board.getRobber().setTile(tile);
 	});
 
 	socket.on('GiveResources', function (data) {
@@ -223,8 +225,9 @@ CATAN.setupSocket = function(socket) {
 	socket.on('PlayerStartBuild', function (data) {
 		CATAN.Game.collisionObjects.length = 0
 
-		for(var i in data.available) {
-			var ent = CATAN.ents.getById(data.available[i]);
+		var available = CATAN.getAvailableBuildings();
+		for(var i in available) {
+			var ent = available[i];
 			ent.show(0.33);
 			CATAN.Game.collisionObjects.push( ent.getMesh() );
 		}

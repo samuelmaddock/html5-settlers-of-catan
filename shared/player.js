@@ -121,18 +121,11 @@ CATAN.Player.prototype = {
 	},
 
 	setOwnership: function(building) {
-		building.Color = this.Color;
 		this.buildings.push(building);
 	},
 
 	isOwner: function(ent) {
 		return ( ent.hasOwner() && ent.getOwner() == this );
-		/*for(i in this.buildings) {
-			var b = this.buildings[i];
-			if (b.getEntId() == building.getEntId() && b.Building == building.Building) {
-				return true;
-			};
-		};*/
 	}
 
 }

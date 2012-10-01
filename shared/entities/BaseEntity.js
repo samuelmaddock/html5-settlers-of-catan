@@ -5,13 +5,15 @@
 var BaseEntity = function() {
 
 	this.entid = -1;
+	this.Mesh = null;
+
 	this.Owner = null;
 	this.Building = -1;
 
 	this.position = new THREE.Vector3(0,0,0);
 	this.angle = -1;
 
-	this.visible = false;
+	this.bVisible = false;
 	
 };
 
@@ -27,7 +29,7 @@ BaseEntity.prototype.setOwner = function(ply) {
 
 	if(typeof ply === 'undefined') return;
 	this.Owner = ply;
-	ply.setOwnership(this)
+	ply.setOwnership(this);
 
 	if(CLIENT) {
 		this.show();
@@ -42,27 +44,25 @@ BaseEntity.prototype.setOwner = function(ply) {
 BaseEntity.prototype.show = function(opacity) {
 	opacity = (typeof opacity !== 'undefined') ? opacity : 1;
 
-	if(typeof this.getMesh() !== 'undefined') { // change to mesh later
-		this.getMesh().material.opacity = opacity;
-		if(opacity < 1) {
-			this.getMesh().material.transparent = true;
-		}
+	var mesh = this.getMesh();
+	mesh.material.opacity = opacity;
+	if(opacity < 1) {
+		mesh.material.transparent = true;
 	}
 
-	this.visible = true;
+	this.bVisible = true;
 };
 
 BaseEntity.prototype.hide = function() {
-	if(typeof this.getMesh() !== 'undefined') {
-		this.getMesh().material.opacity = 0;
-		this.getMesh().material.transparent = false;
-	}
+	var mesh = this.getMesh();
+	mesh.material.opacity = 0;
+	mesh.material.transparent = false;
 
-	this.visible = false;
+	this.bVisible = false;
 };
 
 BaseEntity.prototype.isVisible = function() {
-	return this.visible;
+	return this.bVisible;
 }
 
 /* -----------------------------------------------
@@ -141,8 +141,7 @@ BaseEntity.prototype.getAdjacentEdges = function() {
 if(CLIENT) {
 
 	BaseEntity.prototype._setup = function(data) {
-		this.entid = data.id;
-		this.setPosition(data.pos);
+		// this.entid = data.id;
 	}
 
 	BaseEntity.prototype.onHover = function() {}
@@ -163,6 +162,15 @@ if(CLIENT) {
 					transparent: true
 				});
 			}
+		} else {
+
+			if(this.getOwner() != CATAN.LocalPlayer) return;
+
+			if(this.isSettlement()) {
+				$('body').css('cursor','pointer');
+				// TODO: Change preview to city model
+			}
+
 		}
 
 	}

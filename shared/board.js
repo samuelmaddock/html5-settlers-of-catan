@@ -2,16 +2,18 @@
  * @author Samuel Maddock / http://samuelmaddock.com/
  */
 
-THREE = require('./vector.js');
+if(SERVER) {
+	THREE = require('../server/vector.js');
 
-// Require base entity first
-require('../shared/entities/BaseEntity.js');
+	// Require base entity first
+	require('./entities/BaseEntity.js');
 
-// Board entities
-require('../shared/entities/HexTile.js');
-require('../shared/entities/HexCorner.js');
-require('../shared/entities/HexEdge.js');
-require('../shared/entities/Robber.js');
+	// Board entities
+	require('./entities/HexTile.js');
+	require('./entities/HexCorner.js');
+	require('./entities/HexEdge.js');
+	require('./entities/Robber.js');
+}
 
 CATAN.Board = function(game) {
 	
@@ -28,6 +30,8 @@ CATAN.Board = function(game) {
 	this.hexCorners = [];
 	this.hexEdges = [];
 
+	this.robber = null;
+
 	this.setup();
 
 }
@@ -41,10 +45,15 @@ CATAN.Board = function(game) {
 CATAN.Board.prototype = {
 
 	setup: function() {
-		this.Schema = this.game.getSchema();
-		this.Grid = this.game.getSchema().getGrid();
-		this.resourceCount = this.Schema.getResources();
-		this.numTokens = this.Schema.getNumberTokens();
+		if(SERVER) {
+			this.Schema = this.game.getSchema();
+			this.Grid = this.game.getSchema().getGrid();
+			this.resourceCount = this.Schema.getResources();
+			this.numTokens = this.Schema.getNumberTokens();
+		} else {
+			this.Schema = CATAN.getSchema();
+			this.Grid = CATAN.getSchema().getGrid();
+		}
 
 		// Update later for possible expansions?
 		this.cellHeight = this.Grid.length;
@@ -59,16 +68,18 @@ CATAN.Board.prototype = {
 				if (tile != 0) { // Check if grid coordinate is valid
 				
 					tile = this.setupHexTile(x,y);
-					this.setupResource(tile);
-					this.setupNumberToken(tile);
-					
 					this.hexTiles.push( tile );
+
+					this.Grid[y][x] = tile;
 					
 				}
 				
 			}
 		}
 		
+		// Create robber entity
+		this.robber = CATAN.ents.create('Robber');
+
 		// Create corner and edge entities
 		var corners = [];
 		var edges = [];
@@ -84,8 +95,8 @@ CATAN.Board.prototype = {
 				tile.getCornerPosition(CORNER_R),
 				tile.getCornerPosition(CORNER_BR),
 				tile.getCornerPosition(CORNER_BL)
-			]
-			
+			];
+
 			for(var j in positions) {
 				
 				var pos = positions[j]; // get corner vector
@@ -96,12 +107,14 @@ CATAN.Board.prototype = {
 				
 					corner = CATAN.ents.create('HexCorner');
 					corner.setPosition(positions[j]);
-					corner.Id = this.hexCorners.length + 1; // unique Id
 					
 					corners[posStr] = corner; // set reference for later
 					
 					this.hexCorners.push(corner);
-					this.game.entities.push(corner);
+
+					if(SERVER) {
+						this.game.entities.push(corner);
+					}
 					
 				} else { // duplicate corner
 				
@@ -122,7 +135,7 @@ CATAN.Board.prototype = {
 				tile.getEdgePosAng(EDGE_B),
 				tile.getEdgePosAng(EDGE_BL),
 				tile.getEdgePosAng(EDGE_TL)
-			]
+			];
 			
 			for(var j in orientations) {
 				
@@ -135,14 +148,16 @@ CATAN.Board.prototype = {
 				if (!edges[posStr]) { // create new edge entity
 				
 					edge = CATAN.ents.create('HexEdge');
-					edge.Id = this.hexEdges.length + 1; // unique Id
 					edge.setPosition(orientations[j].pos);
 					edge.setAngle(orientations[j].ang);
 					
 					edges[posStr] = edge; // set reference for later
 					
 					this.hexEdges.push(edge);
-					this.game.entities.push(edge);
+
+					if(SERVER) {
+						this.game.entities.push(edge);
+					}
 					
 				} else { // duplicate edge
 				
@@ -165,21 +180,29 @@ CATAN.Board.prototype = {
 
 
 		// Create docks
+
+
+		if(SERVER) {
+			var tiles = this.getTiles();
+			for(var i in tiles) {
+				var tile = tiles[i];
+				this.setupResource(tile);
+				this.setupNumberToken(tile);
+			}
+		}
 	},
 
 	setupHexTile: function(x, y) {
-		// Create new HexGridCell object
 		var offset = this.getWorldHexOffset()
-		var hexTile = CATAN.ents.create('HexTile');
-		hexTile.Id = this.hexTiles.length + 1;
-		hexTile.setRadius(this.hexRadius);
-		hexTile.setGridIndex(x,y,offset);
+		var tile = CATAN.ents.create('HexTile');
+		tile.setRadius(this.hexRadius);
+		tile.setGridIndex(x,y,offset);
 		
-		// Replace value in grid
-		this.Grid[y][x] = hexTile;
-		this.game.entities.push(hexTile);
+		if(SERVER) {
+			this.game.entities.push(tile);
+		}
 		
-		return hexTile;
+		return tile;
 	},
 
 	setupResource: function(tile) {
@@ -193,14 +216,7 @@ CATAN.Board.prototype = {
 
 		// Setup robber if the resource is desert
 		if (tile.Resource == RESOURCE_DESERT) {
-		
-			// TODO: Remove this check
-			if(this.robber) {
-				console.log("DUPLICATE ROBBER!");
-			}
-			
-			tile.setRobber(this);
-			
+			this.robber.setTile(tile);
 		}
 	},
 
@@ -227,7 +243,7 @@ CATAN.Board.prototype = {
 			
 				var c2 = this.hexCorners[j]; // get corner to be compared
 				
-				if(c.Id != c2.Id) { // check for same corner
+				if(c.getEntId() != c2.getEntId()) { // check for same corner
 					
 					var distance = Math.floor( c.position.distanceTo(c2.position) );
 					
@@ -265,7 +281,7 @@ CATAN.Board.prototype = {
 			
 				var e2 = this.hexEdges[j]; // get edge to be compared
 				
-				if(e.Id != e2.Id) { // check for same edge
+				if(e.getEntId() != e2.getEntId()) { // check for same edge
 
 					var distance = Math.floor( e.position.distanceTo(e2.position) );
 
@@ -306,41 +322,6 @@ CATAN.Board.prototype = {
 		return new THREE.Vector3( ( (this.cellWidth * w) - r ) / 2, 0, (this.cellHeight * h) / 2 );
 	},
 
-	getBuildingByID: function(id, BUILDING_ENUM) {
-		if(BUILDING_ENUM == BUILDING_ROAD) {
-			return this.getEdgeByID(id);
-		} else if(BUILDING_ENUM == BUILDING_SETTLEMENT || BUILDING_ENUM == BUILDING_CITY) {
-			return this.getCornerByID(id);
-		}
-	},
-
-	getCornerByID: function(id) {
-		for(var i in this.hexCorners) {	
-			var c = this.hexCorners[i];
-			if (c.Id == id) return c;
-		}
-	},
-
-	getEdgeByID: function(id) {
-		for(var i in this.hexEdges) {	
-			var e = this.hexEdges[i];
-			if (e.Id == id) return e;
-		}
-	},
-
-	getAvailableBuildings: function(ply, BUILDING_ENUM) {
-		var entities = this.board.getBuildingsByType(BUILDING_ENUM);
-
-		var buildable = [];
-		for(var i in entities) {
-			if(entities[i].canBuild(ply)) {
-				buildable.push(entities[i].getEntId());
-			}
-		}
-
-		return buildable;
-	},
-
 	getTiles: function() {
 		return this.hexTiles;
 	},
@@ -351,6 +332,10 @@ CATAN.Board.prototype = {
 
 	getEdges: function() {
 		return this.hexEdges;
+	},
+
+	getRobber: function() {
+		return this.robber;
 	}
 
 }

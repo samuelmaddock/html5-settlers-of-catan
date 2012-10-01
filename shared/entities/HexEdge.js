@@ -22,14 +22,18 @@ HexEdge.prototype.canBuild = function(ply) {
 	var corners = this.getAdjacentCorners();
 	for(var i in corners) {
 		var corner = corners[i];
-		if(ply.isOwner(corner)) return true;
+		if(corner.hasOwner() && corner.getOwner() == ply) {
+			return true;
+		}
 	}
 
 	// Can build near adjacent edge
 	var edges = this.getAdjacentEdges();
 	for(var i in edges) {
 		var edge = edges[i];
-		if(ply.isOwner(edge)) return true;
+		if(edge.hasOwner() && edge.getOwner() == ply) {
+			return true;
+		}
 	}
 
 	return false;
@@ -52,7 +56,6 @@ HexEdge.prototype.setupMesh = function() {
 if(CLIENT) {
 	HexEdge.prototype.setup = function(data) {
 		this._setup(data);
-		this.setAngle(data.ang);
 		this.setupMesh();
 	}
 }

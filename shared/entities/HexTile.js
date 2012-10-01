@@ -9,7 +9,7 @@ var HexTile = function() {
 	// Catan
 	this.Resource = -1;
 	this.NumberToken = -1;
-	this.Robber = false;
+	this.bHasRobber = false;
 	
 	this.AdjacentCorners = [];
 	this.AdjacentEdges = [];
@@ -23,15 +23,25 @@ var HexTile = function() {
 	this.edgesX = [];
 	this.edgesY = [];
 
-	this.visible = true;
+	this.bVisible = true;
 	
 };
 
 HexTile.prototype = CATAN.ents.create('BaseEntity');
 
+/*
+	Resources
+*/
 HexTile.prototype.getResource = function() { return this.Resource; };
 HexTile.prototype.setResource = function(resource) { this.Resource = resource; };
 
+HexTile.prototype.isDesert = function() {
+	return this.getResource() == RESOURCE_DESERT;
+}
+
+/*
+	Tokens
+*/
 HexTile.prototype.getToken = function() { return this.NumberToken; };
 HexTile.prototype.setToken = function(num) {
 	this.NumberToken = num;
@@ -69,8 +79,15 @@ HexTile.prototype.setToken = function(num) {
 	}
 };
 
-HexTile.prototype.hasRobber = function() { return this.Robber; };
+/*
+	Robber
+*/
+HexTile.prototype.hasRobber = function() { return this.bHasRobber; };
+HexTile.prototype.setRobber = function(bRobber) { this.bHasRobber = bRobber; };
 
+/*
+	Hex Geometry
+*/
 HexTile.prototype.setRadius = function(r) {
 	this.Radius = r;
 	this.Width = r * 2;
@@ -187,27 +204,6 @@ HexTile.prototype.getEdgePosAng = function(EDGE_ENUM) {
 	return { pos: position, ang: angle };
 }
 
-/* -----------------------------------------------
-	HexTile.setRobber
-
-	Desc: Sets the robber on top of the tile
-------------------------------------------------*/
-HexTile.prototype.setRobber = function(board) {
-
-	this.Robber = true;
-
-	var robber;
-	var ents = CATAN.ents.getByName('Robber');
-
-	if(ents.length < 1) {
-		robber = CATAN.ents.create('Robber');
-	} else {
-		robber = ents[0];
-	}
-
-	robber.setTile(this);
-}
-
 if(CLIENT) {
 	HexTile.prototype.setup = function(data) {
 		this._setup(data);
@@ -216,10 +212,6 @@ if(CLIENT) {
 		this.setToken(data.token);
 
 		this.setupMesh();
-
-		if(data.robber) {
-			this.setRobber();
-		}
 	}
 }
 

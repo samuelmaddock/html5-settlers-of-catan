@@ -33,13 +33,23 @@ HexCorner.prototype.setupMesh = function() {
 }
 
 HexCorner.prototype.canBuild = function() {
-
 	if(this.hasOwner()) return false;
 
 	// Must build settlement at least two corners away
-	for(var i in this.AdjacentCorners) {
-		if(this.AdjacentCorners[i].hasOwner()) return false;
+	var adjCorners = this.getAdjacentCorners();
+	for(var i in adjCorners) {
+		var corner = adjCorners[i];
+		if(corner.hasOwner()) return false;
 	}
+
+	// Must build next to road
+	/*var adjEdges = this.getAdjacentEdges();
+	for(var j in adjEdges) {
+		var edge = adjEdges[i];
+		if(edge.hasOwner() && edge.getOwner() == ply) {
+			return true;
+		}
+	}*/
 
 	return true;
 }
