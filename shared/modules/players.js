@@ -71,13 +71,10 @@ CATAN.Players = (function(CATAN) {
 			ply.setName(data.name);
 			ply.setColor(data.color);
 
-			// TODO: Remove this later on
-			ply.address = data.address;
-
 			if(ply.id == CATAN.server.socket.sessionid) {
 				CATAN.LocalPlayer = ply;
 			} else if(data.newply) {
-				CATAN.chat.AddLine( T('PlayerConnect', ply.getName(), ply.address.address, ply.address.port) );
+				CATAN.chat.AddLine( T('PlayerConnect', ply.getName()) );
 			}
 
 			CATAN.Game.players.refresh();
@@ -90,7 +87,6 @@ CATAN.Players = (function(CATAN) {
 		var index = this.getListIndex(ply);
 		if(index != -1) {
 			this.list.splice(index,1);
-			console.log("[MAIN] Player disconnected");
 		} else {
 			console.log("[MAIN] ERROR DISCONNECTING PLAYER!");
 		}

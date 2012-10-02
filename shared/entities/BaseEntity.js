@@ -22,11 +22,11 @@ BaseEntity.prototype = new BaseEntity();
 BaseEntity.prototype.getEntId = function() { return this.entid; }
 
 BaseEntity.prototype.getType = function() { return this.Building };
+BaseEntity.prototype.setType = function(type) { this.Building = type; };
 
 BaseEntity.prototype.hasOwner = function() { return (this.Owner != null); }
 BaseEntity.prototype.getOwner = function() { return this.Owner; }
 BaseEntity.prototype.setOwner = function(ply) {
-
 	if(typeof ply === 'undefined') return;
 	this.Owner = ply;
 	ply.setOwnership(this);
@@ -38,7 +38,6 @@ BaseEntity.prototype.setOwner = function(ply) {
 			opacity: 1
 		});
 	}
-
 }
 
 BaseEntity.prototype.show = function(opacity) {
@@ -127,7 +126,7 @@ BaseEntity.prototype.isRoad = function() {
 }
 
 BaseEntity.prototype.getAdjacentTiles = function() {
-	return this.AjacentTiles ? this.AdjacentTiles : [];
+	return this.AdjacentTiles ? this.AdjacentTiles : [];
 }
 
 BaseEntity.prototype.getAdjacentCorners = function() {

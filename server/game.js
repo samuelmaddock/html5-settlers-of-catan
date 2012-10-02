@@ -23,7 +23,7 @@ CATAN.Game = function(ply,name,schema,public) {
 
 	this.started = Date.now();
 
-	// Shutdown server after 30 sec with no players
+	// Shutdown server after 60 sec with no players
 	var self = this;
 	setTimeout(function() {
 		if(self.getState() > STATE_NONE) return;
@@ -31,7 +31,7 @@ CATAN.Game = function(ply,name,schema,public) {
 			CATAN.Games.shutdown(self);
 		};
 		delete self;
-	}, 1000 * 30);
+	}, 1000 * 60);
 };
 
 CATAN.Game.prototype = {
@@ -187,7 +187,7 @@ CATAN.Game.prototype = {
 		];
 
 		if(state > STATE_WAITING) {
-			this.emit('GameUpdate', {
+			this.emit('CGameUpdate', {
 				message: messages[state]
 			});
 		}
@@ -207,7 +207,7 @@ CATAN.Game.prototype = {
 
 		// Check state
 		if(self.getState() > STATE_WAITING) {
-			socket.emit('connectionStatus', {
+			socket.emit('CConnectionStatus', {
 				success: false,
 				message: 'Game is already in-progress.'
 			});
@@ -216,7 +216,7 @@ CATAN.Game.prototype = {
 
 		// Check max players
 		if(self.getMaxPlayers() <= self.getPlayers().length) {
-			socket.emit('connectionStatus', {
+			socket.emit('CConnectionStatus', {
 				success: false,
 				message: 'Server is full.'
 			});
@@ -242,9 +242,10 @@ CATAN.Game.prototype = {
 		ply.on( 'startBuild',	function(data) { self.onPlayerStartBuild(ply,data) } );
 		ply.on( 'endTurn',		function(data) { self.onPlayerEndTurn(ply,data) } );
 		ply.on( 'movedRobber',	function(data) { self.onPlayerMoveRobber(ply,data) } );
+		ply.on( 'devCard',		function(data) { self.onPlayerRequestDevCard(ply,data) } );
 
 		// Inform user of successful connection
-		ply.emit('connectionStatus', { success: true });
+		ply.emit('CConnectionStatus', { success: true });
 		console.log('[' + self.id + '] Player connected (' + self.getNumPlayers() + '/' + self.getMaxPlayers() + ')');
 
 	},
@@ -269,11 +270,10 @@ CATAN.Game.prototype = {
 		this.syncGame(ply);
 
 		// Announce player join in chat
-		this.emit('PlayerJoin', {
+		this.emit('CPlayerJoin', {
 			id: ply.getID(),
 			name: ply.getName(),
-			color: ply.getColor(),
-			address: ply.address
+			color: ply.getColor()
 		});
 
 	},
@@ -286,7 +286,7 @@ CATAN.Game.prototype = {
 		for(var i in ply.Buildings) {
 			var building = ply.Buildings[i];
 			building.Owner = -1;
-			this.emit('BuildingReset', { id: building.Id, building: building.Building });
+			this.emit('CBuildingReset', { id: building.Id, building: building.Building });
 
 			delete building;
 		}
@@ -306,7 +306,7 @@ CATAN.Game.prototype = {
 		}
 
 		// Announce player disconnect in chat
-		this.emit('PlayerLeave', { id: ply.getID() });
+		this.emit('CPlayerLeave', { id: ply.getID() });
 		console.log('[' + this.id + '] Player disconnected');
 
 		// Reassign owner in the case that the owner disconnects
@@ -314,7 +314,10 @@ CATAN.Game.prototype = {
 			this.setOwner(this.getPlayers()[0]);
 		}
 
-		// TODO: check if player held turn
+		// Check current turn
+		if(this.turnManager.getCurrentPlayer() == ply) {
+			this.turnManager.nextTurn();
+		}
 
 		// Re-add color to available list
 		this.colors.push(ply.getColor())
@@ -327,7 +330,7 @@ CATAN.Game.prototype = {
 
 		var text = data.text.substr(0, 127);
 
-	    this.emit('PlayerChat', { id: ply.getID(), Text: text });
+	    this.emit('CPlayerChat', { id: ply.getID(), Text: text });
 	    console.log('['+this.id+'] '+ply.getName()+': '+text);
 
 	},
@@ -350,21 +353,16 @@ CATAN.Game.prototype = {
 		if(this.getState() == STATE_PLAYING) {
 
 			if(!ply.hasRolledDice) return; // hacker
-			if(ent.hasOwner()) return;
-			if(!this.getSchema().canPlayerPurchase(ply, ent)) {
-				ply.notify('InsufficientResources');
-				// console.log(ply.Inventory.Resources);
-				return;
-			}
+			if(!this.getSchema().canPlayerPurchase(ply, ent)) return;
 
 			ent.build(ply);
 
-			this.emit('PlayerBuild', {
+			this.emit('CPlayerBuild', {
 				id: ply.getID(),
 				entid: ent.getEntId()
 			});
 
-			this.getSchema().onPlayerBuild(ply, ent);
+			this.getSchema().onPlayerBuild(ply, ent, false);
 
 		}
 
@@ -383,7 +381,7 @@ CATAN.Game.prototype = {
 
 		// Check if we have at least 2 players
 		if(this.getNumPlayers() < 2) {
-			ply.emit('GameUpdate', {
+			ply.emit('CGameUpdate', {
 				error: true,
 				message: "There must be 2 players in the game to start."
 			});
@@ -406,7 +404,7 @@ CATAN.Game.prototype = {
 		var d1 = Math.floor(Math.random() * (6 - 1 + 1)) + 1,
 			d2 = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
 
-		this.emit('RolledDice', {
+		this.emit('CRolledDice', {
 			d1: d1,
 			d2: d2
 		})
@@ -438,7 +436,7 @@ CATAN.Game.prototype = {
 			return;
 		}
 
-		ply.emit('PlayerStartBuild');
+		ply.emit('CPlayerStartBuild');
 
 	},
 
@@ -475,7 +473,7 @@ CATAN.Game.prototype = {
  
 		this.getBoard().getRobber().setTile(tile);
 
-		this.emit('RobberMoved', {
+		this.emit('CRobberMoved', {
 			id: tile.getEntId()
 		})
 
@@ -483,42 +481,78 @@ CATAN.Game.prototype = {
 
 	},
 
+	onPlayerRequestDevCard: function(ply, data) {
+		var cost = this.getSchema().DevCardCost;
+		for(res in cost) {
+			var amount = cost[res];
+			if(!ply.hasResources(res, amount)) {
+				return false;
+			};
+		};
+
+		var card = this.getSchema().getDevCard();
+		ply.addDevCard(card);
+	},
+
 	/*
 		Additional Game Helpers
 	*/
 
-	distributeResources: function(token) {
-		// Get tiles
-		var tiles = this.getBoard().getTiles();
-		for(var i in tiles) {
-			var tile = tiles[i];
+	distributeResources: function() {
 
-			// Tile token must match and not have the robber
-			if(tile.getToken() == token && !tile.hasRobber()) {
+		if(this.getState() == STATE_SETUP) {
 
-				// Look for player settlements
-				var corners = tile.getAdjacentCorners();
-				for(var j in corners) {
-					var corner = corners[j];
+			var ply = arguments[0];
 
-					// Check if player occupies settlement
-					if(corner.hasOwner()) {
-						var amount = (corner.isCity()) ? 2 : 1;
-						corner.getOwner().appendResource(tile, tile.getResource(), amount);
+			var tiles = ply.getBuildingsByType(BUILDING_SETTLEMENT)[1].getAdjacentTiles();
+			for(var i in tiles) {
+				var tile = tiles[i];
+				var res = tile.getResource();
+				if(res > RESOURCE_DESERT) {
+					ply.appendResource(tile, res, 1);
+				};
+			}
+
+			ply.sendResources();
+
+		} else if(this.getState() == STATE_PLAYING) {
+
+			var token = arguments[0];
+
+			// Get tiles
+			var tiles = this.getBoard().getTiles();
+			for(var i in tiles) {
+				var tile = tiles[i];
+
+				// Token matches or undefined (setup mode), and no robber
+				if( (tile.getToken() == token) && !tile.hasRobber() ) {
+
+					// Look for player settlements
+					var corners = tile.getAdjacentCorners();
+					for(var j in corners) {
+						var corner = corners[j];
+
+						// Check if player occupies settlement
+						if(corner.hasOwner()) {
+							var amount = (corner.isCity()) ? 2 : 1;
+							corner.getOwner().appendResource(tile, tile.getResource(), amount);
+						}
+
 					}
 
 				}
-
+				
 			}
-			
-		}
 
-		// Alert clients of new resources
-		var players = this.getPlayers();
-		for(var i in players) {
-			var ply = players[i];
-			ply.sendResources();
+			// Alert clients of new resources
+			var players = this.getPlayers();
+			for(var i in players) {
+				var ply = players[i];
+				ply.sendResources();
+			}
+
 		}
+		
 	},
 
 	syncGame: function(ply) {
@@ -531,11 +565,11 @@ CATAN.Game.prototype = {
 		for(var i in players) {
 			var pl = players[i];
 			if(pl.getID() != ply.getID()) {
-				ply.emit('syncPlayer', {
+				ply.emit('CSyncPlayer', {
 					id: pl.getID(),
 					name: pl.getName(),
 					color: pl.getColor(),
-					address: pl.address
+					owner: this.isOwner(pl)
 				});
 			}
 		}
@@ -551,11 +585,11 @@ CATAN.Game.prototype = {
 				yaw: tile.yaw
 			});
 		};
-		ply.emit('boardEntities', { ents: tiles });
+		ply.emit('CBoardEntities', { ents: tiles });
 
 		// Send robber tile
 		var robber = this.getBoard().getRobber();
-		ply.emit('boardEntities', {
+		ply.emit('CBoardEntities', {
 			ents: [{
 				id: robber.getEntId(),
 				tileId: robber.getTile().getEntId()

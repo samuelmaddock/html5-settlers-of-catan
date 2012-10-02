@@ -8,7 +8,7 @@ CATAN._init = function() {
 
 	// Connect to server
 	this.socket = io.connect(IP+Namespace);
-	this.socket.on( 'serverReady', function(data) {
+	this.socket.on( 'CServerReady', function(data) {
 		CATAN.connectToServer(data.id);
 	});
 
@@ -18,8 +18,8 @@ CATAN._init = function() {
 	} else {
 		this.Lobby = this.GUI.create('Lobby');
 
-		this.socket.on( 'loadServerList',	this.Lobby.loadServerList );
-		this.socket.on( 'serverStatus',		this.Lobby.serverUpdate );
+		this.socket.on( 'CLoadServerList',	this.Lobby.loadServerList );
+		this.socket.on( 'CServerStatus',	this.Lobby.serverUpdate );
 	}
 
 };
@@ -101,7 +101,7 @@ CATAN.setupSocket = function(socket) {
 
 	var self = this;
 
-	socket.on('connectionStatus', function(data) {
+	socket.on('CConnectionStatus', function(data) {
 		if(data.success == true) {
 			console.log("Successfully connected to server");
 			CATAN.setupGame();
@@ -110,55 +110,67 @@ CATAN.setupSocket = function(socket) {
 		};
 	});
 
-	socket.on('syncPlayer', function (data) {
+	socket.on('CSyncPlayer', function (data) {
 		data.newply = false;
 		CATAN.Players.connect(data);
 	});
 
-	socket.on('boardEntities', function (data) {
+	socket.on('CBoardEntities', function (data) {
 		for(var i in data.ents) {
 			var ent = CATAN.ents.getById(data.ents[i].id);
 			ent.setup(data.ents[i]);
 		}
 	});
 
-	socket.on('setupBuild', function (data) {
+	socket.on('CSetupBuild', function (data) {
 		if(data.building == BUILDING_SETTLEMENT) {
 			CATAN.Notify({subtitle:T('SelectSettlement')});
 		} else {
 			CATAN.Notify({subtitle:T('SelectRoad')})
 		}
 
+		var ply = CATAN.LocalPlayer;
+		var entities;
+		if(data.step == 0 || data.step == 2) {
+			entities = CATAN.board.getCorners();
+		} else if(data.step == 1) {
+			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[0].getAdjacentEdges();
+		} else if(data.step == 3) {
+			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[1].getAdjacentEdges();
+		}
+
 		CATAN.Game.collisionObjects.length = 0
 
-		for(var i in data.available) {
-			var ent = CATAN.ents.getById(data.available[i]);
-			ent.show(0.33);
-			CATAN.Game.collisionObjects.push( ent.getMesh() );
+		for(var i in entities) {
+			if(entities[i].canBuild(ply)) {
+				var ent = entities[i];
+				ent.show(0.33);
+				CATAN.Game.collisionObjects.push( ent.getMesh() );
+			}
 		}
 	});
 
-	socket.on('PlayerJoin', function (data) {
+	socket.on('CPlayerJoin', function (data) {
 		data.newply = true;
 		CATAN.Players.connect(data);
 	});
 
-	socket.on('PlayerLeave', function (data) {
+	socket.on('CPlayerLeave', function (data) {
 		var ply = CATAN.Players.getById(data.id);
 		self.chat.AddLine( T('PlayerDisconnect', ply.getName()) );
 		CATAN.Players.disconnect(ply);
 	});
 
-	socket.on('PlayerChat', function (data) {
+	socket.on('CPlayerChat', function (data) {
 		data.ply = CATAN.Players.getById(data.id);
 		self.chat.AddLine(data, "player");
 	});
 
-	socket.on('PlayerBuild', function (data) {
+	socket.on('CPlayerBuild', function (data) {
 		var ply = CATAN.Players.getById(data.id),
 			ent = CATAN.ents.getById(data.entid);
 
-		ent.setOwner(ply);
+		ent.build(ply);
 
 		// End build
 		if( ply == CATAN.LocalPlayer ) {
@@ -166,7 +178,7 @@ CATAN.setupSocket = function(socket) {
 		}
 	});
 
-	socket.on('GameUpdate', function (data) {
+	socket.on('CGameUpdate', function (data) {
 		if(data.error) {
 			// TODO: Display errors in modal
 			self.chat.AddLine(data.message);
@@ -175,7 +187,7 @@ CATAN.setupSocket = function(socket) {
 		}
 	});
 
-	socket.on('RolledDice', function (data) {
+	socket.on('CRolledDice', function (data) {
 		var token = data.d1 + data.d2;
 
 		CATAN.Notify({
@@ -198,7 +210,7 @@ CATAN.setupSocket = function(socket) {
 		}
 	});
 
-	socket.on('RobberMoved', function (data) {
+	socket.on('CRobberMoved', function (data) {
 		if(CATAN.LocalPlayer.isTurn()) {
 			CATAN.Game.collisionObjects.length = 0;
 		}
@@ -207,7 +219,7 @@ CATAN.setupSocket = function(socket) {
 		CATAN.board.getRobber().setTile(tile);
 	});
 
-	socket.on('GiveResources', function (data) {
+	socket.on('CGiveResources', function (data) {
 		CATAN.Notify({
 			subtitle: "Got resources!"
 		});
@@ -220,7 +232,7 @@ CATAN.setupSocket = function(socket) {
 		CATAN.debug.updateStats();
 	});
 
-	socket.on('PlayerStartBuild', function (data) {
+	socket.on('CPlayerStartBuild', function (data) {
 		CATAN.Game.collisionObjects.length = 0
 
 		var available = CATAN.getAvailableBuildings();
@@ -231,7 +243,7 @@ CATAN.setupSocket = function(socket) {
 		}
 	});
 
-	socket.on('PlayerTurn', function (data) {
+	socket.on('CPlayerTurn', function (data) {
 		CATAN.ClearNotifications();
 		var ply = CATAN.Players.getById(data.id);
 		if(ply == CATAN.LocalPlayer) {
@@ -248,7 +260,7 @@ CATAN.setupSocket = function(socket) {
 		}
 	});
 
-	socket.on('Message', function (data) {
+	socket.on('CMessage', function (data) {
 		CATAN.Notify({
 			subtitle:T(data.subtitle)
 		});

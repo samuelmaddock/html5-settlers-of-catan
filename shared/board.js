@@ -5,10 +5,8 @@
 if(SERVER) {
 	THREE = require('../server/vector.js');
 
-	// Require base entity first
+	// Require necessary entities
 	require('./entities/BaseEntity.js');
-
-	// Board entities
 	require('./entities/HexTile.js');
 	require('./entities/HexCorner.js');
 	require('./entities/HexEdge.js');
@@ -30,7 +28,7 @@ CATAN.Board = function(game) {
 	this.hexCorners = [];
 	this.hexEdges = [];
 
-	this.robber = null;
+	this.robber = CATAN.ents.create('Robber');
 
 	this.setup();
 
@@ -76,9 +74,6 @@ CATAN.Board.prototype = {
 				
 			}
 		}
-		
-		// Create robber entity
-		this.robber = CATAN.ents.create('Robber');
 
 		// Create corner and edge entities
 		var corners = [];
@@ -181,24 +176,16 @@ CATAN.Board.prototype = {
 
 		// Create docks
 
-
-		if(SERVER) {
-			var tiles = this.getTiles();
-			for(var i in tiles) {
-				var tile = tiles[i];
-				this.setupResource(tile);
-				this.setupNumberToken(tile);
-			}
-		}
 	},
 
 	setupHexTile: function(x, y) {
 		var offset = this.getWorldHexOffset()
 		var tile = CATAN.ents.create('HexTile');
-		tile.setRadius(this.hexRadius);
-		tile.setGridIndex(x,y,offset);
+		tile.setGridIndex(x, y, this.hexRadius, offset);
 		
 		if(SERVER) {
+			this.setupResource(tile);
+			this.setupNumberToken(tile);
 			this.game.entities.push(tile);
 		}
 		
@@ -210,12 +197,11 @@ CATAN.Board.prototype = {
 		var randResource = Math.floor( Math.random() * this.resourceCount.length )
 		
 		// Select resource
-		tile.Resource = this.resourceCount[randResource];
-
+		tile.setResource( this.resourceCount[randResource] );
 		this.resourceCount.splice(randResource,1); // remove resource
 
 		// Setup robber if the resource is desert
-		if (tile.Resource == RESOURCE_DESERT) {
+		if (tile.getResource() == RESOURCE_DESERT) {
 			this.robber.setTile(tile);
 		}
 	},

@@ -89,11 +89,11 @@ CATAN.Games = (function(CATAN) {
 		console.log( '['+game.getID()+'][#'+this.getCount()+'] Server initialized...');
 
 		// Alert server creater that the server is ready
-		data.socket.emit('serverReady', { id: game.getID() });
+		data.socket.emit('CServerReady', { id: game.getID() });
 
 		// Send lobby sockets info about new server
 		if(game.isPublic()) {
-			CATAN.Lobby.emit( 'serverStatus', { status: 'start', info: game.getStatus() } );
+			CATAN.Lobby.emit( 'CServerStatus', { status: 'start', info: game.getStatus() } );
 		}
 	}
 
@@ -101,7 +101,7 @@ CATAN.Games = (function(CATAN) {
 		console.log('[' + game.getID() + '] Terminating server...');
 
 		if(game.isPublic()) {
-			CATAN.Lobby.emit( 'serverStatus', { status: 'shutdown', info: { id: game.getID() } } );
+			CATAN.Lobby.emit( 'CServerStatus', { status: 'shutdown', info: { id: game.getID() } } );
 		}
 
 		var index = this.getListIndex(game);

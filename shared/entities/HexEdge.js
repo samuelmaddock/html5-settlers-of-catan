@@ -4,9 +4,9 @@
 
 var HexEdge = function() {
 	this.create();
+	this.setType(BUILDING_ROAD);
 
 	this.modelpath = "models/road.js";
-	this.Building = BUILDING_ROAD;
 	
 	this.AdjacentTiles = [];
 	this.AdjacentEdges = [];
@@ -40,9 +40,11 @@ HexEdge.prototype.canBuild = function(ply) {
 }
 
 HexEdge.prototype.setupMesh = function() {
+	var path = CATAN.getSchema().Buildings[this.getType()].url;
+
 	this.Mesh = new THREE.Mesh(
 		//new THREE.CubeGeometry(40,12,12),
-		CATAN.AssetManager.get(this.modelpath),
+		CATAN.AssetManager.get(path),
 		new THREE.MeshLambertMaterial({ opacity: 0 })
 	);
 	

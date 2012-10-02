@@ -9,19 +9,16 @@ CATAN.Player = function() {
 
 	this.turn = false;
 	this.buildings = [];
-	this.vp = 0;
+	this.victoryPoints = 0;
 
-	this.Inventory = {
-		Resources: [0,0,0,0,0,0]
-	}
+	this.resources = [0,0,0,0,0,0];
+	this.devCards = [];
 
 	if(SERVER) {
-
 		this.status = PLAYER_LOBBY;
 		this.hasRolledDice = false;
 		this.mustMoveRobber = false;
 		this.tempResources = [];
-
 	}
 
 };
@@ -32,6 +29,9 @@ CATAN.Player.prototype = {
 		return this.id;
 	},
 
+	/*
+		Name
+	*/
 	setName: function(name) {
 		// Cleanse name
 		this.name = name.substr(0, 31);
@@ -44,6 +44,9 @@ CATAN.Player.prototype = {
 		return (this.nameDup > 0) ? this.name + '('+this.nameDup+')' : this.name;
 	},
 
+	/*
+		Color
+	*/
 	setColor: function(color) {
 		this.color = color;
 	},
@@ -60,6 +63,9 @@ CATAN.Player.prototype = {
 		return "#" + z1 + x;
 	},
 
+	/*
+		Turn
+	*/
 	setTurn: function(bTurn) {
 		this.turn = bTurn;
 		if(SERVER) {
@@ -71,12 +77,22 @@ CATAN.Player.prototype = {
 		return this.turn;
 	},
 	
+	/*
+		Victory Points
+	*/
 	addVictoryPoint: function() {
-		this.vp += 1;
+		this.victoryPoints += 1;
+	},
+
+	getVictoryPoints: function() {
+		return this.victoryPoints;
 	},
 	
+	/*
+		Resources
+	*/
 	getNumResource: function(resourceType) {
-		return ( this.Inventory.Resources[resourceType] !== undefined ) ? this.Inventory.Resources[resourceType] : 0;
+		return ( this.resources[resourceType] !== undefined ) ? this.resources[resourceType] : 0;
 	},
 
 	hasResources: function(resourceType, amount) {
@@ -85,14 +101,56 @@ CATAN.Player.prototype = {
 
 	giveResource: function(resourceType, amount) {
 		amount = (amount == undefined) ? 1 : Math.abs(amount);
-		this.Inventory.Resources[resourceType] += amount;
+		this.resources[resourceType] += amount;
 	},
 
 	removeResource: function(resourceType, amount) {
 		amount = (amount == undefined) ? 1 : Math.abs(amount);
-		this.Inventory.Resources[resourceType] -= ( amount !== undefined ? amount : 1);
+		this.resources[resourceType] -= ( amount !== undefined ? amount : 1);
 	},
 
+	/*
+		Development Cards
+	*/
+	addDevCard: function(cardType) {
+		if(this.getDevCards(cardType) == undefined) {
+			this.devCards[cardType] = 1;
+		} else {
+			this.devCards[cardType] += 1;
+		}
+
+		if(SERVER) {
+			this.emit('CDevCardGet', {
+				type: cardType
+			});
+		}
+	},
+
+	getDevCards: function(cardType) {
+		return this.devCards[cardType];
+	},
+
+	hasDevCard: function(cardType) {
+		if(this.getDevCards(cardType) == undefined) {
+			return false;
+		}
+		return this.getDevCards(cardType) > 0;
+	},
+
+	useDevCard: function(cardType) {
+		if(!this.hasDevCard(cardType)) return;
+		this.devCards[cardType] -= 1;
+
+		if(SERVER) {
+			this.emit('CDevCardUse', {
+				type: cardType
+			});
+		}
+	},
+
+	/*
+		Buildings
+	*/
 	getBuildings: function() {
 		return this.buildings;
 	},

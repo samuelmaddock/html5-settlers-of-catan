@@ -108,8 +108,8 @@ GAMEMODE.Robber = {
 	url: "models/robber.js"
 };
 
-GAMEMODE.CardCost = [ 0, 0, 0, 1, 1, 1 ]
-GAMEMODE.Cards = [
+GAMEMODE.DevCardCost = [ 0, 0, 0, 1, 1, 1 ]
+GAMEMODE.DevCards = [
 	
 	{
 		name: "Year of Plenty",
@@ -156,7 +156,7 @@ GAMEMODE.getGrid = function() {
 			[1,1,1,1,1],
 			[1,1,1,1,1],
 			[1,1,1,1,1],
-			[0,0,1,0,0]]
+			[0,0,1,0,0]];
 }
 
 if(SERVER) {
@@ -193,24 +193,40 @@ if(SERVER) {
 		];
 	}
 
+	GAMEMODE.getDevCard = function() {
+		return this.DevCards[Math.floor(Math.random()*this.DevCards.length)];
+	}
+
 	/* -----------------------------------------------
 		Gamemode Rules
 	------------------------------------------------*/
 	GAMEMODE.canPlayerPurchase = function(ply, ent) {
-		var building = this.Buildings[ent.getType()];
+		var type = ent.getType();
+		if(ent.hasOwner()) {
+			if(ent.getOwner() != ply) return false;
+
+			// Change requested type to city
+			if((ent.getOwner() == ply) && ent.isSettlement()) {
+				type = BUILDING_CITY;
+			}
+		}
+
+		var building = this.Buildings[type];
 
 		// Do they have the necessary resources?
-		var cost = building.cost;
+		/*var cost = building.cost;
 		for(res in cost) {
 			var amount = cost[res];
 			if(!ply.hasResources(res, amount)) {
+				ply.notify('InsufficientResources');
 				return false;
 			};
-		};
+		};*/
 
 		// Do they have too many of that structure?
 		var pieces = building.pieces;
-		if(ply.getNumBuildings(ent.getType()) >= pieces) {
+		if(ply.getNumBuildings(type) >= pieces) {
+			ply.notify('InsufficientPieces'+type);
 			return false;
 		}
 
@@ -228,6 +244,12 @@ if(SERVER) {
 	};
 
 	GAMEMODE.onPlayerRollSeven = function(ply) {
+		// TODO: Each player who owns more than
+		// 7 Resource Cards must return half of
+		// his cards to the supply stacks. If
+		// someone has an uneven number of cards,
+		// it is previously rounded down
+		
 		// enable move robber
 		ply.mustMoveRobber = true;
 	};
@@ -238,18 +260,24 @@ if(SERVER) {
 		}
 	};
 
-	// Player has built structure in the playing state.
-	GAMEMODE.onPlayerBuild = function(ply, ent) {
-		// Remove resources
-		var cost = this.Buildings[ent.getType()].cost;
-		for(i in cost) {
-			ply.removeResource(i, cost[i]);
-		};
-
+	// Player has built structure
+	GAMEMODE.onPlayerBuild = function(ply, ent, bSetup) {
+		// Only remove resources in playing state
+		if(!bSetup) {
+			var cost = this.Buildings[ent.getType()].cost;
+			for(i in cost) {
+				ply.removeResource(i, cost[i]);
+			};
+		}
+		
 		if (ent.isRoad()) {
 
+			// Only check for longest road if the player
+			// has the minimum amount of roads
+			// if(ply.getRoads().length < 7) return;
+
 			// check longest road
-			this.checkLongestRoad(ply);
+			// var roads = this.checkLongestRoad(ply, ent, []);
 
 		} else if (ent.isSettlement() || ent.isCity()) {
 
@@ -259,7 +287,26 @@ if(SERVER) {
 		}
 	};
 
-	GAMEMODE.checkLongestRoad = function(ply) {
+	GAMEMODE.checkLongestRoad = function(ply, road, traversed) {
+
+		// Road's owner must be ply
+		if(!road.getOwner()) return;
+		if(road.getOwner() != ply) return;
+
+		// Make sure we haven't already traversed this road
+		if(traversed.indexOf(road.getEntId()) != -1) return;
+
+		// Keep track of traversed roads
+		traversed.push(road.getEntId());
+
+		// Recursively walk all neighboring roads
+		var adjRoads = road.getAdjacentEdges();
+		for(var i in adjRoads) {
+			var newCount = this.checkLongestRoad(ply, adjRoads[i], a);
+			count = (newCount > count) ? newCount : count;
+		}
+
+		return count;
 
 	}
 

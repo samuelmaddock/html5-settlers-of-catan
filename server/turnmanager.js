@@ -1,7 +1,7 @@
 CATAN.TurnManager = function(game) {
 
 	this.game = game;
-	this.board = game.board;
+	this.board = game.getBoard();
 	this.turn = 0;
 	this.currentPlayer;
 
@@ -61,7 +61,7 @@ CATAN.TurnManager.prototype = {
 		// the game players array
 		this.setCurrentPlayer(players[0]);
 
-		this.game.emit('PlayerTurn', {
+		this.game.emit('CPlayerTurn', {
 			id: this.getCurrentPlayer().getID()
 		})
 
@@ -84,7 +84,7 @@ CATAN.TurnManager.prototype = {
 
 		this.setCurrentPlayer(ply);
 
-		this.game.emit('PlayerTurn', {
+		this.game.emit('CPlayerTurn', {
 			id: this.getCurrentPlayer().getID()
 		});
 		
@@ -102,10 +102,12 @@ CATAN.TurnManager.prototype = {
 
 		ent.build(ply);
 
-		this.game.emit('PlayerBuild', {
+		this.game.emit('CPlayerBuild', {
 			id: ply.getID(),
 			entid: ent.getEntId()
 		});
+
+		this.game.getSchema().onPlayerBuild(ply, ent, true);
 
 		// Update count
 		var settlements = ply.getBuildingsByType(BUILDING_SETTLEMENT).length,
@@ -119,10 +121,7 @@ CATAN.TurnManager.prototype = {
 
 		// distribute resources
 		if(settlements == 2 && roads == 2) {
-			var tiles = ply.getBuildingsByType(BUILDING_SETTLEMENT)[1].AdjacentTiles;
-			for(var i in tiles) {
-				ply.giveResource(tiles[i].getResource());
-			}
+			this.game.distributeResources(ply);
 		}
 
 		var bDone = true,
@@ -148,25 +147,9 @@ CATAN.TurnManager.prototype = {
 
 		ply.SetupStep = (typeof ply.SetupStep == 'undefined') ? 0 : ++ply.SetupStep;
 
-		var entities;
-		if(ply.SetupStep == 0 || ply.SetupStep == 2) {
-			entities = this.board.getCorners();
-		} else if(ply.SetupStep == 1) {
-			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[0].getAdjacentEdges();
-		} else if(ply.SetupStep == 3) {
-			entities = ply.getBuildingsByType(BUILDING_SETTLEMENT)[1].getAdjacentEdges();
-		}
-
-		var buildable = [];
-		for(var i in entities) {
-			if(entities[i].canBuild(ply)) {
-				buildable.push(entities[i].getEntId());
-			}
-		}
-
-		ply.emit('setupBuild', {
+		ply.emit('CSetupBuild', {
 			building: this.setupBuildOrder[ply.SetupStep].Type,
-			available: buildable
+			step: ply.SetupStep
 		});
 
 	},

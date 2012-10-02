@@ -95,7 +95,7 @@ HexTile.prototype.setRadius = function(r) {
 	this.Radius = r;
 	this.Width = r * 2;
 	this.Height = r * Math.sqrt(3);
-	this.Side = r * 3 / 2;	
+	this.Side = r * 3 / 2;
 }
 
 /* -----------------------------------------------
@@ -104,12 +104,13 @@ HexTile.prototype.setRadius = function(r) {
 	Desc: Sets the hex tile grid index and
 	calculates the appropriate offsets
 ------------------------------------------------*/
-HexTile.prototype.setGridIndex = function(x,y,offset) {
+HexTile.prototype.setGridIndex = function(x, y, r, offset) {
+	this.setRadius(r);
+
 	this.x = x;
 	this.y = y;
 
-	var r = this.Radius,
-	w = this.Width,
+	var w = this.Width,
 	h = this.Height,
 	s = this.Side;
 	

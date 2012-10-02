@@ -86,18 +86,16 @@ CATAN.Player.prototype.setStatus = function(state) {
 CATAN.Player.prototype.notify = function(subtitle, type) {
 	// TODO: Limit amount of time before a new message can be sent
 	
-	if(type === undefined) {
-		type = MSG_DEFAULT;
-	}
+	if(type === undefined) type = MSG_DEFAULT;
 
-	this.emit('Message', {
+	this.emit('CMessage', {
 		subtitle: subtitle,
 		type: type
 	})
 }
 
 /*
-	Game Methods
+	Game
 */
 CATAN.Player.prototype.isInGame = function() {
 	return this.getStatus() == PLAYER_CONNECTED;
@@ -114,7 +112,7 @@ CATAN.Player.prototype.getBuildingsByType = function(type) {
 }
 
 /*
-	Inventory
+	Resources
 */
 CATAN.Player.prototype.appendResource = function(tile, resource, amount) {
 	this.giveResource(resource, amount);
@@ -128,7 +126,7 @@ CATAN.Player.prototype.appendResource = function(tile, resource, amount) {
 CATAN.Player.prototype.sendResources = function() {
 	if(this.tempResources.length < 1) return;
 
-	this.emit('GiveResources', {
+	this.emit('CGiveResources', {
 		resources: this.tempResources
 	});
 
