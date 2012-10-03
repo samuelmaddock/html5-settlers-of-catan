@@ -70,17 +70,13 @@ Game.prototype.createControls = function() {
 
 Game.prototype.createLighting = function() {
 
-	/*var light = new THREE.DirectionalLight( 0xefefff, 2 );
+	var light = new THREE.DirectionalLight( 0xefefff, 2 );
 	light.position.set( 1, 1, 1 ).normalize();
 	this.scene.add( light );
 
 	var light = new THREE.DirectionalLight( 0xffefef, 2 );
 	light.position.set( -1, -1, -1 ).normalize();
-	this.scene.add( light );*/
-
-	this.light = new THREE.DirectionalLight( 0xefefff, 2 );
-	this.light.position.set( 1, 1, 1 ).normalize();
-	this.scene.add( this.light );
+	this.scene.add( light );
 	
 }
 
@@ -185,14 +181,6 @@ Game.prototype.render = function() {
 		this.cameraSkybox.lookAt( this.skyboxTarget );
 
 		this.renderer.render( this.sceneSkybox, this.cameraSkybox );
-	}
-
-	if(this.light) {
-		this.light.position.set(
-			this.camera.position.x,
-			this.camera.position.y,
-			this.camera.position.z
-		).normalize();
 	}
 	
 	this.renderer.render( this.scene, this.camera );

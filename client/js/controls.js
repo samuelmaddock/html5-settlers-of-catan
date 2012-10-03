@@ -113,7 +113,7 @@ THREE.CatanControls = function ( object, domElement ) {
 			var ent = CATAN.mouseRayTrace(event);
 
 			if(ent) {
-				CATAN.onSelectEntity(ent);
+				ent.onSelect();
 			}
 
 		};

@@ -178,17 +178,9 @@ CATAN.Game.prototype = {
 
 	setState: function(state) {
 
-		var messages = [
-			"",	// None
-			"", // Waiting
-			"StateSetup",
-			"StatePlaying",
-			"StateEnd"
-		];
-
 		if(state > STATE_WAITING) {
 			this.emit('CGameUpdate', {
-				message: messages[state]
+				state: state
 			});
 		}
 

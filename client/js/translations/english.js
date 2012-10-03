@@ -35,8 +35,8 @@ L["SelectSettlement"] = "Select a settlement.";		// Setup state, select settleme
 L["SelectRoad"] = "Select a road.";					// Setup state, select road
 
 // Game Updates
-L["StateSetup"] = "Setup mode has now begun.";		// Setup state message
-L["StatePlaying"] = "Game is now in-progress.";		// Playing state message
-L["StateEnd"] = "Game has ended.";					// End state message
+L["State2"] = "Setup mode has now begun.";	// Setup state message
+L["State3"] = "Game is now in-progress.";	// Playing state message
+L["State4"] = "Game has ended.";			// End state message
 
 CATAN.Localization.register("english", L);

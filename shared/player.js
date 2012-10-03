@@ -195,6 +195,10 @@ CATAN.Player.prototype = {
 
 	isOwner: function(ent) {
 		return ( ent.hasOwner() && ent.getOwner() == this );
+	},
+
+	isInSetup: function() {
+		return this.getCorners().length < 2;
 	}
 
 }

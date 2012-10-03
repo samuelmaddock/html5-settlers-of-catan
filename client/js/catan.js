@@ -52,6 +52,10 @@ CATAN.getName = function() {
 	return (localStorage && localStorage.Name) ? localStorage.Name : T('DefaultName');
 }
 
+CATAN.getState = function() {
+	return this.state;
+}
+
 CATAN.getSchema = function() {
 	return this.Schemas.get("Classic"); // static for now
 }
@@ -93,20 +97,6 @@ CATAN.endBuildMode = function() {
 	}
 }
 
-CATAN.onSelectEntity = function(ent) {
-	if(!CATAN.LocalPlayer.isTurn()) return;
-
-	if(ent.isTile()) {
-		CATAN.server.emit('movedRobber', {
-			id: ent.getEntId()
-		});
-	} else {
-		CATAN.server.emit('playerBuild', {
-			id: ent.getEntId()
-		});
-	}
-}
-
 CATAN.getAvailableBuildings = function() {
 	var ply = CATAN.LocalPlayer;
 
@@ -115,7 +105,7 @@ CATAN.getAvailableBuildings = function() {
 	var corners = this.board.getCorners();
 	for(var i in corners) {
 		var corner = corners[i];
-		if(corner.canBuild()) {
+		if(corner.canBuild(ply)) {
 			list.push(corner);
 		}
 	};

@@ -179,11 +179,14 @@ CATAN.setupSocket = function(socket) {
 	});
 
 	socket.on('CGameUpdate', function (data) {
+		CATAN.state = data.state;
+
+		var msg = "State" + data.state;
 		if(data.error) {
 			// TODO: Display errors in modal
-			self.chat.AddLine(data.message);
+			self.chat.AddLine(msg);
 		} else {
-			self.chat.AddLine(T(data.message));
+			self.chat.AddLine(T(msg));
 		}
 	});
 
@@ -238,7 +241,9 @@ CATAN.setupSocket = function(socket) {
 		var available = CATAN.getAvailableBuildings();
 		for(var i in available) {
 			var ent = available[i];
-			ent.show(0.33);
+			if(!ent.isCorner()) {
+				ent.show(0.33);
+			}
 			CATAN.Game.collisionObjects.push( ent.getMesh() );
 		}
 	});
