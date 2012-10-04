@@ -241,8 +241,8 @@ CATAN.setupSocket = function(socket) {
 		var available = CATAN.getAvailableBuildings();
 		for(var i in available) {
 			var ent = available[i];
-			if(!ent.isCorner()) {
-				ent.show(0.33);
+			if(!ent.hasOwner()) {
+				ent.show(0.44);
 			}
 			CATAN.Game.collisionObjects.push( ent.getMesh() );
 		}

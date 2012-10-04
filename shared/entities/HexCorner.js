@@ -71,6 +71,7 @@ CATAN.ents.register('HexCorner', (function() {
 
 			if(this.isCity()) {
 				CATAN.Game.scene.remove(this.Mesh);
+				this.Mesh = null;
 			}
 
 			this.Mesh = new THREE.Mesh(

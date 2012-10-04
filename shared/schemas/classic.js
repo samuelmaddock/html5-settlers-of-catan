@@ -96,7 +96,7 @@ GAMEMODE.Buildings = [
 	
 	{
 		name: "City",
-		url: "models/city.js",
+		url: "models/settlement.js",
 		pieces: 4,
 		cost: [ 0, 0, 0, 0, 2, 3 ]
 	}

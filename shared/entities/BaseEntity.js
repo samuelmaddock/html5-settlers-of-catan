@@ -194,7 +194,7 @@ CATAN.ents.register('BaseEntity', (function() {
 				} else {
 					this.getMesh().material = new THREE.MeshLambertMaterial({
 						color: 0xffffff,
-						opacity: 0.33,
+						opacity: 0.44,
 						transparent: true
 					});
 				}
