@@ -90,19 +90,10 @@ CATAN.Games = (function(CATAN) {
 
 		// Alert server creater that the server is ready
 		data.socket.emit('CServerReady', { id: game.getID() });
-
-		// Send lobby sockets info about new server
-		if(game.isPublic()) {
-			CATAN.Lobby.emit( 'CServerStatus', { status: 'start', info: game.getStatus() } );
-		}
 	}
 
 	module.shutdown = function(game) {
 		console.log('[' + game.getID() + '] Terminating server...');
-
-		if(game.isPublic()) {
-			CATAN.Lobby.emit( 'CServerStatus', { status: 'shutdown', info: { id: game.getID() } } );
-		}
 
 		var index = this.getListIndex(game);
 		if(index != -1) {

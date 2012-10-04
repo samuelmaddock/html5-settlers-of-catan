@@ -65,7 +65,7 @@ CATAN.Players = (function(CATAN) {
 
 		if(SERVER) {
 			// Data is socket
-			ply.setSocket(data);
+			ply.setSocket(data, true);
 		} else {
 			ply.id = data.id;
 			ply.setName(data.name);

@@ -1,6 +1,8 @@
 var Lobby = function() {
 
 	this.id = 'lobby';
+	this.row = 0;
+	this.lastRequest = 0;
 
 	// Lobby div
 	$("body").append($('<div>').attr('id', this.id).attr('class','clearfix')
@@ -26,6 +28,11 @@ var Lobby = function() {
 				)
 			)
 			.append($('<tbody>'))
+		)
+		.append($('<input>')
+			.attr('type', 'button')
+			.attr('value', T('ServerListRefresh'))
+			.attr('onclick', 'CATAN.Lobby.refresh()')
 		)
 	);
 
@@ -97,38 +104,22 @@ var Lobby = function() {
 		);
 
 
-		if(localStorage) {
-			if(localStorage.Name) {
-				$('#plyname').attr('value', CATAN.getName());
-			} else if(localStorage.ServerName) {
-				$('#servername').attr('value', localStorage.ServerName);
-			}
+	if(localStorage) {
+		if(localStorage.Name) {
+			$('#plyname').attr('value', CATAN.getName());
+		} else if(localStorage.ServerName) {
+			$('#servername').attr('value', localStorage.ServerName);
 		}
+	}
 
+	this.refresh();
 };
 
 Lobby.prototype = CATAN.GUI.create('Panel');
 
-Lobby.prototype.serverUpdate = function(server) {
-
-	console.log("SERVER UPDATE");
-	console.log(server);
-
-	if(server.status == 'start') {
-		CATAN.Lobby.addServer(server.info);
-	}
-
-	if(server.status == 'shutdown') {
-		$('#'+server.info.id).remove();
-	}
-
-}
-
-var row = 0;
 Lobby.prototype.addServer = function(server) {
-
 	$("#serverlist").find('tbody')
-		.append($('<tr>').attr('class', 'row'+row).attr('id', server.id)
+		.append($('<tr>').attr('class', 'row'+this.row).attr('id', server.id)
 			.append($('<td>').attr('class', 'name')
 				.append($('<a>').attr('href', './#'+server.id).attr('onclick', 'CATAN.connectToServer(event,true)')
 					.text(server.name)
@@ -138,16 +129,21 @@ Lobby.prototype.addServer = function(server) {
 			.append($('<td>').attr('class', 'players').text(server.players+'/'+server.max))
 		);
 
-	row = 1 - row;
-
+	this.row = 1 - this.row;
 };
 
 Lobby.prototype.loadServerList = function(data, type) {
-
+	$("#serverlist").find('tbody').empty();
 	for(var i in data.Servers) {
 		CATAN.Lobby.addServer(data.Servers[i]);
 	};
+};
 
+Lobby.prototype.refresh = function(data, type) {
+	if(((new Date().getTime()) - this.lastRequest) < 3000) return;
+	this.lastRequest = new Date().getTime();
+	this.row = 0;
+	CATAN.socket.emit('requestServerlist');
 };
 
 CATAN.GUI.register( "Lobby", Lobby );

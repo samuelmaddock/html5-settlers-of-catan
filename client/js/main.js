@@ -17,22 +17,18 @@ CATAN._init = function() {
 		this.connectToServer(hash,false);
 	} else {
 		this.Lobby = this.GUI.create('Lobby');
-
-		this.socket.on( 'CLoadServerList',	this.Lobby.loadServerList );
-		this.socket.on( 'CServerStatus',	this.Lobby.serverUpdate );
+		this.socket.on( 'CServerList',	this.Lobby.loadServerList );
 	}
 
 };
 
 CATAN.createServer = function() {
-
 	// Create server list html
 	this.socket.emit('createServer', {
 		name: $("#servername").attr('value'),
 		schema: $("#schema").attr('value'),
 		public: ($("#public").attr('checked') == 'checked')
 	});
-
 };
 
 CATAN.connectToServer = function(id, isEvent) {

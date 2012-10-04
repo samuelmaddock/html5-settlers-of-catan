@@ -9,6 +9,7 @@ L["ServerList"] = "Server List";		// Server list header
 L["ServerListName"] = "Name";			// Server list name column
 L["ServerListSchema"] = "Schema";		// Server list schema column
 L["ServerListPlayers"] = "Players";		// Server list player column
+L["ServerListRefresh"] = "Refresh";		// Server list refresh button
 
 L["PlayerNamePlaceholder"] = "Your name";	// Player name placeholder
 

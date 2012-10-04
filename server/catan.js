@@ -35,6 +35,8 @@ CATAN.setupSockets = function(io) {
 			ply.setName(data.name);
 		});
 
-		socket.emit('CLoadServerList', { Servers: CATAN.Games.getVisible() });
+		socket.on('requestServerlist', function(data) {
+			socket.emit('CServerList', { Servers: CATAN.Games.getVisible() });
+		});
 	});
 };

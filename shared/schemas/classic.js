@@ -214,14 +214,14 @@ if(SERVER) {
 		var building = this.Buildings[type];
 
 		// Do they have the necessary resources?
-		/*var cost = building.cost;
+		var cost = building.cost;
 		for(res in cost) {
 			var amount = cost[res];
 			if(!ply.hasResources(res, amount)) {
 				ply.notify('InsufficientResources');
 				return false;
 			};
-		};*/
+		};
 
 		// Do they have too many of that structure?
 		var pieces = building.pieces;

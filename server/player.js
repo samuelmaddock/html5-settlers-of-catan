@@ -9,20 +9,18 @@ CATAN.Player.prototype.getSocket = function() {
 	return this.socket;
 }
 
-CATAN.Player.prototype.setSocket = function(socket) {
+CATAN.Player.prototype.setSocket = function(socket, bDisconnect) {
 	this.id = socket.id;
 	this.socket = socket;
 
-	var self = this;
-	this.on('disconnect', function() { self.disconnect() });
+	if(bDisconnect) {
+		var self = this;
+		this.on('disconnect', function() { self.disconnect() });
+	}
 }
 
 CATAN.Player.prototype.connect = function(game, socket) {
-
-	// TODO: Remove socket initializing here
-	this.id = socket.id;
-	this.socket = socket;
-	this.address = socket.handshake.address;
+	this.setSocket(socket);
 
 	// Set game name
 	var self = this;
@@ -45,8 +43,8 @@ CATAN.Player.prototype.connect = function(game, socket) {
 	// Assign random player color for now;
 	this.setColor(game.getColor());
 
+	// Player is loading resources
 	this.setStatus(PLAYER_JOINING);
-
 };
 
 CATAN.Player.prototype.disconnect = function() {

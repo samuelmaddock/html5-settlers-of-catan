@@ -15,6 +15,7 @@ var Debug = function() {
 	this.addButton("Exchange", "CATAN.server.emit('exchange')");
 	this.addButton("Roll Dice", "CATAN.server.emit('rollDice')");
 	this.addButton("End Turn", "CATAN.server.emit('endTurn')");
+	this.addButton("Buy Dev Card", "CATAN.server.emit('buyDevCard')");
 
 	$('#'+this.id).append(
 		$('<div>').attr('id', 'stats')
