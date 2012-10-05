@@ -40,3 +40,11 @@ CATAN.Localization = (function(CATAN) {
 }(CATAN));
 
 T = CATAN.Localization.translate;
+
+String.prototype.format = function() {
+	var formatted = this;
+	for(arg in arguments[0]) {
+		formatted = formatted.replace("{" + arg + "}", arguments[0][arg]);
+	}
+	return formatted;
+};

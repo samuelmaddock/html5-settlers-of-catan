@@ -75,7 +75,7 @@ var Lobby = function() {
 					})
 				)
 				.append($('<fieldset>')
-					.append($('<lengend>').text(T('Configuration')))
+					.append($('<legend>').text(T('Configuration')))
 					.append($('<select>')
 						.attr('type', 'text')
 						.attr('id', 'schema')

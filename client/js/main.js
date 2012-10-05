@@ -267,10 +267,16 @@ CATAN.setupSocket = function(socket) {
 		});
 	});
 
+	socket.on('CDevCard', function (data) {
+		var action = data.action;
+		if(action == 'add') {
+			CATAN.LocalPlayer.addDevCard(data.type);
+		}
+	});
+
 }
 
 CATAN.precacheModels = function() {
-
 	$('#game').html("<center><font size=72>PRECACHING...</font></center>");
 
 	console.log("PRECACHING MODELS...");
@@ -283,13 +289,4 @@ CATAN.precacheModels = function() {
 
 		CATAN.onConnection();
 	})
-	
 }
-
-String.prototype.format = function() {
-	var formatted = this;
-	for(arg in arguments[0]) {
-		formatted = formatted.replace("{" + arg + "}", arguments[0][arg]);
-	}
-	return formatted;
-};

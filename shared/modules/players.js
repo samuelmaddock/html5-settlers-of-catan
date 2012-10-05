@@ -86,7 +86,7 @@ CATAN.Players = (function(CATAN) {
 	module.disconnect = function(ply) {
 		var index = this.getListIndex(ply);
 		if(index != -1) {
-			this.list.splice(index,1);
+			delete this.list.splice(index,1);
 		} else {
 			console.log("[MAIN] ERROR DISCONNECTING PLAYER!");
 		}

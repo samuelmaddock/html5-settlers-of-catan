@@ -120,7 +120,8 @@ CATAN.Player.prototype = {
 		}
 
 		if(SERVER) {
-			this.emit('CDevCardGet', {
+			this.emit('CDevCard', {
+				action: 'add',
 				type: cardType
 			});
 		}

@@ -200,7 +200,7 @@ if(SERVER) {
 	/* -----------------------------------------------
 		Gamemode Rules
 	------------------------------------------------*/
-	GAMEMODE.canPlayerPurchase = function(ply, ent) {
+	GAMEMODE.canPlayerPurchaseBuilding = function(ply, ent) {
 		var type = ent.getType();
 		if(ent.hasOwner()) {
 			if(ent.getOwner() != ply) return false;
@@ -233,14 +233,25 @@ if(SERVER) {
 		return true;
 	}
 
-	GAMEMODE.onPlayerRoll = function(ply, d1, d2) {
+	GAMEMODE.canPlayerPurchaseDevCard = function(ply) {
+		var cost = this.DevCardCost;
+		for(res in cost) {
+			var amount = cost[res];
+			if(!ply.hasResources(res, amount)) {
+				ply.notify('InsufficientResources');
+				return false;
+			};
+		};
 
+		return true;
+	}
+
+	GAMEMODE.onPlayerRoll = function(ply, d1, d2) {
 		var n = d1 + d2;
 
 		if(n == 7) {
 			this.onPlayerRollSeven(ply);
 		};
-
 	};
 
 	GAMEMODE.onPlayerRollSeven = function(ply) {
@@ -285,6 +296,14 @@ if(SERVER) {
 			this.onPlayerScore(ply);
 
 		}
+	};
+
+	// Player has built structure
+	GAMEMODE.onPlayerGetDevCard = function(ply) {
+		var cost = this.DevCardCost;
+		for(i in cost) {
+			ply.removeResource(i, cost[i]);
+		};
 	};
 
 	GAMEMODE.checkLongestRoad = function(ply, road, traversed) {

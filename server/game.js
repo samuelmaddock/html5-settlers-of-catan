@@ -345,7 +345,7 @@ CATAN.Game.prototype = {
 		if(this.getState() == STATE_PLAYING) {
 
 			if(!ply.hasRolledDice) return; // hacker
-			if(!this.getSchema().canPlayerPurchase(ply, ent)) return;
+			if(!this.getSchema().canPlayerPurchaseBuilding(ply, ent)) return;
 
 			ent.build(ply);
 
@@ -373,10 +373,7 @@ CATAN.Game.prototype = {
 
 		// Check if we have at least 2 players
 		if(this.getNumPlayers() < 2) {
-			ply.emit('CGameUpdate', {
-				error: true,
-				message: "There must be 2 players in the game to start."
-			});
+			ply.notify('ErrorNeedPlayers');
 			return;
 		}
 
@@ -410,7 +407,6 @@ CATAN.Game.prototype = {
 		}
 
 		ply.hasRolledDice = true;
-
 	},
 
 	onPlayerStartBuild: function(ply, data) {
@@ -474,16 +470,12 @@ CATAN.Game.prototype = {
 	},
 
 	onPlayerRequestDevCard: function(ply, data) {
-		var cost = this.getSchema().DevCardCost;
-		for(res in cost) {
-			var amount = cost[res];
-			if(!ply.hasResources(res, amount)) {
-				return false;
-			};
-		};
+		if(!this.getSchema().canPlayerPurchaseDevCard(ply)) return;
 
 		var card = this.getSchema().getDevCard();
 		ply.addDevCard(card);
+
+		this.getSchema().onPlayerGetDevCard(ply, ent, false);
 	},
 
 	/*

@@ -40,4 +40,7 @@ L["State2"] = "Setup mode has now begun.";	// Setup state message
 L["State3"] = "Game is now in-progress.";	// Playing state message
 L["State4"] = "Game has ended.";			// End state message
 
+// Error Messages
+L["ErrorNeedPlayers"] = "There must be 2 players in the game to start." // Minimum of 2 players required to start game
+
 CATAN.Localization.register("english", L);
