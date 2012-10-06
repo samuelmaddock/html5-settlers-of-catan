@@ -3,6 +3,11 @@
 	// Global variable
 	var g = SERVER ? GLOBAL : window;
 
+	// Grid tiles
+	g.TILE_INVALID	= 0;
+	g.TILE_LAND		= 1;
+	g.TILE_SEA		= 2;
+
 	// Resource types
 	g.RESOURCE_DESERT	= 0;
 	g.RESOURCE_LUMBER 	= 1;
@@ -40,11 +45,11 @@
 	if(SERVER) {
 
 		// Game state
-		g.STATE_NONE	= 0
-		g.STATE_WAITING	= 1
-		g.STATE_SETUP	= 2
-		g.STATE_PLAYING	= 3
-		g.STATE_END		= 4
+		g.STATE_NONE	= 0;
+		g.STATE_WAITING	= 1;
+		g.STATE_SETUP	= 2;
+		g.STATE_PLAYING	= 3;
+		g.STATE_END		= 4;
 
 		// Player Status
 		g.PLAYER_LOBBY		= 0;

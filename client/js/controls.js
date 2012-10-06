@@ -149,6 +149,12 @@ THREE.CatanControls = function ( object, domElement ) {
 			* Math.cos( this.theta * Math.PI / 360 ) 
 			* Math.cos( this.phi * Math.PI / 360 );
 		
+		/*if(CATAN.board) {
+			this.target = CATAN.board.getWorldHexOffset();
+			this.object.position.x += this.target.x;
+			this.object.position.z += this.target.z;
+		}*/
+
 		this.object.lookAt( this.target );
 		this.object.updateMatrix();
 

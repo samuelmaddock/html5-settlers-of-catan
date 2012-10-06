@@ -56,6 +56,10 @@ CATAN.getState = function() {
 	return this.state;
 }
 
+CATAN.getBoard = function() {
+	return this.board;
+}
+
 CATAN.getSchema = function() {
 	return this.Schemas.get("Classic"); // static for now
 }

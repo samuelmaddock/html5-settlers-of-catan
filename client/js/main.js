@@ -20,6 +20,13 @@ CATAN._init = function() {
 		this.socket.on( 'CServerList',	this.Lobby.loadServerList );
 	}
 
+	// Request desktop notification permissions
+	document.addEventListener("mousedown", function(event) {
+		if(webkitNotifications.checkPermission() > 0) {
+			webkitNotifications.requestPermission();
+		}
+	}, false);
+
 };
 
 CATAN.createServer = function() {

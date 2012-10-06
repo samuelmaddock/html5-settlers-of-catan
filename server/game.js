@@ -559,9 +559,21 @@ CATAN.Game.prototype = {
 		}
 
 		// Send tiles
+		var docks = [];
+		for(var i in this.getBoard().getDocks()) {
+			var dock = this.getBoard().getDocks()[i];
+			docks.push({
+				id: dock.getEntId(),
+				dock: true,
+				dockTo: dock.dockTo.getEntId()
+			});
+		};
+		ply.emit('CBoardEntities', { ents: docks });
+
+		// Send docks
 		var tiles = [];
-		for(var i=0; i < board.hexTiles.length; i++) {
-			var tile = board.hexTiles[i];
+		for(var i=0; i < this.getBoard().getTiles().length; i++) {
+			var tile = this.getBoard().getTiles()[i];
 			tiles.push({
 				id: tile.getEntId(),
 				resource: tile.getResource(),

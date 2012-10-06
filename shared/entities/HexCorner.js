@@ -9,9 +9,8 @@ CATAN.ents.register('HexCorner', (function() {
 		this.create();
 		this.setType(BUILDING_SETTLEMENT);
 		
-		this.AdjacentTiles = [];
-		this.AdjacentEdges = [];
-		this.AdjacentCorners = [];
+		this.x = -1;
+		this.y = -1;
 
 		this.build = function(ply) {
 			if(this.hasOwner()) {
@@ -25,6 +24,39 @@ CATAN.ents.register('HexCorner', (function() {
 	};
 
 	ENT.prototype = CATAN.ents.create('BaseEntity');
+
+	ENT.prototype.getAdjacentTiles = function() {
+		var list = [],
+			x = this.getX(),
+			y = this.getY();
+
+		var xOdd = (x % 2 == 1),
+			yOdd = (y % 2 == 1);
+
+		if(xOdd) {
+			if(yOdd) {
+				list.push( this.board.getTile(x, y)) );
+				list.push( this.board.getTile(x, y)) );
+				list.push( this.board.getTile(x, y)) );
+			} else {
+				list.push( this.board.getTile(x, y)) );
+				list.push( this.board.getTile(x, y)) );
+				list.push( this.board.getTile(x, y)) );
+			}
+		} else {
+			if(yOdd) {
+				list.push( this.board.getTile(x, y)) );
+				list.push( this.board.getTile(x, y)) );
+				list.push( this.board.getTile(x, y)) );
+			} else {
+				list.push( this.board.getTile(x, y - ((y/2) + 1)) );
+				list.push( this.board.getTile(x - 1, y - ((y/2) + 1))) );
+				list.push( this.board.getTile(x, y - (y/2)) );
+			}
+		}
+
+		return list.filter(function(e){return e});
+	}
 
 	ENT.prototype.canBuild = function(ply) {
 		if(this.hasOwner()) {

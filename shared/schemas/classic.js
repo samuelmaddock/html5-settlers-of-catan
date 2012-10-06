@@ -149,19 +149,30 @@ GAMEMODE.Special = [
 
 // Default Catan Board Arrangement
 // 0 = No tile
-// 1 = Resource
-// 2 = Dock?
+// 1 = Land (resources)
+// 2 = Sea
 GAMEMODE.getGrid = function() {
-	return [[0,1,1,1,0],
+	/*return [[0,1,1,1,0],
 			[1,1,1,1,1],
 			[1,1,1,1,1],
 			[1,1,1,1,1],
-			[0,0,1,0,0]];
+			[0,0,1,0,0]];*/
+
+	return [
+		[0,0,0,2,0,0,0],
+		[0,2,2,1,2,2,0],
+		[2,1,1,1,1,1,2],
+		[2,1,1,1,1,1,2],
+		[2,1,1,1,1,1,2],
+		[0,2,1,1,1,2,0],
+		[0,0,2,2,2,0,0]
+	];
 }
 
 if(SERVER) {
 
 	GAMEMODE.MaxPlayers = 4;
+	GAMEMODE.NumDocks = 5;
 
 	GAMEMODE.getResources = function() {
 

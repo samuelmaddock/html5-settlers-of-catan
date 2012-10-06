@@ -21,11 +21,15 @@ CATAN.ents = (function(CATAN) {
 			this.spawned.push(e);
 			return e;
 		}
-	};
+	}
+
+	module.get = function(name) {
+		return this.registered[name];
+	}
 
 	module.register = function(name,ent) {
 		this.registered[name] = ent;
-	};
+	}
 
 	module.getAll = function() {
 		return this.spawned;

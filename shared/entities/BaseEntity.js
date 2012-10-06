@@ -87,7 +87,9 @@ CATAN.ents.register('BaseEntity', (function() {
 		Desc: Entity's world position
 	------------------------------------------------*/
 	ENT.prototype.getPosition = function() { return this.position; }
-	ENT.prototype.setPosition = function(pos) { this.position = pos; }
+	ENT.prototype.setPosition = function(x, y, z) {
+		this.position = new THREE.Vector3(x, y, z);
+	}
 
 	ENT.prototype.getAngle = function() { return this.angle; }
 	ENT.prototype.setAngle = function(ang) { this.angle = ang; }
