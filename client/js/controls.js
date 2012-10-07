@@ -10,6 +10,7 @@ THREE.CatanControls = function ( object, domElement ) {
 	
 	this.object = object;
 	this.target = new THREE.Vector3( 0, 0, 0 );
+	this.offset = new THREE.Vector3( 0, 0, 0 )
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 	
 	this.isMouseDown = false;
@@ -136,16 +137,19 @@ THREE.CatanControls = function ( object, domElement ) {
 		}
 
 		this.object.position.x 
-			= this.radius 
+			= this.offset.x
+			+ this.radius 
 			* Math.sin( this.theta * Math.PI / 360 ) 
 			* Math.cos( this.phi * Math.PI / 360 );
 			
 		this.object.position.y 
-			= this.radius 
+			= this.offset.y
+			+ this.radius 
 			* Math.sin( this.phi * Math.PI / 360 );
 			
 		this.object.position.z 
-			= this.radius 
+			= this.offset.z
+			+ this.radius 
 			* Math.cos( this.theta * Math.PI / 360 ) 
 			* Math.cos( this.phi * Math.PI / 360 );
 

@@ -78,12 +78,11 @@ CATAN.Board.prototype = {
 		this.gridHeight = this.schema.getGridHeight();
 
 		// Setup hex grid tiles
-		var offset = this.getWorldHexOffset();
 		for (y = 0; y < this.getGridHeight(); y++) {
 			this.tiles[y] = [];
 			for (x = 0; x < this.getGridWidth(); x++) {
 				var tile = CATAN.ents.create('HexTile');
-				tile.setGridIndex(x, y, this.hexRadius, offset);
+				tile.setGridIndex(x, y, this.hexRadius);
 				tile.setTileType(TILE_INVALID);
 				tile.board = this;
 
@@ -250,15 +249,25 @@ CATAN.Board.prototype = {
 		the board
 	------------------------------------------------*/
 	getWorldHexOffset: function() {
-		var r = this.hexRadius,
-		w = r * 2,
-		h = r * Math.sqrt(3);
-		
-		return new THREE.Vector3(
-			( (this.getGridWidth() * w) - r ) / 2,
-			0,
-			(this.getGridHeight() * h) / 2
-		);
+		var count = 0;
+		var offset = new THREE.Vector3(0,0,0);
+
+		for(var i in this.hexTiles) {
+			var tile = this.hexTiles[i];
+			if(tile.isLand()) {
+				var pos = tile.getPosition();
+				offset.x += pos.x;
+				offset.y += pos.y;
+				offset.z += pos.z;
+				count++;
+			}
+		}
+
+		offset.x = offset.x / count;
+		offset.y = offset.y / count;
+		offset.z = offset.z / count;
+
+		return offset;
 	},
 
 	getTiles: function() {
