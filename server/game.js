@@ -292,6 +292,12 @@ CATAN.Game.prototype = {
 			}
 		};
 
+		// End game if all players leave during game
+		if((this.getState() > STATE_WAITING) && (this.getNumPlayers() < 2)) {
+			this.endGame();
+			return;
+		}
+
 		// End server if empty
 		if(!this._isValid()) {
 			return CATAN.Games.shutdown(this);
@@ -540,6 +546,12 @@ CATAN.Game.prototype = {
 
 		}
 		
+	},
+
+	endGame: function() {
+		this.setState(STATE_END);
+		// TODO: Send end game stats
+		CATAN.Games.shutdown(this);
 	},
 
 	syncGame: function(ply) {

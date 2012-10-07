@@ -13,18 +13,18 @@ L["ServerListRefresh"] = "Refresh";		// Server list refresh button
 
 L["PlayerNamePlaceholder"] = "Your name";	// Player name placeholder
 
-L["ServerCreate"] = "Create Server";	// Server setup header
+L["ServerCreate"] = "Create Server";		// Server setup header
 L["ServerNamePlaceholder"] = "Server Name";	// Server name placeholder
-L["ServerConfig"] = "Configuration";	// Server configuration subtitle
-L["ServerPublic"] = "Public";			// Public server
-L["ServerConnect"] = "Connect";			// Connect button
+L["ServerConfig"] = "Configuration";		// Server configuration subtitle
+L["ServerPublic"] = "Public";				// Public server
+L["ServerConnect"] = "Connect";				// Connect button
 
 // Schema Names
 L["SchemaClassic"] = "Classic";			// Classic schema name
 
 // In-Game
 L["PlayerConnect"] = "{0} has joined the game.";	// Player joined
-L["PlayerDisconnect"] = "{0} has disconnected.";			// Player disconnected
+L["PlayerDisconnect"] = "{0} has disconnected.";	// Player disconnected
 L["PlayerTurn"] = "It is now {0}'s turn.";		// Other player's turn
 L["LocalPlayerTurn"] = "It is now your turn.";	// Local Player's turn
 L["RolledDice"] = "Rolled: {0} + {1} = {2}";

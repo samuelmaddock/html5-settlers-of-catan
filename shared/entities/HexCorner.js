@@ -26,7 +26,25 @@ CATAN.ents.register('HexCorner', (function() {
 
 	ENT.prototype = CATAN.ents.create('BaseEntity');
 
+	ENT.prototype.isOnLand = function() {
+		if(this.bOnLand == undefined) {
+			this.bOnLand = false;
+			var adjTiles = this.getAdjacentTiles();
+			for(var i in adjTiles) {
+				var tile = adjTiles[i];
+				if(tile.isLand()) {
+					this.bOnLand = true;
+					break;
+				}
+			}
+		}
+		return this.bOnLand;
+	}
+
 	ENT.prototype.canBuild = function(ply) {
+		// Only land corners are currently supported
+		if(!this.isOnLand()) return false;
+
 		if(this.hasOwner()) {
 			if((this.getOwner() != ply) || ply.isInSetup()) {
 				return false;

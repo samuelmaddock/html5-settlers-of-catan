@@ -243,7 +243,14 @@ CATAN.ents.register('HexTile', (function() {
 		}
 
 		ENT.prototype.setupMesh = function() {
-			var res = CATAN.getSchema().Resources[this.getResource()];
+			var res;
+			if(this.isLand()) {
+				res = CATAN.getSchema().Resources[this.getResource()];
+			} else if(this.isSea()) {
+				res = CATAN.getSchema().Resources[0];
+			} else {
+				return;
+			}
 
 			this.Mesh = new THREE.Mesh(
 				CATAN.AssetManager.get(res.url),

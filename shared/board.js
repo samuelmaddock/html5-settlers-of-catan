@@ -112,7 +112,7 @@ CATAN.Board.prototype = {
 			for(var j in positions) {
 				
 				var pos = positions[j]; // get corner vector
-				var posStr = Math.floor(pos.x) + "," + Math.floor(pos.Y) + "," + Math.floor(pos.z); // hash string
+				var posStr = Math.round(pos.x) + "," + Math.round(pos.y) + "," + Math.round(pos.z); // hash string
 				
 				var corner;
 				if (!corners[posStr]) { // create new corner entity
@@ -154,7 +154,7 @@ CATAN.Board.prototype = {
 				var pos = orientations[j].pos; // get edge vector
 				var ang = orientations[j].ang; // get edge vector
 
-				var posStr = Math.floor(pos.x) + "," + Math.floor(pos.Y) + "," + Math.floor(pos.z); // hash string
+				var posStr = Math.round(pos.x) + "," + Math.round(pos.y) + "," + Math.round(pos.z); // hash string
 				
 				var edge;
 				if (!edges[posStr]) { // create new edge entity
