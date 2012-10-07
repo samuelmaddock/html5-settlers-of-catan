@@ -124,7 +124,7 @@ CATAN.ents.register('BaseEntity', (function() {
 		Buildings
 	*/
 	ENT.prototype.isTile = function() {
-		return this.hasRobber != undefined;
+		return this.tileType != undefined;
 	}
 
 	ENT.prototype.isSettlement = function() {
@@ -182,14 +182,11 @@ CATAN.ents.register('BaseEntity', (function() {
 					});
 				}
 			} else {
-
 				if(this.getOwner() != CATAN.LocalPlayer) return;
-
 				if(this.isSettlement()) {
 					$('body').css('cursor','pointer');
 					// TODO: Change preview to city model
 				}
-
 			}
 		}
 

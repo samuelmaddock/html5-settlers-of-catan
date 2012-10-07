@@ -178,6 +178,20 @@ if(SERVER) {
 		[0,0,2,2,2,0,0]
 	];
 
+	// [x,y] coordinates for docks
+	GAMEMODE.DockConfigs = [
+		[
+			[3,0], [1,1], [5,1],
+			[0,3], [6,3], [0,5],
+			[6,5], [2,6], [4,6]
+		],
+		[
+			[2,1], [4,1], [0,2],
+			[6,2], [0,4], [6,4],
+			[1,5], [5,5], [3,6]
+		]
+	];
+
 	GAMEMODE.configureBoard = function(board) {
 		board.resources = this.getResources();
 		board.tokens = this.getNumberTokens();
@@ -224,34 +238,20 @@ if(SERVER) {
 		delete board.tokens;
 
 		// Setup docks
-		// this.seaTiles.sort(function() {return 0.5 - Math.random()});
-		/*for(var i in this.seaTiles) {
-			if(this.docks.length == this.schema.NumDocks) {
-				break;
-			}
-
-			var tile = this.seaTiles[i];
+		var dockConfig = this.DockConfigs[Math.floor(Math.random()*this.DockConfigs.length)]
+		for(var i in dockConfig) {
+			var xy = dockConfig[i];
+			var tile = board.getTile(xy[0], xy[1]);
 			var adjTiles = tile.getAdjacentTiles();
-
-			var bSetDock = false;
 			for(var j in adjTiles) {
 				var adjTile = adjTiles[j];
-				if(adjTile.isDock()) {
-					bSetDock = false;
+				if(adjTile.isLand()) {
+					tile.setDock(adjTile);
+					board.docks.push(tile);
 					break;
 				}
-
-				if(!bSetDock && adjTile.isLand()) {
-					bSetDock = adjTile;
-				}
 			}
-
-			if(bSetDock) {
-				tile.setDock(adjTile);
-				this.docks.push(tile);
-			}
-		}*/
-
+		}
 	}
 
 	GAMEMODE.getResources = function() {

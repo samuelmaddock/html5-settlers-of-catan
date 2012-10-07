@@ -152,7 +152,7 @@ CATAN.ents.register('HexTile', (function() {
 		Desc: Sets the hex tile grid index and
 		calculates the appropriate offsets
 	------------------------------------------------*/
-	ENT.prototype.setGridIndex = function(x, y, r, offset) {
+	ENT.prototype.setGridIndex = function(x, y, r) {
 		var w = r *2,
 			h = r * Math.sqrt(3),
 			s = r * 3 /2;
@@ -175,9 +175,9 @@ CATAN.ents.register('HexTile', (function() {
 		this.edgesAngle = [ 0, -rad, rad, 0, -rad, rad ];
 
 		this.position = new THREE.Vector3(
-			this.mX - offset.x + s,
+			this.mX - s,
 			0,
-			this.mY - offset.z + h/2
+			this.mY - h/2
 		);
 	}
 
@@ -226,13 +226,16 @@ CATAN.ents.register('HexTile', (function() {
 		ENT.prototype.setup = function(data) {
 			this._setup(data);
 
-			this.setTileType(data.type);
+			if(data.type) {
+				this.setTileType(data.type);
+			}
 
 			if(this.isLand()) {
 				this.setResource(data.resource);
 				this.setToken(data.token);
 				this.setupMesh();
 				this.getMesh().rotation.y = data.yaw;
+				this.show(); // Set to visible
 			}
 
 			if(this.isSea() && data.dock) {
@@ -271,7 +274,8 @@ CATAN.ents.register('HexTile', (function() {
 			this.Mesh = new THREE.Mesh(
 				CATAN.AssetManager.get(res.url),
 				new THREE.MeshLambertMaterial({
-					map: CATAN.AssetManager.get(res.mat)
+					map: CATAN.AssetManager.get(res.mat),
+					color: 0x000000
 				})
 			);
 

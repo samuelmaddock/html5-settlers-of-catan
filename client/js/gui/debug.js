@@ -35,9 +35,9 @@ Debug.prototype.addButton = function(text,cmd) {
 Debug.prototype.updateStats = function() {
 	$('#stats').empty();
 
-	for(var i=0; i < 6; i++) {
+	for(var i=1; i < RESOURCE_ORE+1; i++) {
 		$('#stats').append($('<p>')
-			.text("Resource #"+i+" "+CATAN.LocalPlayer.getNumResource(i))
+			.text(T('Resource'+i) + " " + CATAN.LocalPlayer.getNumResource(i))
 		)
 	}
 }

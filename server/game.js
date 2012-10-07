@@ -478,7 +478,7 @@ CATAN.Game.prototype = {
 	onPlayerRequestDevCard: function(ply, data) {
 		if(this.getState() != STATE_PLAYING) return;
 		if(!ply.isTurn()) return;
-		if(!ply.mustMoveRobber) return;
+		if(ply.mustMoveRobber) return;
 		if(!this.getSchema().canPlayerPurchaseDevCard(ply)) return;
 
 		var card = this.getSchema().getDevCard();
@@ -555,7 +555,6 @@ CATAN.Game.prototype = {
 	},
 
 	syncGame: function(ply) {
-
 		var game = ply.game,
 			board = game.getBoard();
 
@@ -590,16 +589,17 @@ CATAN.Game.prototype = {
 		ply.emit('CBoardEntities', { ents: tiles });
 
 		// Send docks
-		/*var docks = [];
+		var docks = [];
 		for(var i in this.getBoard().getDocks()) {
 			var dock = this.getBoard().getDocks()[i];
 			docks.push({
 				id: dock.getEntId(),
+				type: dock.getTileType(),
 				dock: true,
 				dockTo: dock.dockTo.getEntId()
 			});
 		};
-		ply.emit('CBoardEntities', { ents: docks });*/
+		ply.emit('CBoardEntities', { ents: docks });
 
 		// Send robber tile
 		var robber = this.getBoard().getRobber();
@@ -609,7 +609,6 @@ CATAN.Game.prototype = {
 				tileId: robber.getTile().getEntId()
 			}]
 		});
-
 	}
 
 };

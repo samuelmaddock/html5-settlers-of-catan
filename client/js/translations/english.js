@@ -43,4 +43,11 @@ L["State4"] = "Game has ended.";			// End state message
 // Error Messages
 L["ErrorNeedPlayers"] = "There must be 2 players in the game to start." // Minimum of 2 players required to start game
 
+// Resources
+L["Resource1"] = "Lumber";
+L["Resource2"] = "Brick";
+L["Resource3"] = "Sheep";
+L["Resource4"] = "Grain";
+L["Resource5"] = "Ore";
+
 CATAN.Localization.register("english", L);
