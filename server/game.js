@@ -292,6 +292,10 @@ CATAN.Game.prototype = {
 			}
 		};
 
+		// Broadcast player disconnect
+		this.emit('CPlayerLeave', { id: ply.getID() });
+		console.log('[' + this.id + '] Player disconnected');
+
 		// End game if all players leave during game
 		if((this.getState() > STATE_WAITING) && (this.getNumPlayers() < 2)) {
 			this.endGame();
@@ -302,10 +306,6 @@ CATAN.Game.prototype = {
 		if(!this._isValid()) {
 			return CATAN.Games.shutdown(this);
 		}
-
-		// Announce player disconnect in chat
-		this.emit('CPlayerLeave', { id: ply.getID() });
-		console.log('[' + this.id + '] Player disconnected');
 
 		// Reassign owner in the case that the owner disconnects
 		if(!this.hasValidOwner()) {
