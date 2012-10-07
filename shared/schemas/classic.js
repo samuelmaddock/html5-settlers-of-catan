@@ -147,32 +147,112 @@ GAMEMODE.Special = [
 	
 ];
 
-// Default Catan Board Arrangement
-// 0 = No tile
-// 1 = Land (resources)
-// 2 = Sea
-GAMEMODE.getGrid = function() {
-	/*return [[0,1,1,1,0],
-			[1,1,1,1,1],
-			[1,1,1,1,1],
-			[1,1,1,1,1],
-			[0,0,1,0,0]];*/
+GAMEMODE.getGridWidth = function() {
+	return 7;
+}
 
-	return [
-		[0,0,0,2,0,0,0],
-		[0,2,2,1,2,2,0],
-		[2,1,1,1,1,1,2],
-		[2,1,1,1,1,1,2],
-		[2,1,1,1,1,1,2],
-		[0,2,1,1,1,2,0],
-		[0,0,2,2,2,0,0]
-	];
+GAMEMODE.getGridHeight = function() {
+	return 7;
 }
 
 if(SERVER) {
 
 	GAMEMODE.MaxPlayers = 4;
-	GAMEMODE.NumDocks = 5;
+
+	/* -----------------------------------------------
+		Board
+	------------------------------------------------*/
+
+	GAMEMODE.NumDocks = 9;
+
+	// 0 = Invalid
+	// 1 = Land (resources)
+	// 2 = Sea
+	GAMEMODE.Grid = [
+		[0,0,0,2,0,0,0],
+		[0,2,2,1,2,2,0],
+		[2,1,1,1,1,1,2],
+		[2,1,1,1,1,1,2],
+		[2,1,1,1,1,1,2],
+		[2,2,1,1,1,2,2],
+		[0,0,2,2,2,0,0]
+	];
+
+	GAMEMODE.configureBoard = function(board) {
+		board.resources = this.getResources();
+		board.tokens = this.getNumberTokens();
+
+		// Setup hex grid tiles
+		for (y = 0; y < board.getGridHeight(); y++) {
+			for (x = 0; x < board.getGridWidth(); x++) {
+			
+				var tile = board.getTile(x, y);
+				var gridTile = this.Grid[y][x];
+
+				if (gridTile == TILE_LAND) {
+				
+					tile.setTileType(TILE_LAND);
+
+					// Setup resource
+					var randResource = Math.floor( Math.random() * board.resources.length )
+					tile.setResource( board.resources[randResource] );
+					board.resources.splice(randResource,1); // remove resource
+
+					// Setup number token
+					if(tile.getResource() != RESOURCE_DESERT) {
+						var randToken = Math.floor( Math.random() * board.tokens.length )
+						tile.setToken( board.tokens[randToken] );
+						board.tokens.splice(randToken,1); // remove resource
+					} else {
+						// Setup robber if the resource is desert
+						board.robber.setTile(tile);
+					}
+
+					board.game.entities.push(tile);
+
+				} else if (gridTile == TILE_SEA) {
+
+					tile.setTileType(TILE_SEA);
+					board.seaTiles.push(tile);
+
+				}
+				
+			}
+		}
+
+		delete board.resources;
+		delete board.tokens;
+
+		// Setup docks
+		// this.seaTiles.sort(function() {return 0.5 - Math.random()});
+		/*for(var i in this.seaTiles) {
+			if(this.docks.length == this.schema.NumDocks) {
+				break;
+			}
+
+			var tile = this.seaTiles[i];
+			var adjTiles = tile.getAdjacentTiles();
+
+			var bSetDock = false;
+			for(var j in adjTiles) {
+				var adjTile = adjTiles[j];
+				if(adjTile.isDock()) {
+					bSetDock = false;
+					break;
+				}
+
+				if(!bSetDock && adjTile.isLand()) {
+					bSetDock = adjTile;
+				}
+			}
+
+			if(bSetDock) {
+				tile.setDock(adjTile);
+				this.docks.push(tile);
+			}
+		}*/
+
+	}
 
 	GAMEMODE.getResources = function() {
 
@@ -204,6 +284,9 @@ if(SERVER) {
 		];
 	}
 
+	/* -----------------------------------------------
+		Development Cards
+	------------------------------------------------*/
 	GAMEMODE.getDevCard = function() {
 		return this.DevCards[Math.floor(Math.random()*this.DevCards.length)];
 	}

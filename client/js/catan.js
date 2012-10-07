@@ -106,7 +106,7 @@ CATAN.getAvailableBuildings = function() {
 
 	var list = [];
 
-	var corners = this.board.getCorners();
+	var corners = this.getBoard().getCorners();
 	for(var i in corners) {
 		var corner = corners[i];
 		if(corner.canBuild(ply)) {
@@ -114,7 +114,7 @@ CATAN.getAvailableBuildings = function() {
 		}
 	};
 
-	var edges = this.board.getEdges();
+	var edges = this.getBoard().getEdges();
 	for(var i in edges) {
 		var edge = edges[i];
 		if(edge.canBuild(ply)) {

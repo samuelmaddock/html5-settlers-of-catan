@@ -8,18 +8,23 @@ CATAN.ents.register('HexTile', (function() {
 	var ENT = function() {
 		this.create();
 
-		this.board = null;
-
-		this.tileType = TILE_SEA;
-		this.Resource = -1;
-		this.NumberToken = -1;
+		this.tileType = TILE_INVALID;
+		this.resource = -1;
+		this.numberToken = -1;
 		this.bHasRobber = false;
 		this.bDock = false;
-		
+
+		this.AdjacentCorners = [];
+		this.AdjacentEdges = [];
+
 		this.x = -1;
 		this.y = -1;
 
-		this.bVisible = true;
+		this.cornersX = [];
+		this.cornersY = [];
+
+		this.edgesX = [];
+		this.edgesY = [];
 
 		// Networked randomized rotation
 		this.yaw = (2*Math.PI)/6 * (Math.floor(Math.random() * 6) + 1);
@@ -30,6 +35,7 @@ CATAN.ents.register('HexTile', (function() {
 	ENT.prototype.getX = function() {
 		return this.x;
 	}
+
 	ENT.prototype.getY = function() {
 		return this.y;
 	}
@@ -39,35 +45,21 @@ CATAN.ents.register('HexTile', (function() {
 			x = this.getX(),
 			y = this.getY();
 
-		list.push( this.board.getTile(x-1, y) );
-		list.push( this.board.getTile(x, y-1) );
-		list.push( this.board.getTile(x+1, y) );
-		list.push( this.board.getTile(x+1, y+1) );
-		list.push( this.board.getTile(x, y+1) );
-		list.push( this.board.getTile(x-1, y+1) );
-
-		return list.filter(function(e){return e});
-	}
-
-	ENT.prototype.getAdjacentCorners = function() {
-		var list = [],
-			x = this.getX(),
-			y = this.getY();
-
-		var i = x;
-		var j;
-		if(x % 2 == 0) {
-			j = 2*y;
-		} else {
-			j = (2*y) + 1;
+		if(x % 2 == 0) { // even row
+			list.push( this.board.getTile(x-1, y-1) );
+			list.push( this.board.getTile(x, y-1) );
+			list.push( this.board.getTile(x+1, y-1) );
+			list.push( this.board.getTile(x+1, y) );
+			list.push( this.board.getTile(x, y+1) );
+			list.push( this.board.getTile(x-1, y) );
+		} else { // odd orw
+			list.push( this.board.getTile(x-1, y) );
+			list.push( this.board.getTile(x, y-1) );
+			list.push( this.board.getTile(x+1, y) );
+			list.push( this.board.getTile(x+1, y+1) );
+			list.push( this.board.getTile(x, y+1) );
+			list.push( this.board.getTile(x-1, y+1) );
 		}
-
-		list.push( this.board.getCorner(i, j) );
-		list.push( this.board.getCorner(i+1, j) );
-		list.push( this.board.getCorner(i+1, j+1) );
-		list.push( this.board.getCorner(i+1, j+2) );
-		list.push( this.board.getCorner(i, j+2) );
-		list.push( this.board.getCorner(i, j+1) );
 
 		return list.filter(function(e){return e});
 	}
@@ -78,12 +70,15 @@ CATAN.ents.register('HexTile', (function() {
 	ENT.prototype.setTileType = function(type) {
 		this.tileType = type;
 	}
+
 	ENT.prototype.getTileType = function() {
 		return this.tileType;
 	}
+
 	ENT.prototype.isLand = function() {
 		return this.getTileType() == TILE_LAND;
 	}
+
 	ENT.prototype.isSea = function() {
 		return this.getTileType() == TILE_SEA;
 	}
@@ -102,15 +97,15 @@ CATAN.ents.register('HexTile', (function() {
 	/*
 		Resources
 	*/
-	ENT.prototype.getResource = function() { return this.Resource; };
-	ENT.prototype.setResource = function(resource) { this.Resource = resource; };
+	ENT.prototype.getResource = function() { return this.resource; };
+	ENT.prototype.setResource = function(resource) { this.resource = resource; };
 
 	/*
 		Tokens
 	*/
-	ENT.prototype.getToken = function() { return this.NumberToken; };
+	ENT.prototype.getToken = function() { return this.numberToken; };
 	ENT.prototype.setToken = function(num) {
-		this.NumberToken = num;
+		this.numberToken = num;
 
 		if(CLIENT && num > 0) {
 			// White circular base
@@ -151,10 +146,87 @@ CATAN.ents.register('HexTile', (function() {
 	ENT.prototype.hasRobber = function() { return this.bHasRobber; };
 	ENT.prototype.setRobber = function(bRobber) { this.bHasRobber = bRobber; };
 
+	/* -----------------------------------------------
+		ENT.setGridIndex( x, y )
+
+		Desc: Sets the hex tile grid index and
+		calculates the appropriate offsets
+	------------------------------------------------*/
+	ENT.prototype.setGridIndex = function(x, y, r, offset) {
+		var w = r *2,
+			h = r * Math.sqrt(3),
+			s = r * 3 /2;
+
+		this.x = x;
+		this.y = y;
+
+		this.mX = (x * s),
+		this.mY = h * (2 * y + (x % 2)) / 2;
+
+		// Corner positions from center of tile
+		this.cornersX = [ -r/2, r/2, r, r/2, -r/2, -r ];
+		this.cornersY = [ -h/2, -h/2, 0, h/2, h/2, 0 ];
+
+		// Edge positions from center of tile
+		this.edgesX = [ 0, r/4 + r/2, r/4 + r/2, 0, -r/4 - r/2, -r/4 - r/2 ];
+		this.edgesY = [ -h/2, -h/4, h/4, h/2, h/4, -h/4 ];
+
+		var rad = 60 * Math.PI/180
+		this.edgesAngle = [ 0, -rad, rad, 0, -rad, rad ];
+
+		this.position = new THREE.Vector3(
+			this.mX - offset.x + s,
+			0,
+			this.mY - offset.z + h/2
+		);
+	}
+
+	/* -----------------------------------------------
+		ENT.getCornerPosition( CORNER_ENUM )
+
+		Desc: Returns the world position for the 
+		requested corner of the tile (See enums.js)
+	------------------------------------------------*/
+	ENT.prototype.getCornerPosition = function(CORNER_ENUM) {
+		var pos = this.getPosition();
+		var corner = new THREE.Vector3(
+			pos.x + this.cornersX[CORNER_ENUM],
+			pos.y,
+			pos.z + this.cornersY[CORNER_ENUM]
+		);
+
+		return corner;
+	}
+
+	/* -----------------------------------------------
+		ENT.getEdgePosition( EDGE_ENUM )
+
+		Desc: Returns the world position for the 
+		requested edge of the tile (See enums.js)
+	------------------------------------------------*/
+	ENT.prototype.getEdgePosAng = function(EDGE_ENUM) {
+		var angle = new THREE.Vector3(
+			0,
+			this.edgesAngle[EDGE_ENUM],
+			0
+		);
+
+		var hexpos = this.getPosition();
+		var position = new THREE.Vector3(
+			hexpos.x + this.edgesX[EDGE_ENUM],
+			hexpos.y,
+			hexpos.z + this.edgesY[EDGE_ENUM]
+		);
+
+		return { pos: position, ang: angle };
+	}
+
 	if(CLIENT) {
 
 		ENT.prototype.setup = function(data) {
 			this._setup(data);
+
+			this.setTileType(data.type);
 
 			if(this.isLand()) {
 				this.setResource(data.resource);
@@ -163,24 +235,10 @@ CATAN.ents.register('HexTile', (function() {
 				this.getMesh().rotation.y = data.yaw;
 			}
 
-			if(this.isSea()) {
-				/*this.dockTo = CATAN.ents.getById(data.dockTo);
-				this.setupDock();
-				CATAN.getBoard().docks.push(this);*/
-
-				var res = CATAN.getSchema().Resources[0];
-
-				this.Mesh = new THREE.Mesh(
-					CATAN.AssetManager.get(res.url),
-					new THREE.MeshLambertMaterial({
-						map: CATAN.AssetManager.get(res.mat)
-					})
-				);
-
-				this.Mesh.position = this.position;
-				this.Mesh.Parent = this;
-
-				CATAN.Game.scene.add( this.Mesh );
+			if(this.isSea() && data.dock) {
+				this.setDock( CATAN.ents.getById(data.dockTo) );
+				this.setupDockMesh();
+				CATAN.getBoard().docks.push(this);
 			}
 		}
 
@@ -200,7 +258,7 @@ CATAN.ents.register('HexTile', (function() {
 			CATAN.Game.scene.add( this.Mesh );
 		}
 
-		ENT.prototype.setupDock = function() {
+		ENT.prototype.setupDockMesh = function() {
 			var res = CATAN.getSchema().Resources[0];
 
 			this.Mesh = new THREE.Mesh(
