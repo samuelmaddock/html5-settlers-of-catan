@@ -215,7 +215,7 @@ CATAN.Board.prototype = {
 		for(var i in this.hexEdges) {
 			var e = this.hexEdges[i]; // get edge
 			
-			// Loop through all other corners
+			// Loop through all other edges
 			for(var j in this.hexEdges) {
 				var e2 = this.hexEdges[j]; // get edge to be compared
 				if(e.getEntId() != e2.getEntId()) { // check for same edge
@@ -223,15 +223,6 @@ CATAN.Board.prototype = {
 					if (distance <= this.hexRadius) { // if the distance is small enough, the edge is adjacent
 						e.AdjacentEdges.push(e2);
 					}
-				}
-			}
-
-			// Loop through all edges
-			for(var j in this.hexEdges) {	
-				var e2 = this.hexEdges[j]; // get edge to be compared
-				var distance = Math.floor( e.position.distanceTo(e2.position) );		
-				if (distance <= this.hexRadius) { // if the distance is small enough, the edge is adjacent
-					e.AdjacentEdges.push(e2);
 				}
 			}		
 		}

@@ -548,9 +548,11 @@ CATAN.Game.prototype = {
 		
 	},
 
-	endGame: function() {
+	endGame: function(ply) {
 		this.setState(STATE_END);
-		// TODO: Send end game stats
+		if(ply !== undefined) {
+			// TODO: Send end game stats
+		}
 		CATAN.Games.shutdown(this);
 	},
 

@@ -35,7 +35,7 @@ CATAN.Notify = function(data) {
 		}
 
 	} else {
-		this.chat.AddLine(data.subtitle);
+		this.chat.AddLine(data.subtitle, "forcechat");
 	}
 
 }
@@ -93,7 +93,7 @@ CATAN.mouseRayTrace = function( event ) {
 
 CATAN.endBuildMode = function() {
 	CATAN.Game.collisionObjects.length = 0;
-	
+
 	var entities = CATAN.ents.getByName(["HexCorner","HexEdge"]);
 	for(var i in entities) {
 		var ent2 = entities[i];

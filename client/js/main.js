@@ -22,6 +22,7 @@ CATAN._init = function() {
 
 	// Request desktop notification permissions
 	document.addEventListener("mousedown", function(event) {
+		if(!window.webkitNotifications) return;
 		if(webkitNotifications.checkPermission() > 0) {
 			webkitNotifications.requestPermission();
 		}

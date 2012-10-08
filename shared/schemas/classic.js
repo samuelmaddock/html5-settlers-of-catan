@@ -49,7 +49,7 @@ GAMEMODE.Resources = [
 	},
 	
 	{
-		name: "Sheep",
+		name: "Wool",
 		url: "models/tile.js",
 		mat: "materials/models/tile/pastures.png",
 		color: 0x55E076
@@ -111,37 +111,38 @@ GAMEMODE.Robber = {
 GAMEMODE.DevCardCost = [ 0, 0, 0, 1, 1, 1 ]
 GAMEMODE.DevCards = [
 	
+	// Year of Plenty
 	{
-		name: "Year of Plenty",
 		url: "materials/cards/yearofplenty.png"
 	},
 	
+	// Road Building
 	{
-		name: "Road Building",
 		url: "materials/cards/roadbuilding.png"
 	},
 	
+	// Monopoly
 	{
-		name: "Monopoly",
 		url: "materials/cards/monopoly.png"
 	},
 	
+	// Knight
 	{
-		name: "Knight",
-		url: "materials/cards/knight.png"
+		url: "materials/cards/knight.png",
+		count: 14
 	}
 	
 ];
 
-GAMEMODE.Special = [
+GAMEMODE.SpecialCards = [
 	
+	// Largest Army
 	{
-		name: "Largest Army",
 		url: "materials/special/largestarmy.png"
 	},
 	
+	// Longest Road
 	{
-		name: "Longest Road",
 		url: "materials/special/longestroad.png"
 	}
 	
@@ -340,6 +341,12 @@ if(SERVER) {
 		return true;
 	}
 
+	GAMEMODE.canPlayerTrade = function(ply, ply2) {
+		if(!ply.isTurn()) {
+			ply.notify("TradeNotTurn");
+		}
+	}
+
 	GAMEMODE.onPlayerRoll = function(ply, d1, d2) {
 		var n = d1 + d2;
 
@@ -361,7 +368,11 @@ if(SERVER) {
 
 	GAMEMODE.onPlayerScore = function(ply) {
 		if (ply.getVictoryPoints() >= 10) {
-			// win game
+			if (ply.isTurn()) {
+				ply.game.endGame(ply);
+			} else {
+				ply.notify("TenVPNotTurn");
+			}
 		}
 	};
 

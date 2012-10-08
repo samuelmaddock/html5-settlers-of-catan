@@ -125,7 +125,8 @@ THREE.CatanControls = function ( object, domElement ) {
 
 		if(CATAN.chat.enabled) return;
 
-		var newRadius = this.radius - event.wheelDeltaY;
+		var delta = event.wheelDelta ? event.wheelDelta : (event.detail*(-40));
+		var newRadius = this.radius - delta;
 		this.radius = THREE.Math.clamp( newRadius, this.minRadius, this.maxRadius );
 		
 	};
@@ -185,6 +186,7 @@ THREE.CatanControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'mousemove', bind( this, this.onMouseMove ), false );
 	this.domElement.addEventListener( 'mouseup', bind( this, this.onMouseUp ), false );
 	this.domElement.addEventListener( 'mousewheel', bind( this, this.onMouseWheel ), false );
+	this.domElement.addEventListener( 'DOMMouseScroll', bind( this, this.onMouseWheel ), false );
 	this.domElement.addEventListener( 'keyup', bind( this, this.onKeyUp ), false );
 
 	function bind( scope, fn ) {

@@ -45,6 +45,8 @@ CATAN.ents.register('BaseEntity', (function() {
 		opacity = (typeof opacity !== 'undefined') ? opacity : 1;
 
 		var mesh = this.getMesh();
+		if(mesh == null) return;
+		
 		mesh.material.opacity = opacity;
 		if(opacity < 1) {
 			mesh.material.transparent = true;
@@ -55,6 +57,8 @@ CATAN.ents.register('BaseEntity', (function() {
 
 	ENT.prototype.hide = function() {
 		var mesh = this.getMesh();
+		if(mesh == null) return;
+
 		mesh.material.opacity = 0;
 		mesh.material.transparent = false;
 
