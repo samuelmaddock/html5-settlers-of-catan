@@ -2,12 +2,12 @@
 require('../shared/catan.js');
 
 // Shared modules
-require("fs").readdirSync("./html5-settlers-of-catan/shared/modules").forEach(function(file) {
+require("fs").readdirSync("shared/modules").forEach(function(file) {
 	require("../shared/modules/" + file);
 });
 
 // Server modules
-require("fs").readdirSync("./html5-settlers-of-catan/server/modules").forEach(function(file) {
+require("fs").readdirSync("server/modules").forEach(function(file) {
 	require("../server/modules/" + file);
 });
 

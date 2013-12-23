@@ -60,7 +60,7 @@ CATAN.ents.register('BaseEntity', (function() {
 		if(mesh == null) return;
 
 		mesh.material.opacity = 0;
-		mesh.material.transparent = false;
+		mesh.material.transparent = true;
 
 		this.bVisible = false;
 	};

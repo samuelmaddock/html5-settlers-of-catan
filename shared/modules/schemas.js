@@ -34,7 +34,7 @@ CATAN.Schemas = (function(CATAN) {
 
 if(SERVER) {
 	// Load schemas
-	require("fs").readdirSync("./html5-settlers-of-catan/shared/schemas").forEach(function(file) {
+	require("fs").readdirSync("shared/schemas").forEach(function(file) {
 		require("../schemas/" + file);
 	});
 }

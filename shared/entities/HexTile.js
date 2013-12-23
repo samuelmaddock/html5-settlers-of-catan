@@ -255,11 +255,14 @@ CATAN.ents.register('HexTile', (function() {
 				return;
 			}
 
+			var mat = CATAN.AssetManager.get(res.url),
+				tex = CATAN.AssetManager.get(res.mat);
+
+			tex.offset.y = 0.14; // adjust uv
+
 			this.Mesh = new THREE.Mesh(
-				CATAN.AssetManager.get(res.url),
-				new THREE.MeshLambertMaterial({
-					map: CATAN.AssetManager.get(res.mat)
-				})
+				mat,
+				new THREE.MeshLambertMaterial({ map: tex })
 			);
 
 			this.Mesh.position = this.position;

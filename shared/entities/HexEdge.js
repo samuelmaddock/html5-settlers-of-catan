@@ -59,7 +59,9 @@ CATAN.ents.register('HexEdge', (function() {
 			);
 			
 			this.Mesh.position = this.position;
-			this.Mesh.rotation = this.angle;
+			this.Mesh.rotation.x = this.angle.x;
+			this.Mesh.rotation.y = this.angle.y;
+			this.Mesh.rotation.z = this.angle.z;
 			this.Mesh.Parent = this;
 
 			CATAN.Game.scene.add( this.Mesh );
